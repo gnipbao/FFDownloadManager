@@ -4,7 +4,7 @@
 
 <p align="center">把下载，交还给你的电脑。一个以 Rust 为核心、支持 macOS 和 Windows 的开源下载管理器。</p>
 
-<p align="center"><a href="https://github.com/gnipbao/FFDownloadManager/releases">下载安装包</a> · <a href="docs/macos-client.zh-CN.md">macOS 说明</a> · <a href="docs/windows-client.zh-CN.md">Windows 说明</a> · <a href="docs/download-engine-comparison.zh-CN.md">引擎调研</a></p>
+<p align="center"><a href="https://ffdownloadmanager.vercel.app">产品官网</a> · <a href="https://github.com/gnipbao/FFDownloadManager/releases">下载安装包</a> · <a href="docs/macos-client.zh-CN.md">macOS 说明</a> · <a href="docs/windows-client.zh-CN.md">Windows 说明</a> · <a href="docs/download-engine-comparison.zh-CN.md">引擎调研</a></p>
 
 ![FFDownload macOS 客户端截图](site/app-screenshot.png)
 
@@ -52,7 +52,7 @@ cargo test --workspace --locked
 cargo clippy --workspace --all-targets --locked -- -D warnings
 ```
 
-GitHub Actions 在 macOS 与 Windows 各自的运行器上构建安装包，标签 `v*` 触发 Release 附件发布。网站是 `site/` 中的纯静态文件，由 [Vercel 配置](vercel.json) 部署。
+GitHub Actions 在 macOS 与 Windows 各自的运行器上构建安装包，标签 `v*` 触发 Release 附件发布。网站是 `site/` 中的纯静态文件，由 [Vercel 配置](vercel.json) 部署；[上传清单](.vercelignore)仅包含网站素材。
 
 目前主要覆盖无需登录的单文件直链和公开视频。不支持浏览器接管、Cookie 登录、播放列表批量下载、直播录制或 HLS 清单分片；流媒体清单不是完整视频文件时会明确拒绝。高清测试结果、下载引擎对比与复现方法见 [视频封装验证](docs/video-parser-integration.zh-CN.md) 和 [测速记录](docs/mvp-benchmark.zh-CN.md)。
 
