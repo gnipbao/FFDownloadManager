@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f8">
+  <title>FFDownload · 本地下载工作台</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="FFDownload 首页">
+        <img src="/favicon.svg" width="36" height="36" alt="">
+        <span>FFDownload<span class="brand-caption">快一点，自由一点。</span></span>
+      </a>
+      <div class="workspace"><span class="workspace-avatar">F</span><div><strong>本地空间</strong><span id="workspace-subtitle">只属于这台电脑</span></div><span class="tiny-badge">WEB</span></div>
+      <div class="nav-label">下载资料库</div>
+      <nav id="navigation" aria-label="下载分类">
+        <button class="nav-item selected" data-filter="all"><span data-icon="grid"></span><span>全部下载</span><b id="count-all">0</b></button>
+        <button class="nav-item" data-filter="active"><span data-icon="download"></span><span>正在下载</span><b id="count-active">0</b></button>
+        <button class="nav-item" data-filter="paused"><span data-icon="pause"></span><span>已暂停</span><b id="count-paused">0</b></button>
+        <button class="nav-item" data-filter="completed"><span data-icon="check-circle"></span><span>已完成</span><b id="count-completed">0</b></button>
+        <button class="nav-item" data-filter="error"><span data-icon="alert"></span><span>需要处理</span><b id="count-error">0</b></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="folder-shortcut" id="sidebar-folder"><span data-icon="folder"></span><span>打开下载文件夹</span><span data-icon="external"></span></button>
+        <div class="sidebar-version"><span>FFDownload</span><span>0.1 · 预览版</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar"><div class="breadcrumb"><span data-icon="home"></span><span>本地空间</span><span class="separator">/</span><strong>下载管理</strong></div><div class="connection-pill" id="connection-pill"><i></i><span>正在连接内核</span></div></div>
+      <div class="page-content">
+        <header class="page-header"><div><div class="eyebrow">YOUR FILES, AT FULL SPEED</div><h1>下载管理<span class="preview-badge">本地工作台</span></h1><p>从链接到本地，让每一次下载都井然有序。</p></div><div class="header-actions"><button id="pause-all" class="button secondary" disabled><span data-icon="pause"></span>全部暂停</button><button class="button primary" data-new><span data-icon="plus"></span>新建下载<kbd id="new-shortcut">⌘ K</kbd></button></div></header>
+
+        <section class="overview" aria-label="实时下载概览">
+          <div class="speed-card"><div class="card-label"><span><span class="live-dot"></span>实时下载速度</span><span class="muted">最近 60 秒</span></div><div class="speed-value"><span id="speed-number">0</span><span id="speed-unit">MB/s</span></div><div class="speed-caption" id="speed-caption">内核就绪后即可开始下载</div><div class="chart-wrap"><svg id="speed-chart" viewBox="0 0 600 84" preserveAspectRatio="none" role="img" aria-label="最近 60 秒实际下载速度曲线"><defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#19b69b" stop-opacity=".18"/><stop offset="100%" stop-color="#19b69b" stop-opacity="0"/></linearGradient></defs><path class="chart-grid" d="M0 20 H600 M0 48 H600 M0 77 H600"/><path id="chart-area" fill="url(#chart-fill)"/><path id="chart-line" d="M0 77 H600" fill="none" stroke="#13a58c" stroke-width="2" vector-effect="non-scaling-stroke"/></svg></div><div class="chart-axis"><span>60 秒前</span><span id="chart-scale">0 MB/s</span><span>现在</span></div></div>
+          <div class="summary-card"><div class="summary-icon blue" data-icon="download"></div><div class="summary-title">进行中的任务</div><div class="summary-value"><span id="stat-active">0</span><span>项</span></div><div class="summary-foot" id="stat-queued">等待新的下载</div></div>
+          <div class="summary-card"><div class="summary-icon green" data-icon="check-circle"></div><div class="summary-title">已经准备就绪</div><div class="summary-value"><span id="stat-completed">0</span><span>项</span></div><div class="summary-foot" id="stat-size">已下载 0 B</div></div>
+        </section>
+
+        <section class="downloads-section" aria-label="下载任务">
+          <div class="list-toolbar"><div class="list-heading"><h2 id="list-title">全部下载</h2><span id="list-count">0</span></div><div class="list-tools"><label class="search-box"><span data-icon="search"></span><input id="search" type="search" placeholder="搜索文件名或来源…" aria-label="搜索下载"></label><select id="sort" aria-label="任务排序"><option value="new">最新添加</option><option value="old">最早添加</option><option value="name">文件名称</option></select></div></div>
+          <div class="table-heading"><span>文件名称</span><span>大小</span><span>状态 / 进度</span><span>速度</span><span>操作</span></div>
+          <div id="task-list" aria-live="off"></div>
+          <div id="empty-state" class="empty-state"><div class="empty-art"><span class="empty-dot one"></span><span class="empty-dot two"></span><div class="empty-sheet"><span data-icon="download"></span><i></i><i></i></div><span class="empty-check" data-icon="spark"></span></div><h3 id="empty-title">暂无下载任务</h3><p id="empty-description">添加下载链接，文件将保存在本机。</p><div class="empty-actions" id="empty-actions"><button class="button primary" data-new><span data-icon="plus"></span>新建下载</button></div></div>
+          <div class="list-footer"><span><span class="small-dot"></span><span id="list-footer-text">文件直接保存到你的电脑</span></span><span>支持 HTTP / HTTPS</span></div>
+        </section>
+        <footer class="page-footer"><span><span data-icon="shield"></span>本地运行 · 无需账号</span><span class="powered">POWERED BY <strong>Rust</strong><i></i>gosh-dl</span></footer>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="new-dialog" class="dialog new-dialog" aria-labelledby="new-title">
+    <form id="new-form">
+      <div class="dialog-header"><div class="dialog-heading-icon" data-icon="download"></div><button type="button" class="icon-button close-dialog" aria-label="关闭新建下载"><span data-icon="x"></span></button></div>
+      <h2 id="new-title">新建下载</h2><p class="dialog-subtitle">文件直链或视频页面链接，文件保存在本机。</p>
+      <label class="field-label" for="download-url">下载链接 <span>*</span></label><textarea id="download-url" rows="3" placeholder="粘贴文件、YouTube 或 B 站视频链接" required spellcheck="false" autocomplete="off"></textarea>
+      <div id="media-source" class="media-source" hidden><span id="media-source-label"></span><button type="button" id="parse-video" class="button secondary">解析视频</button></div>
+      <section id="media-panel" class="media-panel" aria-label="视频解析结果" hidden>
+        <div class="media-eyebrow">视频信息</div><h3 id="media-title"></h3><p id="media-meta"></p>
+        <label class="field-label" for="media-format">下载格式</label><select id="media-format" class="field-input"></select>
+        <p id="media-format-info" class="filename-hint" aria-live="polite"></p>
+      </section>
+      <label class="field-label" for="download-filename">文件名称 <span class="optional">自动识别，可修改</span></label><input id="download-filename" class="field-input" placeholder="粘贴链接后自动识别文件名和后缀" maxlength="180" autocomplete="off" aria-describedby="filename-hint"><p class="filename-hint" id="filename-hint" aria-live="polite">后缀会根据下载文件自动补全。</p>
+      <div class="form-row"><label class="field-group"><span class="field-label">分段连接数</span><select id="download-connections" class="field-input"><option value="1">1 路 · 单连接</option><option value="4" selected>4 路 · 均衡</option><option value="8">8 路 · 高并发</option><option value="16">16 路 · 自定义测试</option></select></label><div class="connection-hint">速度取决于网络和下载源。<br>连接数更多不一定更快。</div></div>
+      <details class="advanced"><summary>内容校验（可选）<span data-icon="chevron-down"></span></summary><label class="field-label" for="download-sha">发布方提供的 SHA-256</label><input id="download-sha" class="field-input mono" placeholder="64 位十六进制摘要" pattern="[a-fA-F0-9]{64}" maxlength="64"></details>
+      <div class="save-location"><span data-icon="folder"></span><div><span>保存到</span><strong id="save-location">正在连接…</strong></div></div>
+      <p id="form-error" class="form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><button type="button" class="button secondary close-dialog">取消</button><button type="submit" class="button primary" id="submit-download"><span data-icon="download"></span>开始下载</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="detail-dialog" class="dialog detail-dialog" aria-labelledby="detail-title"><div class="dialog-header"><span class="eyebrow">FILE DETAILS</span><button class="icon-button close-dialog" aria-label="关闭任务详情"><span data-icon="x"></span></button></div><div id="detail-content"></div><div class="detail-actions" id="detail-actions"></div></dialog>
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

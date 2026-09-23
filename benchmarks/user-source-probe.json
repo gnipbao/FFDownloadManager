@@ -1,0 +1,11 @@
+{
+  "source": "https://yt1s-worker-4.dlsrv.online/tunnel?[redacted]",
+  "probe_utc": "2026-09-21T07:13:50.090025+00:00",
+  "query_exp_if_unix_ms": "2026-09-21T06:36:12.544000+00:00",
+  "exit": 0,
+  "headers": [
+    "HTTP/2 404 ",
+    "content-length: 0"
+  ],
+  "error": ""
+}

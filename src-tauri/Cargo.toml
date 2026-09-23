@@ -1,0 +1,33 @@
+[package]
+name = "ffdownload-desktop"
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.95"
+description = "FFDownload for macOS and Windows"
+publish = false
+
+[[bin]]
+name = "ffdownload-desktop"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+anyhow = "1"
+ffdownload-manager = { path = ".." }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = [] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-clipboard-manager = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "signal", "time", "process"] }
+
+[dev-dependencies]
+tauri = { version = "2", features = ["test"] }
+tempfile = "3"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

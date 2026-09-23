@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-filename"
+description = "Enables the desktop_filename command without any pre-configured scope."
+commands.allow = ["desktop_filename"]
+
+[[permission]]
+identifier = "deny-desktop-filename"
+description = "Denies the desktop_filename command without any pre-configured scope."
+commands.deny = ["desktop_filename"]

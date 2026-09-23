@@ -1,0 +1,17 @@
+/target/
+/.tools/
+/.bench-work/
+*.ffdm.part
+*.ffdm-state/
+.DS_Store
+__pycache__/
+/.ffdm-web/
+/downloads/
+/node_modules/
+/dist/
+/src-tauri/gen/
+/src-tauri/resources/ffmpeg
+/src-tauri/resources/ffmpeg.exe
+/src-tauri/resources/third-party/ffmpeg-*.tar.xz
+/.vercel/
+.env*

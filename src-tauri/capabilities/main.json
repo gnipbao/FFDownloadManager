@@ -1,0 +1,14 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-window",
+  "description": "Only the bundled main window receives desktop event access.",
+  "windows": ["main"],
+  "permissions": [
+    "core:event:default",
+    "allow-desktop-snapshot", "allow-desktop-create", "allow-desktop-filename",
+    "allow-desktop-resolve-media", "allow-desktop-create-media", "allow-desktop-pause",
+    "allow-desktop-resume", "allow-desktop-remove", "allow-desktop-reveal",
+    "allow-desktop-pause-all", "allow-desktop-open-folder", "allow-desktop-copy-link",
+    "allow-desktop-info"
+  ]
+}

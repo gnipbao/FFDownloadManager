@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-copy-link"
+description = "Enables the desktop_copy_link command without any pre-configured scope."
+commands.allow = ["desktop_copy_link"]
+
+[[permission]]
+identifier = "deny-desktop-copy-link"
+description = "Denies the desktop_copy_link command without any pre-configured scope."
+commands.deny = ["desktop_copy_link"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-create"
+description = "Enables the desktop_create command without any pre-configured scope."
+commands.allow = ["desktop_create"]
+
+[[permission]]
+identifier = "deny-desktop-create"
+description = "Denies the desktop_create command without any pre-configured scope."
+commands.deny = ["desktop_create"]

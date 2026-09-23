@@ -1,0 +1,10 @@
+{
+  "bundle": {
+    "resources": { "resources/ffmpeg": "ffmpeg" },
+    "macOS": {
+      "minimumSystemVersion": "13.0",
+      "signingIdentity": "-",
+      "infoPlist": "Info.plist"
+    }
+  }
+}

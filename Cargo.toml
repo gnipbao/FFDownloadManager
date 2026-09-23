@@ -1,0 +1,46 @@
+[package]
+name = "ffdownload-manager"
+version = "0.2.0"
+edition = "2021"
+rust-version = "1.95"
+description = "A Rust HTTP download MVP with reproducible benchmarks"
+publish = false
+
+[workspace]
+members = ["src-tauri"]
+default-members = ["."]
+resolver = "2"
+
+[lib]
+name = "ffdownload"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ffdm"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+async-trait = "0.1"
+bbdown-core = "=0.5.0"
+axum = "0.8"
+bytes = "1"
+clap = { version = "4", features = ["derive"] }
+fs2 = "0.4"
+futures-util = "0.3"
+percent-encoding = "2"
+gosh-dl = { version = "=0.6.3", default-features = false, features = ["http", "storage"] }
+# Explicitly enable H2: gosh-dl disables reqwest's default features.
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream", "http2", "system-proxy"] }
+reqwest_media = { package = "reqwest", version = "0.12", default-features = false, features = ["native-tls", "system-proxy"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tempfile = "3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "time", "net", "fs", "process"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+ytdown = { version = "=0.8.0", default-features = false, features = ["native-tls"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

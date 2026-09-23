@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-resolve-media"
+description = "Enables the desktop_resolve_media command without any pre-configured scope."
+commands.allow = ["desktop_resolve_media"]
+
+[[permission]]
+identifier = "deny-desktop-resolve-media"
+description = "Denies the desktop_resolve_media command without any pre-configured scope."
+commands.deny = ["desktop_resolve_media"]

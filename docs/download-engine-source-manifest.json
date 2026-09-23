@@ -1,0 +1,631 @@
+{
+  "research_date": "2026-09-21",
+  "purpose": "HTTP(S) download engine selection for macOS and 100–1000 Mbps access links",
+  "scope": "Public repository metadata and selected source snapshots; selected execution paths inspected, not a complete audit. No engine was built or benchmarked. GitHub license detection is metadata, not a complete license determination.",
+  "repositories": [
+    {
+      "repository": "AnInsomniacy/aria2-next",
+      "url": "https://github.com/AnInsomniacy/aria2-next",
+      "default_branch": "main",
+      "commit": "08428a3a54baa555da682c9af70d621411448fb1",
+      "commit_time_utc": "2026-09-17T11:46:03Z",
+      "github_detected_license": "GPL-2.0",
+      "archived": false,
+      "retrieved_source_files": [
+        {
+          "path": "COPYING",
+          "bytes": 18092,
+          "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+          "git_blob_sha1": "d159169d1050894d3ea3b98e1c965c4058208fe1",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/COPYING"
+        },
+        {
+          "path": "README.md",
+          "bytes": 14955,
+          "sha256": "874d683abd9390da070dfda4203af30f7b4b813ec5b81482d28790d283b07ac6",
+          "git_blob_sha1": "2ef6ccd2ba65f35d8897fdb167f7a718e3111e29",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/README.md"
+        },
+        {
+          "path": "src/CurlSession.cc",
+          "bytes": 15545,
+          "sha256": "b9e66b555361cfce92ddf90a2a9057298a0d1eb5fad14ed4e04c0c6d48aa5c03",
+          "git_blob_sha1": "fc3c24dce411129141f3e5e61facfa1518a22293",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/src/CurlSession.cc"
+        },
+        {
+          "path": "src/RangePlanner.cc",
+          "bytes": 7219,
+          "sha256": "e7afa930f73d263ce7c23795a1563e57651546940e55352ad1ceaf3cc1057c6e",
+          "git_blob_sha1": "1ec7ae68a201cc91d8b7b0cd95f0a686cbe8f867",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/src/RangePlanner.cc"
+        },
+        {
+          "path": "src/stream/StreamRequest.cc",
+          "bytes": 17002,
+          "sha256": "86aa6b0883f94e79cfd4d9326f2a5b6f80c882dbbed10cbde056e3bdffb27822",
+          "git_blob_sha1": "0259aa933c425619d790fb7f0433d6544d1b0ea1",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/src/stream/StreamRequest.cc"
+        },
+        {
+          "path": "src/stream/StreamScheduling.cc",
+          "bytes": 17160,
+          "sha256": "8845afe89464ea669053356ffb89cfc6e9414746661dba7eee703579316a48f2",
+          "git_blob_sha1": "8544b11763377d5a8a706a563140871da7de1b42",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/src/stream/StreamScheduling.cc"
+        },
+        {
+          "path": "src/stream/StreamStorage.cc",
+          "bytes": 16926,
+          "sha256": "87456c7e63ec548cdf38601d06a31d2b2d99b43d287491f3012835ad413bfc3d",
+          "git_blob_sha1": "fe234a22b86f41f06d4bb7063e1a5cd80b613765",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/src/stream/StreamStorage.cc"
+        },
+        {
+          "path": "src/transport/CurlMulti.cc",
+          "bytes": 8941,
+          "sha256": "325d8fb8062868820524b570f0cd4dfdd61413733175e9ccc0e2f17aba2a53f0",
+          "git_blob_sha1": "5f1d9a7b48d26edfa6ddcdcf6766f4b191cb8532",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/src/transport/CurlMulti.cc"
+        },
+        {
+          "path": "src/transport/CurlOptions.cc",
+          "bytes": 2920,
+          "sha256": "081f69f64b9b5808d118eb216a514062214f54669048be9eca5c9e70b0018832",
+          "git_blob_sha1": "2411b6a422027654e99d54caca585a2e17aba005",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/src/transport/CurlOptions.cc"
+        },
+        {
+          "path": "tests/RangePlannerTest.cc",
+          "bytes": 2024,
+          "sha256": "1bb94b0298c57d7e6e28e33629fbd6b8439af66add6de56cc299697609cffe6f",
+          "git_blob_sha1": "1da54e065633d10392d1181181c7e0a48addfe49",
+          "matches_github_tree": true,
+          "url": "https://github.com/AnInsomniacy/aria2-next/blob/08428a3a54baa555da682c9af70d621411448fb1/tests/RangePlannerTest.cc"
+        }
+      ]
+    },
+    {
+      "repository": "GopeedLab/gopeed",
+      "url": "https://github.com/GopeedLab/gopeed",
+      "default_branch": "main",
+      "commit": "694b43e3f93eedd654c32fa8fcf9ac4ea59a108a",
+      "commit_time_utc": "2026-09-19T00:16:57Z",
+      "github_detected_license": "GPL-3.0",
+      "archived": false,
+      "retrieved_source_files": [
+        {
+          "path": "LICENSE",
+          "bytes": 35149,
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+          "git_blob_sha1": "f288702d2fa16d3cdf0035b15a9fcbc552cd88e7",
+          "matches_github_tree": true,
+          "url": "https://github.com/GopeedLab/gopeed/blob/694b43e3f93eedd654c32fa8fcf9ac4ea59a108a/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "bytes": 9195,
+          "sha256": "3edf7e9aee26c48be9417b6fad41e1a038f43119d2ae29e96eebe5518a7c93fc",
+          "git_blob_sha1": "a8a5ce1766817b0c3511305d490fb68006244da7",
+          "matches_github_tree": true,
+          "url": "https://github.com/GopeedLab/gopeed/blob/694b43e3f93eedd654c32fa8fcf9ac4ea59a108a/README.md"
+        },
+        {
+          "path": "internal/httpclient/client.go",
+          "bytes": 8923,
+          "sha256": "b5141f4bb2fc9d2c0a99de13fcbd83ad69b2c88e2711e07353db04d84e96d02d",
+          "git_blob_sha1": "5283eb890123b902fb483d1519da31906e4ce122",
+          "matches_github_tree": true,
+          "url": "https://github.com/GopeedLab/gopeed/blob/694b43e3f93eedd654c32fa8fcf9ac4ea59a108a/internal/httpclient/client.go"
+        },
+        {
+          "path": "internal/protocol/http/config.go",
+          "bytes": 387,
+          "sha256": "84d8fc1d4991c416f87d4f0855c0307b9c31ba4fc14e19f7fda0ca889efeda9a",
+          "git_blob_sha1": "7a09e59afca075fc29cd57f7d286670da1f3e45f",
+          "matches_github_tree": true,
+          "url": "https://github.com/GopeedLab/gopeed/blob/694b43e3f93eedd654c32fa8fcf9ac4ea59a108a/internal/protocol/http/config.go"
+        },
+        {
+          "path": "internal/protocol/http/fetcher.go",
+          "bytes": 70126,
+          "sha256": "1e382770ec40f9f060b8c1895cc928c0b31d4da347b4d4e9b4b3a371d686dbf1",
+          "git_blob_sha1": "89804ce3325eda747cd4cf8554a3566628b3a260",
+          "matches_github_tree": true,
+          "url": "https://github.com/GopeedLab/gopeed/blob/694b43e3f93eedd654c32fa8fcf9ac4ea59a108a/internal/protocol/http/fetcher.go"
+        },
+        {
+          "path": "internal/protocol/http/fetcher_test.go",
+          "bytes": 106235,
+          "sha256": "e1977512851f757dcd114da3b79861089e69339b8e1fa900f6f16dce8b33d87f",
+          "git_blob_sha1": "16d8403ce6632ed84fe1013a9227bf043720813c",
+          "matches_github_tree": true,
+          "url": "https://github.com/GopeedLab/gopeed/blob/694b43e3f93eedd654c32fa8fcf9ac4ea59a108a/internal/protocol/http/fetcher_test.go"
+        }
+      ]
+    },
+    {
+      "repository": "aria2/aria2",
+      "url": "https://github.com/aria2/aria2",
+      "default_branch": "master",
+      "commit": "9e7273583f83e881e3ec067b523ba88724088d2f",
+      "commit_time_utc": "2026-06-25T14:49:27Z",
+      "github_detected_license": "GPL-2.0",
+      "archived": false,
+      "retrieved_source_files": [
+        {
+          "path": "COPYING",
+          "bytes": 18092,
+          "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+          "git_blob_sha1": "d159169d1050894d3ea3b98e1c965c4058208fe1",
+          "matches_github_tree": true,
+          "url": "https://github.com/aria2/aria2/blob/9e7273583f83e881e3ec067b523ba88724088d2f/COPYING"
+        },
+        {
+          "path": "README.rst",
+          "bytes": 22434,
+          "sha256": "dbc1894fbff5eec165b0e2970597b358343bf9bfc0ff302c7ed044f42a6a6486",
+          "git_blob_sha1": "75559047dabff9cc609760551d49b342de504cd6",
+          "matches_github_tree": true,
+          "url": "https://github.com/aria2/aria2/blob/9e7273583f83e881e3ec067b523ba88724088d2f/README.rst"
+        },
+        {
+          "path": "src/AbstractDiskWriter.cc",
+          "bytes": 16979,
+          "sha256": "5349b91c67a61d77252aca8016abdfc69cbf3e32193ac24730b14bc806a7318d",
+          "git_blob_sha1": "0568bfae5ba3fc852948b6ec3f3d03ef669f8fc0",
+          "matches_github_tree": true,
+          "url": "https://github.com/aria2/aria2/blob/9e7273583f83e881e3ec067b523ba88724088d2f/src/AbstractDiskWriter.cc"
+        },
+        {
+          "path": "src/DefaultPieceStorage.cc",
+          "bytes": 26211,
+          "sha256": "d5a331cfe4fb61073cd0ac8a681cc52b572e3cc99d810bc0f6d9ef9e26699c15",
+          "git_blob_sha1": "e08b1b1855c9b70706bd2d10d50524b145fe7c0e",
+          "matches_github_tree": true,
+          "url": "https://github.com/aria2/aria2/blob/9e7273583f83e881e3ec067b523ba88724088d2f/src/DefaultPieceStorage.cc"
+        },
+        {
+          "path": "src/HttpRequest.cc",
+          "bytes": 12450,
+          "sha256": "260590e86f3d32fdced667469a4412195646ffe454b5824ef78bca1516f85447",
+          "git_blob_sha1": "b5fb4f863d7bb70347cc101300749ad4d91325c2",
+          "matches_github_tree": true,
+          "url": "https://github.com/aria2/aria2/blob/9e7273583f83e881e3ec067b523ba88724088d2f/src/HttpRequest.cc"
+        },
+        {
+          "path": "src/SegmentMan.cc",
+          "bytes": 15213,
+          "sha256": "8fb3db820614c8cbafff16cf118842368b5b691e19c01e49bb7cdd7146739d8b",
+          "git_blob_sha1": "1e7acf93ae5590dd9389668eed57fbeb200da7e6",
+          "matches_github_tree": true,
+          "url": "https://github.com/aria2/aria2/blob/9e7273583f83e881e3ec067b523ba88724088d2f/src/SegmentMan.cc"
+        }
+      ]
+    },
+    {
+      "repository": "davimf721/KGet",
+      "url": "https://github.com/davimf721/KGet",
+      "default_branch": "main",
+      "commit": "59c9f84351a22ed35dc1dea94866f39071a19c1c",
+      "commit_time_utc": "2026-05-25T16:54:05Z",
+      "github_detected_license": "MIT",
+      "archived": false,
+      "retrieved_source_files": [
+        {
+          "path": "Cargo.toml",
+          "bytes": 2586,
+          "sha256": "684fca899f14cd7dae480ac7a83881fff0a08d3af510d061871a2f349bb123b8",
+          "git_blob_sha1": "b3368e98e01f52e2fc2f453b2a7edca9f2ffe644",
+          "matches_github_tree": true,
+          "url": "https://github.com/davimf721/KGet/blob/59c9f84351a22ed35dc1dea94866f39071a19c1c/Cargo.toml"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1077,
+          "sha256": "184e92ecaa8dde7486ac30ffcc849629f436e52c35513b3455132e4a48dd9afb",
+          "git_blob_sha1": "c7481848e85cf456b2320469f98b63207686d28d",
+          "matches_github_tree": true,
+          "url": "https://github.com/davimf721/KGet/blob/59c9f84351a22ed35dc1dea94866f39071a19c1c/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "bytes": 12225,
+          "sha256": "fb5c8c86d07615aea811f61e3ef0e8d6a0418f98c523c4bd5864363d67f017b7",
+          "git_blob_sha1": "300f982435738b42b68822c3fb4e3c2a058bc182",
+          "matches_github_tree": true,
+          "url": "https://github.com/davimf721/KGet/blob/59c9f84351a22ed35dc1dea94866f39071a19c1c/README.md"
+        },
+        {
+          "path": "src/advanced_download.rs",
+          "bytes": 34689,
+          "sha256": "1bcad91c58a931cec1479797f55c7605a4343617204837e2a32ebf71ac1c78a0",
+          "git_blob_sha1": "8693089d4f504ed361c892ecfb07c8d63bbf0c29",
+          "matches_github_tree": true,
+          "url": "https://github.com/davimf721/KGet/blob/59c9f84351a22ed35dc1dea94866f39071a19c1c/src/advanced_download.rs"
+        },
+        {
+          "path": "src/download.rs",
+          "bytes": 18310,
+          "sha256": "9120236528fbbbc1fd875cccdbc56ef933f0905d47b9e30d47f188970a4e2fe0",
+          "git_blob_sha1": "4dabdabf9203d86bc32d16c0d13549ba1269c0e6",
+          "matches_github_tree": true,
+          "url": "https://github.com/davimf721/KGet/blob/59c9f84351a22ed35dc1dea94866f39071a19c1c/src/download.rs"
+        },
+        {
+          "path": "src/optimization.rs",
+          "bytes": 8244,
+          "sha256": "2ce26de83c4de27faabdb8a57784a429e9e506cd4d43c320500dcfd53de80309",
+          "git_blob_sha1": "28bdba5b1b68b60f2151778eadf58214b6684487",
+          "matches_github_tree": true,
+          "url": "https://github.com/davimf721/KGet/blob/59c9f84351a22ed35dc1dea94866f39071a19c1c/src/optimization.rs"
+        },
+        {
+          "path": "tests/mock_server_tests.rs",
+          "bytes": 19935,
+          "sha256": "e442a4935103836d6253b1d5e24e01981ed13a0b4deaa948b5d4a1be4e99b27c",
+          "git_blob_sha1": "60d3bf92d04484f41838e7692d9b95135c987d7e",
+          "matches_github_tree": true,
+          "url": "https://github.com/davimf721/KGet/blob/59c9f84351a22ed35dc1dea94866f39071a19c1c/tests/mock_server_tests.rs"
+        }
+      ]
+    },
+    {
+      "repository": "gkpln3/dl",
+      "url": "https://github.com/gkpln3/dl",
+      "default_branch": "main",
+      "commit": "dfbb4e1784a39240706e0cbb42de7a14aae03c6d",
+      "commit_time_utc": "2026-05-31T14:59:59Z",
+      "github_detected_license": "MIT",
+      "archived": false,
+      "retrieved_source_files": [
+        {
+          "path": "Cargo.toml",
+          "bytes": 688,
+          "sha256": "c59b69d52b892cf6cbb98d2f4afce05e6c7ea5eeb6933040ed947dfa2b109776",
+          "git_blob_sha1": "5b6820f130a582388e2ab9a6260ba2ab934c7b5b",
+          "matches_github_tree": true,
+          "url": "https://github.com/gkpln3/dl/blob/dfbb4e1784a39240706e0cbb42de7a14aae03c6d/Cargo.toml"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1063,
+          "sha256": "c1c124f561aa58f72f7fcc8d3e16ef3023a77d4929c35670432f8a530f9caba7",
+          "git_blob_sha1": "a8f977dbb858ad3cdcd0d322ec6c46fac4a309a1",
+          "matches_github_tree": true,
+          "url": "https://github.com/gkpln3/dl/blob/dfbb4e1784a39240706e0cbb42de7a14aae03c6d/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "bytes": 8527,
+          "sha256": "158e2cb6c9d84ef360e9e0515303baa1871eb3ce668e40836fd67580af7d5d92",
+          "git_blob_sha1": "495c0a011146f12343b11f4fa7dfcd8d4092f5f7",
+          "matches_github_tree": true,
+          "url": "https://github.com/gkpln3/dl/blob/dfbb4e1784a39240706e0cbb42de7a14aae03c6d/README.md"
+        },
+        {
+          "path": "benchmark.py",
+          "bytes": 19369,
+          "sha256": "1e4cf8494a46ec4784d49854fffcd84bb23299d12b46beb9cd4dc477e9b72146",
+          "git_blob_sha1": "2bb96bd001da3c4840ea1508b607605601cf2ee9",
+          "matches_github_tree": true,
+          "url": "https://github.com/gkpln3/dl/blob/dfbb4e1784a39240706e0cbb42de7a14aae03c6d/benchmark.py"
+        },
+        {
+          "path": "libdl/Cargo.toml",
+          "bytes": 639,
+          "sha256": "5724753053b5b8099e897872cce92bc853de92d55cf4356ac95d6e43a00fd099",
+          "git_blob_sha1": "759220c80da18b42404e63a5f5c86df96e5f10e1",
+          "matches_github_tree": true,
+          "url": "https://github.com/gkpln3/dl/blob/dfbb4e1784a39240706e0cbb42de7a14aae03c6d/libdl/Cargo.toml"
+        },
+        {
+          "path": "libdl/src/http/mod.rs",
+          "bytes": 62612,
+          "sha256": "b9dfb76988b5904516e3a5a79e9b11ea74643277fe6f2404699c222608602663",
+          "git_blob_sha1": "27bda7cc59cc765c4d50f98e50c38f3d9c802ce9",
+          "matches_github_tree": true,
+          "url": "https://github.com/gkpln3/dl/blob/dfbb4e1784a39240706e0cbb42de7a14aae03c6d/libdl/src/http/mod.rs"
+        },
+        {
+          "path": "libdl/src/lib.rs",
+          "bytes": 1349,
+          "sha256": "2abe048b72c9baabfab782d866643ec2a9b8f58ed7c57174727e880fd7c4e881",
+          "git_blob_sha1": "af053f00678d2727bf0730a949552557d1bf7f94",
+          "matches_github_tree": true,
+          "url": "https://github.com/gkpln3/dl/blob/dfbb4e1784a39240706e0cbb42de7a14aae03c6d/libdl/src/lib.rs"
+        },
+        {
+          "path": "libdl/src/state.rs",
+          "bytes": 4673,
+          "sha256": "898a030eb253801bfb54c00496209fc9bc6b6a958e88cf6e912ba818767a8271",
+          "git_blob_sha1": "9639587a779f144cce38a9673c9c70da1e4ea5f6",
+          "matches_github_tree": true,
+          "url": "https://github.com/gkpln3/dl/blob/dfbb4e1784a39240706e0cbb42de7a14aae03c6d/libdl/src/state.rs"
+        }
+      ]
+    },
+    {
+      "repository": "goshitsarch-eng/gosh-dl",
+      "url": "https://github.com/goshitsarch-eng/gosh-dl",
+      "default_branch": "main",
+      "commit": "d1545fff36d3c1817716d790019c791bf54f74a7",
+      "commit_time_utc": "2026-09-05T03:13:18Z",
+      "github_detected_license": "MIT",
+      "archived": false,
+      "retrieved_source_files": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "bytes": 2451,
+          "sha256": "52394dc2940bfdc51dbd10db888b5f5ae8f7f2c863d0770e250db2f868cabe87",
+          "git_blob_sha1": "167255a7d4655df585eb0cdacbb5619950e24325",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/.github/workflows/ci.yml"
+        },
+        {
+          "path": "Cargo.toml",
+          "bytes": 3460,
+          "sha256": "9c4fc1d7e999888ed02db236b91d0d772ec01b085ea298a022ceb4d8fedab461",
+          "git_blob_sha1": "eff26a9ef4981e6f4ff0080f97c25a5dd3fd47f0",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/Cargo.toml"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1072,
+          "sha256": "b3dc6dd0a7675cbc400d11336a81fa5a233cfee7a07d5f03207acf123ae2c47a",
+          "git_blob_sha1": "18d3431ab9c02b7f8b1af78e322b6c67804152fe",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "bytes": 28396,
+          "sha256": "4095836f5b82b47fc8df294df87e8d22f3299276afec1ae740630b964558adc7",
+          "git_blob_sha1": "36d42d203813f6a08ef80550aac8b4b295278ca2",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/README.md"
+        },
+        {
+          "path": "src/config.rs",
+          "bytes": 18194,
+          "sha256": "73fbed6b9c8f3194135744f42c8cfb6facc9b06159ffa476cab0a800f2b69bf8",
+          "git_blob_sha1": "bc0374e6f80c36cc97c30c99433718e5f0ebb4d9",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/src/config.rs"
+        },
+        {
+          "path": "src/http/connection.rs",
+          "bytes": 12802,
+          "sha256": "d640fb3be464026b182ccebe76f836490cd0a517d9e2db03130e142d63bcd65b",
+          "git_blob_sha1": "da7fd1cf03d2437170a422b1f0c4ff5a1d2d5d80",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/src/http/connection.rs"
+        },
+        {
+          "path": "src/http/mod.rs",
+          "bytes": 45590,
+          "sha256": "31278d3ecf3800870ef8f0a5b2a527276ab40ef83e08f6233df8d966f4f55166",
+          "git_blob_sha1": "2daf554d4b5d0a4cc30c8341ca6fba9c404249c1",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/src/http/mod.rs"
+        },
+        {
+          "path": "src/http/resume.rs",
+          "bytes": 15349,
+          "sha256": "236d00dd1edb8ad74f5c940541b4a116678c741863d9048c4fe41576cbee2183",
+          "git_blob_sha1": "bf326760ad278989069d37df13e8a168fe23782b",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/src/http/resume.rs"
+        },
+        {
+          "path": "src/http/segment.rs",
+          "bytes": 45045,
+          "sha256": "0b05eba8bed70ea22964c3e014df3f2359d29ec6a7d0f31a2f3e33c7492135a9",
+          "git_blob_sha1": "313db02b1d5f8db9a3d918c81e3c121c7593db6a",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/src/http/segment.rs"
+        },
+        {
+          "path": "src/storage/sqlite.rs",
+          "bytes": 53700,
+          "sha256": "c056fc31826fecaecbbff120570bbfe16e2cfd8ed7208538cbad853c9263419b",
+          "git_blob_sha1": "e458af7318b5b8016a42f7757519d447af1ae789",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/src/storage/sqlite.rs"
+        },
+        {
+          "path": "tests/integration_tests.rs",
+          "bytes": 142832,
+          "sha256": "f8bf394e81e65c41d1299b7d6b4798d0be629c0364cd7a107ea783aee977bf28",
+          "git_blob_sha1": "bf495f2954ccf4063da00ebb7b33591b17adebb0",
+          "matches_github_tree": true,
+          "url": "https://github.com/goshitsarch-eng/gosh-dl/blob/d1545fff36d3c1817716d790019c791bf54f74a7/tests/integration_tests.rs"
+        }
+      ]
+    },
+    {
+      "repository": "greykaizen/tur-rs",
+      "url": "https://github.com/greykaizen/tur-rs",
+      "default_branch": "main",
+      "commit": "b759d19e1a102133a0f209bc8c565251bbe78257",
+      "commit_time_utc": "2026-06-13T18:40:19Z",
+      "github_detected_license": "NOASSERTION",
+      "archived": false,
+      "retrieved_source_files": [
+        {
+          "path": "Cargo.toml",
+          "bytes": 2698,
+          "sha256": "a2cbca61b776394ce67b480024bd0a455cd3eee86bef937a740b93e1d2657913",
+          "git_blob_sha1": "25347042e7d9073898d781963323a18571797c2c",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/Cargo.toml"
+        },
+        {
+          "path": "README.md",
+          "bytes": 5881,
+          "sha256": "79882fb80e83be5d5c1ab8b2529ba2b59e870fab5e0eb2f4873c3152e2c7927f",
+          "git_blob_sha1": "e135b2750204a466e75e9088b0ac6d136ba3e602",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/README.md"
+        },
+        {
+          "path": "scripts/benchmark_compare.sh",
+          "bytes": 27229,
+          "sha256": "aa10dd32127ab57899239ddd6a5a354069cfe8608ae78ef17466a53573b77d86",
+          "git_blob_sha1": "f389961d1e05e103b427358b2ded063dfed7e83f",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/scripts/benchmark_compare.sh"
+        },
+        {
+          "path": "src/engine/coordinator/borrowing.rs",
+          "bytes": 7468,
+          "sha256": "11675e4b01ec6b7ea231a2a67062b2755dab1bd952a176048b991e03f2ed7585",
+          "git_blob_sha1": "0eca980c6e94a9350055c13783436fe95aaec9f9",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/engine/coordinator/borrowing.rs"
+        },
+        {
+          "path": "src/engine/coordinator.rs",
+          "bytes": 17333,
+          "sha256": "aeadcc981e1045ee293413650b484d2cc6ff82758be78651855bb806458dbaa6",
+          "git_blob_sha1": "177f398a5d6bfcc5d3acfea04096aaeedcdfed63",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/engine/coordinator.rs"
+        },
+        {
+          "path": "src/engine/http.rs",
+          "bytes": 14781,
+          "sha256": "2dfc8619122c5c111315a7c8b00cbfa4eb1e8de9f16f45010f785fdbf92e521c",
+          "git_blob_sha1": "7d11b2fbefe79b9c406010a7af5144f6b41f48ee",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/engine/http.rs"
+        },
+        {
+          "path": "src/engine/origin_memory.rs",
+          "bytes": 13509,
+          "sha256": "909917c4c61445ae9d768d62c66ed8897e36d640cd9a0112c2c7e34153703592",
+          "git_blob_sha1": "9162f9baf2f94c0a5f29d3e97a24c02a121e2b6d",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/engine/origin_memory.rs"
+        },
+        {
+          "path": "src/engine/persistence.rs",
+          "bytes": 1320,
+          "sha256": "6fb9a19e0874288507824e69f148d4fdd42abcde3db5c770664ee70117a0b84a",
+          "git_blob_sha1": "865ef44301cf6940a3ae36791d75fb724ee0b4a3",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/engine/persistence.rs"
+        },
+        {
+          "path": "src/engine/runtime/loop_impl.rs",
+          "bytes": 18583,
+          "sha256": "83e01e599754861e7e65db47498780ef83d2bdf84ec39ddffec9e244e67bf804",
+          "git_blob_sha1": "3ebf96525d57f66bff0b83f670e0a8677f18f003",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/engine/runtime/loop_impl.rs"
+        },
+        {
+          "path": "src/engine/scaler.rs",
+          "bytes": 4243,
+          "sha256": "09382b037c3feef6b1107ea0da304fccfa07f516657fca15667ec44486f6c592",
+          "git_blob_sha1": "ce0bc4bd0b4dd1badd6bfad9fc436769855c83d8",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/engine/scaler.rs"
+        },
+        {
+          "path": "src/engine/worker.rs",
+          "bytes": 41940,
+          "sha256": "7987f81120bbd87d89091430fe3986e33720caabb62d18e83b2ee4514cc77e48",
+          "git_blob_sha1": "8defee8672cb13cbd7dfcbc49d50715960bfa032",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/engine/worker.rs"
+        },
+        {
+          "path": "src/service.rs",
+          "bytes": 30276,
+          "sha256": "eb4f57d79a5b6c85207bcf5f37868faa501ad23cdeea425c32d0697fe71a490b",
+          "git_blob_sha1": "edd045888f6acbcef5d997e661c2bf5fc82c4d3c",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/service.rs"
+        },
+        {
+          "path": "src/storage/macos.rs",
+          "bytes": 1579,
+          "sha256": "b6ad9ab9d8325ef2ce8279a938f8ca33d2c11686a97d5658b92119de70256086",
+          "git_blob_sha1": "80885eb19e0a55cc7e07c21eb1d4be8a6322ffee",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/storage/macos.rs"
+        },
+        {
+          "path": "src/storage.rs",
+          "bytes": 8434,
+          "sha256": "ec30bfcfe36ec12ba10a28625cc518d4a27d12329a6ac69667e66f33315f8ff2",
+          "git_blob_sha1": "a6a09ba6e08a1c210905f36044dffc6a057cd32a",
+          "matches_github_tree": true,
+          "url": "https://github.com/greykaizen/tur-rs/blob/b759d19e1a102133a0f209bc8c565251bbe78257/src/storage.rs"
+        }
+      ]
+    },
+    {
+      "repository": "rgreinho/trauma",
+      "url": "https://github.com/rgreinho/trauma",
+      "default_branch": "main",
+      "commit": "0ce76ed08e99e9ad70799315d92e9746aa882061",
+      "commit_time_utc": "2026-09-06T01:44:07Z",
+      "github_detected_license": "MIT",
+      "archived": false,
+      "retrieved_source_files": [
+        {
+          "path": "Cargo.toml",
+          "bytes": 1138,
+          "sha256": "a74df39eb610fa8bf430b69e9ef31a5f7c9dff2274f174b29c3a124e58a861b1",
+          "git_blob_sha1": "40f6185952fa104eb62c98bd722e01a2524c5458",
+          "matches_github_tree": true,
+          "url": "https://github.com/rgreinho/trauma/blob/0ce76ed08e99e9ad70799315d92e9746aa882061/Cargo.toml"
+        },
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "d20311c00957699ad899da4e38c9c8cf33cff6d11fad97a49af1a4575050cf4c",
+          "git_blob_sha1": "1c6fc410272cf5ed44ecac6920a12cea008dda43",
+          "matches_github_tree": true,
+          "url": "https://github.com/rgreinho/trauma/blob/0ce76ed08e99e9ad70799315d92e9746aa882061/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "bytes": 3368,
+          "sha256": "8ce531e3c5f334e5b117c52793906ae8df094cad97e982d523fa0545ad8f95e2",
+          "git_blob_sha1": "32c5ba54da46f0b6c99051382b9ffb8f98966f55",
+          "matches_github_tree": true,
+          "url": "https://github.com/rgreinho/trauma/blob/0ce76ed08e99e9ad70799315d92e9746aa882061/README.md"
+        },
+        {
+          "path": "src/download.rs",
+          "bytes": 6947,
+          "sha256": "919d74642f3a0393dde656fb47050c94e1e7724c8b800f6b0755066973823806",
+          "git_blob_sha1": "4558f2aa3ff7fe4ae23b2ffd8281a5dff29d7eb7",
+          "matches_github_tree": true,
+          "url": "https://github.com/rgreinho/trauma/blob/0ce76ed08e99e9ad70799315d92e9746aa882061/src/download.rs"
+        },
+        {
+          "path": "src/downloader.rs",
+          "bytes": 16733,
+          "sha256": "1702e68c4cf259c0038bab7e539d709360357af181741f28bf7946121ab12874",
+          "git_blob_sha1": "a80c21bde54ee066a8299b49d9ee4cae9e612fbc",
+          "matches_github_tree": true,
+          "url": "https://github.com/rgreinho/trauma/blob/0ce76ed08e99e9ad70799315d92e9746aa882061/src/downloader.rs"
+        }
+      ]
+    }
+  ]
+}

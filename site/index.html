@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#092c29">
+  <meta name="description" content="FFDownload 是支持 macOS 和 Windows 的开源下载管理器。Rust 下载核心、分段下载、暂停续传，以及 YouTube 和 B 站公开视频解析。">
+  <title>FFDownload — 把下载，交还给你的电脑</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css?v=0.2.0">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar wrap">
+      <a class="brand" href="/" aria-label="FFDownload 首页"><img src="/logo.svg" width="42" height="42" alt=""><span>FFDownload</span></a>
+      <nav aria-label="主导航"><a href="#features">功能</a><a href="#download">下载</a><a href="https://github.com/gnipbao/FFDownloadManager" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav>
+    </header>
+    <main>
+      <section class="hero wrap">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="status-dot"></span> OPEN SOURCE · RUST CORE · YOUR COMPUTER</div>
+          <h1>把下载，<br><em>交还给你的电脑。</em></h1>
+          <p class="lead">大文件多连接下载、暂停续传、高清视频格式选择。一个本地运行、界面清爽的下载管理器。</p>
+          <div class="hero-actions"><a class="button primary" href="https://github.com/gnipbao/FFDownloadManager/releases">获取 FFDownload <span aria-hidden="true">↗</span></a><a class="button ghost" href="https://github.com/gnipbao/FFDownloadManager" target="_blank" rel="noopener noreferrer">查看源代码 <span aria-hidden="true">→</span></a></div>
+          <div class="hero-note"><span>macOS · Apple Silicon</span><i></i><span>Windows · x64</span><i></i><span>免费开源</span></div>
+        </div>
+        <div class="hero-visual" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="mark-plate"><img src="/logo.svg" alt=""></div><div class="floating-label label-a"><span>↘</span> 断点续传</div><div class="floating-label label-b"><span>◉</span> Rust 下载核心</div></div>
+      </section>
+
+      <section class="product wrap" aria-labelledby="product-title">
+        <div class="section-intro"><div><p class="kicker">THE PRODUCT</p><h2 id="product-title">下载进度，一眼掌握。</h2></div><p>从添加链接到完成保存，任务状态清晰可见。<br>截图来自实际运行的 macOS 客户端。</p></div>
+        <div class="screen-frame"><div class="screen-bar"><div class="traffic"><b></b><b></b><b></b></div><span>FFDownload / 下载管理</span><span class="screen-chip">本地运行</span></div><img src="/app-screenshot.png" alt="FFDownload macOS 客户端，显示下载分类、速度图表与下载任务" width="1168" height="778" loading="eager"></div>
+      </section>
+
+      <section class="features wrap" id="features" aria-labelledby="features-title">
+        <div class="section-intro"><div><p class="kicker">BUILT FOR REAL DOWNLOADS</p><h2 id="features-title">少一点等待，<br>多一点掌控。</h2></div><p>核心下载流程由 Rust 运行。文件和任务记录保留在你的电脑上。</p></div>
+        <div class="feature-grid">
+          <article class="feature"><div class="feature-icon"><span>↗</span></div><div class="feature-num">01 / TRANSFER</div><h3>为大文件而设计</h3><p>按需选择 1–16 路连接，支持 HTTP/HTTPS。下载源不支持分段时自动回退单连接。</p></article>
+          <article class="feature"><div class="feature-icon"><span>↻</span></div><div class="feature-num">02 / RESUME</div><h3>随时暂停，接着下载</h3><p>任务进度与分段状态保存在本机。退出后重新打开，继续未完成的文件。</p></article>
+          <article class="feature"><div class="feature-icon"><span>▤</span></div><div class="feature-num">03 / MEDIA</div><h3>选清晰度，再保存</h3><p>解析 YouTube 与 B 站公开视频。分离的音视频使用内置组件合并，无需额外安装工具。</p></article>
+        </div>
+      </section>
+
+      <section class="download wrap" id="download" aria-labelledby="download-title"><div><p class="kicker">READY WHEN YOU ARE</p><h2 id="download-title">下载，从这里开始。</h2><p>选择适合你电脑的版本。安装包与源代码都在 GitHub Releases。</p></div><div class="platforms"><a href="https://github.com/gnipbao/FFDownloadManager/releases" class="platform"><span class="platform-symbol" aria-hidden="true">⌘</span><span><strong>macOS</strong><small>Apple Silicon · macOS 13+</small></span><span aria-hidden="true">↗</span></a><a href="https://github.com/gnipbao/FFDownloadManager/releases" class="platform"><span class="platform-symbol windows" aria-hidden="true">▦</span><span><strong>Windows</strong><small>x64 · Windows 10 / 11</small></span><span aria-hidden="true">↗</span></a></div></section>
+    </main>
+    <footer class="footer wrap"><div class="footer-brand"><img src="/logo.svg" alt="" width="30" height="30"><span>FFDownload</span></div><span>Rust 核心 · MIT 开源</span><a href="https://github.com/gnipbao/FFDownloadManager" target="_blank" rel="noopener noreferrer">GitHub ↗</a></footer>
+  </div>
+</body>
+</html>

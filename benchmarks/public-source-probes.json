@@ -1,0 +1,38 @@
+[
+  {
+    "source": "https://fsn1-speed.hetzner.com/100MB.bin",
+    "exit": 0,
+    "metadata": {
+      "status": 206,
+      "protocol": "HTTP/1.1",
+      "method": "GET bytes=0-0",
+      "content_length": 104857600,
+      "accept_ranges": null
+    },
+    "error": null
+  },
+  {
+    "source": "https://static.rust-lang.org/dist/rustc-1.98.1-aarch64-apple-darwin.tar.xz",
+    "exit": 0,
+    "metadata": {
+      "status": 200,
+      "protocol": "HTTP/2.0",
+      "method": "HEAD",
+      "content_length": 48951152,
+      "accept_ranges": "bytes"
+    },
+    "error": null
+  },
+  {
+    "source": "https://speed.cloudflare.com/__down?bytes=16777216",
+    "exit": 0,
+    "metadata": {
+      "status": 403,
+      "protocol": "HTTP/1.1",
+      "method": "GET bytes=0-0",
+      "content_length": 1,
+      "accept_ranges": null
+    },
+    "error": null
+  }
+]

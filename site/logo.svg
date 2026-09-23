@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">FFDownload</title>
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#086B5E"/>
+      <stop offset="1" stop-color="#063D39"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#E7FFBD"/>
+      <stop offset="1" stop-color="#9BEFAF"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="124" height="124" rx="30" fill="url(#ground)"/>
+  <path d="M30 31h64L84 48H51l-5 16h31L67 81H40l-7 20H15L30 31Z" fill="url(#bolt)"/>
+  <path d="M91 62h18L79 102H57l21-26H65l10-14h16Z" fill="#FFFFFF"/>
+  <path d="M23 116h82" stroke="#7BE2BD" stroke-opacity=".34" stroke-width="2" stroke-linecap="round"/>
+</svg>

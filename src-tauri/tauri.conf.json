@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FFDownload",
+  "version": "0.2.0",
+  "identifier": "com.ffdownload.manager",
+  "build": {
+    "frontendDist": "../web"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "create": false,
+        "title": "FFDownload",
+        "width": 1280,
+        "height": 840,
+        "minWidth": 900,
+        "minHeight": 640,
+        "center": true,
+        "backgroundColor": "#f9fafb",
+        "dragDropEnabled": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["app"],
+    "category": "public.app-category.utilities",
+    "shortDescription": "本地高速下载与高清视频下载",
+    "longDescription": "基于 Rust 的本地下载管理器，支持分段下载、暂停续传、YouTube 与 B 站视频解析。",
+    "icon": ["icons/icon.icns", "icons/icon.ico", "icons/icon.png"],
+    "resources": {
+      "resources/third-party/": "third-party/"
+    },
+    "windows": { "nsis": { "languages": ["English", "SimpChinese"] } }
+  }
+}

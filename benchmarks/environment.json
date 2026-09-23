@@ -1,0 +1,17 @@
+{
+  "os": "26.6.2",
+  "architecture": "arm64",
+  "rustc": "1.98.1 (48a229cea 2026-09-01)",
+  "build": "release; thin LTO; codegen-units=1",
+  "gosh_dl": "0.6.3",
+  "reqwest": "0.13.5",
+  "local_samples": 24,
+  "local_file_bytes": 67108864,
+  "hash_verified_samples": 24,
+  "local_file_sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd",
+  "local_benchmark_binary_bytes": 11369392,
+  "current_cli_binary_bytes": 11386320,
+  "current_cli_sha256": "764eea7541cddf95357cab7d507f90f99591d5bdc5c2b12639cd1dabae76b03f",
+  "cargo_lock_sha256": "cc854de1466337b76a459c0b2d5053a4c5ed538113c6c71cccd1362636d70b7f",
+  "public_completed_samples": 3
+}

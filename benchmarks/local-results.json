@@ -1,0 +1,466 @@
+{
+  "schema": 1,
+  "unix_time": 1789975050,
+  "platform": "macos-aarch64",
+  "file_bytes": 67108864,
+  "rounds": 3,
+  "scope": "HTTP/1.1 loopback, Rust fixture server on the same machine; warm OS cache; not WAN, TLS, or a Neat comparison. Timings include sync and SHA-256. Pacing limits each response, not the physical link.",
+  "samples": [
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "rust_stream",
+      "round": 1,
+      "server_range_requests": 0,
+      "report": {
+        "engine": "reqwest 0.13.5 single stream / 1 MiB buffer (Rust)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.082038125,
+        "finalize_seconds": 0.202041416,
+        "total_seconds": 0.284079708,
+        "average_mbps": 1889.8601233425654,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_1",
+      "round": 1,
+      "server_range_requests": 1,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.100686625,
+        "finalize_seconds": 0.187600875,
+        "total_seconds": 0.29609025,
+        "average_mbps": 1813.200238778548,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_4",
+      "round": 1,
+      "server_range_requests": 4,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 4,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.067933709,
+        "finalize_seconds": 0.178762083,
+        "total_seconds": 0.253278958,
+        "average_mbps": 2119.6822516934076,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_8",
+      "round": 1,
+      "server_range_requests": 8,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 8,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.105348,
+        "finalize_seconds": 0.231557208,
+        "total_seconds": 0.343529,
+        "average_mbps": 1562.8110348762405,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_1",
+      "round": 2,
+      "server_range_requests": 1,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.056873417,
+        "finalize_seconds": 0.188398583,
+        "total_seconds": 0.255389709,
+        "average_mbps": 2102.163450916497,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_4",
+      "round": 2,
+      "server_range_requests": 4,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 4,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.074732875,
+        "finalize_seconds": 0.188861416,
+        "total_seconds": 0.270998667,
+        "average_mbps": 1981.083220604919,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_8",
+      "round": 2,
+      "server_range_requests": 8,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 8,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.062376708,
+        "finalize_seconds": 0.184222625,
+        "total_seconds": 0.254562084,
+        "average_mbps": 2108.9979448785466,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "rust_stream",
+      "round": 2,
+      "server_range_requests": 0,
+      "report": {
+        "engine": "reqwest 0.13.5 single stream / 1 MiB buffer (Rust)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.021940417,
+        "finalize_seconds": 0.207369958,
+        "total_seconds": 0.229310584,
+        "average_mbps": 2341.2391291978042,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_4",
+      "round": 3,
+      "server_range_requests": 4,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 4,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.080558667,
+        "finalize_seconds": 0.187190917,
+        "total_seconds": 0.27622925,
+        "average_mbps": 1943.5701034557346,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_8",
+      "round": 3,
+      "server_range_requests": 8,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 8,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.059244417,
+        "finalize_seconds": 0.188236791,
+        "total_seconds": 0.254660583,
+        "average_mbps": 2108.1822152272384,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "rust_stream",
+      "round": 3,
+      "server_range_requests": 0,
+      "report": {
+        "engine": "reqwest 0.13.5 single stream / 1 MiB buffer (Rust)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.021386209,
+        "finalize_seconds": 0.240194125,
+        "total_seconds": 0.261580417,
+        "average_mbps": 2052.412478568684,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "loopback_uncapped",
+      "implementation": "gosh_1",
+      "round": 3,
+      "server_range_requests": 1,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.051495875,
+        "finalize_seconds": 0.193069959,
+        "total_seconds": 0.253883583,
+        "average_mbps": 2114.6342179990424,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "rust_stream",
+      "round": 1,
+      "server_range_requests": 0,
+      "report": {
+        "engine": "reqwest 0.13.5 single stream / 1 MiB buffer (Rust)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 5.371008916,
+        "finalize_seconds": 0.204127875,
+        "total_seconds": 5.575136875,
+        "average_mbps": 96.2973509058466,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_1",
+      "round": 1,
+      "server_range_requests": 1,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 5.384124708,
+        "finalize_seconds": 0.193005042,
+        "total_seconds": 5.584484833,
+        "average_mbps": 96.13615723826607,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_4",
+      "round": 1,
+      "server_range_requests": 4,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 4,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 1.396910167,
+        "finalize_seconds": 0.187585125,
+        "total_seconds": 1.589975333,
+        "average_mbps": 337.6599000356945,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_8",
+      "round": 1,
+      "server_range_requests": 8,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 8,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.758297083,
+        "finalize_seconds": 0.198644208,
+        "total_seconds": 0.96414825,
+        "average_mbps": 556.834399689052,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_1",
+      "round": 2,
+      "server_range_requests": 1,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 5.386336333,
+        "finalize_seconds": 0.191553625,
+        "total_seconds": 5.593463,
+        "average_mbps": 95.981847381488,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_4",
+      "round": 2,
+      "server_range_requests": 4,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 4,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 1.38039525,
+        "finalize_seconds": 0.178950625,
+        "total_seconds": 1.565616334,
+        "average_mbps": 342.9134586430548,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_8",
+      "round": 2,
+      "server_range_requests": 8,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 8,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.716650625,
+        "finalize_seconds": 0.19341275,
+        "total_seconds": 0.917873084,
+        "average_mbps": 584.9075665890209,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "rust_stream",
+      "round": 2,
+      "server_range_requests": 0,
+      "report": {
+        "engine": "reqwest 0.13.5 single stream / 1 MiB buffer (Rust)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 5.3751785420000004,
+        "finalize_seconds": 0.203232041,
+        "total_seconds": 5.578410792,
+        "average_mbps": 96.24083489332244,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_4",
+      "round": 3,
+      "server_range_requests": 4,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 4,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 1.3826651669999999,
+        "finalize_seconds": 0.187534208,
+        "total_seconds": 1.577535708,
+        "average_mbps": 340.32251015138354,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_8",
+      "round": 3,
+      "server_range_requests": 8,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 8,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 0.718734667,
+        "finalize_seconds": 0.187617292,
+        "total_seconds": 0.914733958,
+        "average_mbps": 586.9148152910269,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "rust_stream",
+      "round": 3,
+      "server_range_requests": 0,
+      "report": {
+        "engine": "reqwest 0.13.5 single stream / 1 MiB buffer (Rust)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 5.371773667,
+        "finalize_seconds": 0.209204834,
+        "total_seconds": 5.580978583,
+        "average_mbps": 96.19655478258623,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    },
+    {
+      "scenario": "per_response_100mbps",
+      "implementation": "gosh_1",
+      "round": 3,
+      "server_range_requests": 1,
+      "report": {
+        "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+        "outcome": "completed",
+        "output": "<temporary benchmark output>",
+        "connections": 1,
+        "bytes": 67108864,
+        "starting_progress_bytes": 0,
+        "transfer_seconds": 5.385529875,
+        "finalize_seconds": 0.214981625,
+        "total_seconds": 5.6073084170000005,
+        "average_mbps": 95.74485155343649,
+        "sha256": "a0e6fe14c4464e95b598a510d0a98d615133bd239f85938a62f31c1610bd54fd"
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "started_utc": "2026-09-21T07:26:55.685499+00:00",
+  "source": "https://static.rust-lang.org/dist/rustc-1.98.1-aarch64-apple-darwin.tar.xz",
+  "scope": "Public HTTPS/HTTP sample, sequential runs with rotated order. No physical bandwidth measurement and no Neat comparison. Hashes verify consistency between completed runs, not publisher authenticity.",
+  "rounds": 1,
+  "samples": [
+    {
+      "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+      "outcome": "completed",
+      "output": "<temporary benchmark output>",
+      "connections": 1,
+      "bytes": 48951152,
+      "starting_progress_bytes": 0,
+      "transfer_seconds": 27.995677041,
+      "finalize_seconds": 0.137649042,
+      "total_seconds": 28.142260542,
+      "average_mbps": 13.915343275837973,
+      "sha256": "738e3f60114b20550fcf4f8a57c9cea0544239f214709f45594ff3fde327f577",
+      "round": 1,
+      "requested_connections": 1,
+      "process_wall_seconds": 28.15413558401633
+    },
+    {
+      "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+      "outcome": "completed",
+      "output": "<temporary benchmark output>",
+      "connections": 4,
+      "bytes": 48951152,
+      "starting_progress_bytes": 0,
+      "transfer_seconds": 42.168534375,
+      "finalize_seconds": 0.136189291,
+      "total_seconds": 42.312772,
+      "average_mbps": 9.255106614144777,
+      "sha256": "738e3f60114b20550fcf4f8a57c9cea0544239f214709f45594ff3fde327f577",
+      "round": 1,
+      "requested_connections": 4,
+      "process_wall_seconds": 42.319449292030185
+    },
+    {
+      "engine": "gosh-dl 0.6.3 (Rust HTTP/storage)",
+      "outcome": "completed",
+      "output": "<temporary benchmark output>",
+      "connections": 8,
+      "bytes": 48951152,
+      "starting_progress_bytes": 0,
+      "transfer_seconds": 42.554370167,
+      "finalize_seconds": 0.141118334,
+      "total_seconds": 42.702784083,
+      "average_mbps": 9.17057808780903,
+      "sha256": "738e3f60114b20550fcf4f8a57c9cea0544239f214709f45594ff3fde327f577",
+      "round": 1,
+      "requested_connections": 8,
+      "process_wall_seconds": 42.711199834011495
+    }
+  ],
+  "probe": {
+    "status": 200,
+    "protocol": "HTTP/2.0",
+    "method": "HEAD",
+    "content_length": 48951152,
+    "accept_ranges": "bytes"
+  },
+  "file_bytes": 48951152,
+  "reference_sha256": "738e3f60114b20550fcf4f8a57c9cea0544239f214709f45594ff3fde327f577",
+  "summary": [
+    {
+      "requested_connections": 1,
+      "completed_samples": 1,
+      "median_seconds": 28.142260542,
+      "median_mbps": 13.915343275837973
+    },
+    {
+      "requested_connections": 4,
+      "completed_samples": 1,
+      "median_seconds": 42.312772,
+      "median_mbps": 9.255106614144777
+    },
+    {
+      "requested_connections": 8,
+      "completed_samples": 1,
+      "median_seconds": 42.702784083,
+      "median_mbps": 9.17057808780903
+    }
+  ]
+}

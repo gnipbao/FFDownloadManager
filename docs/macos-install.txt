@@ -1,0 +1,24 @@
+FFDownload 0.2.0 · macOS 预览版
+
+本次构建：Apple Silicon（M 系列芯片），系统最低设置为 macOS 13。
+
+安装：将 FFDownload.app 拖入 Applications（应用程序），然后双击打开。
+也可以直接打开本次本地构建的 FFDownload.app 试用。
+
+下载位置：~/Downloads/FFDownload
+任务与续传记录：~/Library/Application Support/com.ffdownload.manager
+
+粘贴文件直链可直接下载；粘贴 YouTube / B 站视频页面后，先解析并选择清晰度。
+应用自带音视频合并组件，无需安装 Rust、Node、Python 或 Homebrew。
+
+关闭窗口：任务继续在后台运行，点 Dock 图标可重新打开窗口。
+退出应用（⌘Q）：先保存下载进度；下次打开后点继续下载。
+新建下载：⌘N 或 ⌘K。
+文件菜单支持打开下载文件夹、暂停所有下载。
+
+Web 预览版与桌面版使用各自的下载目录和任务记录。
+本次没有自动迁移或删除 Web 版的文件。
+
+这是本地临时签名的试用构建，尚未用 Apple Developer ID 签名及公证。
+分发到另一台 Mac 后可能触发 Gatekeeper 提示；该版本不承诺免提示安装。
+没有自动更新、登录 Cookie、直播录制或浏览器接管功能。

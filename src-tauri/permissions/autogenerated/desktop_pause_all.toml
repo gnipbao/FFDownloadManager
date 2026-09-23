@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-pause-all"
+description = "Enables the desktop_pause_all command without any pre-configured scope."
+commands.allow = ["desktop_pause_all"]
+
+[[permission]]
+identifier = "deny-desktop-pause-all"
+description = "Denies the desktop_pause_all command without any pre-configured scope."
+commands.deny = ["desktop_pause_all"]
