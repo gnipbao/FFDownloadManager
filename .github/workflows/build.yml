@@ -25,6 +25,8 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - run: npm ci
+      - name: Prepare bundled FFmpeg for desktop tests
+        run: sh scripts/build-ffmpeg-macos.sh
       - run: cargo fmt --all -- --check
       - run: cargo test --workspace --locked
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
@@ -71,7 +73,7 @@ jobs:
           & src-tauri/resources/ffmpeg.exe -hide_banner -loglevel error -i tests/fixtures/sample-av.mp4 -map 0:v:0 -map 0:a:0 -c copy -y "$env:RUNNER_TEMP\ffdownload-remux.mp4"
           if ($LASTEXITCODE -ne 0) { throw 'Bundled FFmpeg could not remux H.264/AAC' }
           if ((Get-Item "$env:RUNNER_TEMP\ffdownload-remux.mp4").Length -lt 1000) { throw 'Remux output is unexpectedly small' }
-      - run: cargo test -p ffdownload-manager --locked
+      - run: cargo test --workspace --locked
       - name: Build NSIS installer
         shell: pwsh
         run: pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows.ps1
