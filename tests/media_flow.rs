@@ -54,6 +54,7 @@ async fn media_headers_and_partial_data_survive_pause_and_resume() {
             url: server.url.clone(),
             headers,
             size: Some(data.len() as u64),
+            decrypt_key: None,
         }],
         Assembly::Direct,
     );
@@ -149,6 +150,7 @@ async fn completed_tracks_survive_failed_assembly_and_merge_into_playable_video(
             url: server.url.clone(),
             headers: vec![],
             size: Some(size),
+            decrypt_key: None,
         });
         servers.push(server);
     }

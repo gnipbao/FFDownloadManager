@@ -1,6 +1,6 @@
 # 视频解析封装与验证
 
-日期：2026-09-21。运行环境：Apple Silicon macOS、Rust 1.98.1、FFmpeg 7.0.2。
+初次验证：2026-09-21；国内平台增量验证：2026-09-23。运行环境：Apple Silicon macOS、Rust 1.98.1。
 
 ## 实现
 
@@ -55,11 +55,27 @@ YouTube 从 Web UI 完成解析与任务创建，B 站从本地 API 完成任务
 ## 当前范围
 
 - 已实测的是上述两个公开样本，不能保证平台所有链接可下载。TikTok、Instagram、X、Reddit 接入了 ytdown 路由，真实平台测试待补。
-- 不自动读取浏览器 Cookie；没有登录或付费内容支持。清晰度以平台当前公开返回结果为准。
+- 不自动读取浏览器 Cookie。小红书和视频号允许用户在新建窗口临时填写平台 Cookie，只用于本次解析；不支持付费内容。清晰度以平台当前返回结果为准。
 - 支持完整独立的 DASH 音视频轨道；不下载 HLS / DASH 清单的分片流，也不录制直播。
 - 不批量处理播放列表、频道或合集。B 站使用 `Selection::Current` 选当前分 P；指定分 P 和 b23 短链保留库的解析能力，本轮未专门验证。
 - CDN 地址可能早于缓存或任务生命周期过期；遇到拒绝或失效时提示重新解析创建任务，保留已有数据。当前不会自动更新签名地址、验证新旧内容并衔接旧分段。
 - 缺少 FFmpeg 时，只有无需合并的格式可以创建任务。恢复期间若 FFmpeg 不可用，下载好的轨道保留，安装并重启后可以重试。
+
+## 抖音、小红书、视频号增量（2026-09-23）
+
+`src/chinese_video.rs` 为三个平台提供纯 Rust 解析适配器，结果仍进入同一个媒体计划和 `gosh-dl` 下载队列。抖音优先查询移动端 Feed 的准确作品 ID，返回多档 MP4，分享页 SSR 作为回退。小红书同时识别 `xhslink.com`、`xhslink.cn` 短链和完整笔记链接，读取移动分享页的初始数据；若站点要求登录，可临时填写小红书网页 Cookie。竖屏分辨率按短边展示，例如 720×1280 显示为 720p。
+
+视频号普通 `weixin.qq.com/sph/...` 分享链接需要用户自己的元宝登录 Cookie，先获取含 `token`、`eid` 的播放页，再请求视频号作品详情；已有播放页链接可跳过元宝。若返回 `decodeKey`，`src/wechat_crypto.rs` 在本地用 Rust 解密前 128 KiB，校验 MP4 文件头后才发布成品。原始分段数据保持不变，失败时可检查或重试。Cookie 不写入任务或解析缓存，不会发送给媒体 CDN。所实现的数据通道参考 [抖音解析实现说明](https://github.com/ucmao/media-parser/blob/main/docs/parsers/douyin.md)、[小红书公开视频提取说明](https://github.com/Backtthefuture/video-transcript/blob/main/FALLBACK.md) 和 [视频号开源实现](https://github.com/oliver-zch/wx-video-channel-download)；ISAAC64 算法按其 [MIT 许可 Go 实现](https://github.com/oliver-zch/wx-video-channel-download/blob/main/pkg/decrypt/decrypt.go)移植。
+
+| 公开样本 | 实际解析 | 本地下载并经 ffprobe 检查 |
+| --- | --- | --- |
+| [抖音 `7683055498556023653`](https://www.douyin.com/video/7683055498556023653) | 7 档，包含 H.264 与 HEVC；最高显示 720p | 2,449,067 字节 MP4；720×1280 H.264 + AAC；12.300 秒；SHA-256 `69880e840dde03daf83291af8c0e08126ed6191f9882cd7deb9f2b798d9feba7` |
+| [小红书短链](https://xhslink.cn/o/5cK7n3LRjpK) | 720p H.264 / HEVC 两档，无 Cookie | 3,660,686 字节 MP4；720×1280 H.264 + AAC；30.059 秒；SHA-256 `88a675e439855ba3f6a077c1996fbdd0aa22570f085f960a6ae0845948035050` |
+| 用户提供的小红书公开视频 | 720p H.264 / HEVC 两档，无 Cookie | 1,607,131 字节 MP4；720×1568 H.264 + AAC；7.477 秒 |
+
+三条样本都通过独立本地 Web API 完成解析、创建任务、下载和校验；抖音与用户小红书样本另下载 HEVC 档，均为带 AAC 音轨的有效 MP4。文件留在隔离的 `/tmp/ffdm-chinese-video-test-files/`。这验证了下载链路，不代表每条公开视频都可访问。
+
+用户提供的抖音精选搜索页可提取 `modal_id`，但两个移动 Feed 节点未返回此作品，移动分享页也没有视频数据，官方网页详情接口对匿名请求返回 403。本版会明确报错，不会将 Feed 中无关推荐视频当成目标。用户提供的视频号样本会跳到只包含页面外壳的播放页；没有元宝登录 Cookie 无法取得 `token`、`eid`。视频号目前仅完成 JSON 结构和本地解密单元测试；缺少有效登录态与真实加密样本，尚未完成端到端验证。普通分享链接无 Cookie 时会明确提示，不会发布未经解密的密文文件。
 
 ## 高清 403 根因与修复
 

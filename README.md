@@ -12,7 +12,7 @@
 
 - **大文件下载**：HTTP/HTTPS、1–16 路连接、任务队列、实时速度与进度；服务器不支持 Range 时回退单连接。
 - **暂停与续传**：保存分段状态，退出后重新打开可继续；下载完成前使用临时文件，避免把半成品当作最终文件。
-- **视频解析**：使用 Rust 的 `ytdown` 与 `bbdown-core` 解析公开的 YouTube、B 站视频，选择格式和清晰度；分离的音视频由内置 FFmpeg 无转码合并。macOS 上已验证 1080p 和 1440p 样本。
+- **视频解析**：使用 Rust 适配器解析 YouTube、B 站、抖音、小红书公开单视频，选择格式和清晰度；分离的音视频由内置 FFmpeg 无转码合并。视频号普通分享链接可通过一次性元宝 Cookie 解析，需自行验证可访问权限。YouTube、B 站、抖音、小红书已有实际下载样本。
 - **本地管理**：下载文件和任务记录保存在本机，无需账号；可搜索、筛选并在系统文件管理器中定位文件。
 
 界面由 Tauri 和系统 WebView 承载，下载任务直接调用 Rust 服务；项目还保留命令行和本地 Web 工作台。下载核心使用 `gosh-dl`、Tokio、reqwest。这里的“Rust 核心”指下载流程与视频编排；SQLite、TLS 等依赖包含其自身的原生实现。
@@ -54,7 +54,7 @@ cargo clippy --workspace --all-targets --locked -- -D warnings
 
 GitHub Actions 在 macOS 与 Windows 各自的运行器上构建安装包，标签 `v*` 触发 Release 附件发布。网站是 `site/` 中的纯静态文件，由 [Vercel 配置](vercel.json) 部署；[上传清单](.vercelignore)仅包含网站素材。
 
-目前主要覆盖无需登录的单文件直链和公开视频。不支持浏览器接管、Cookie 登录、播放列表批量下载、直播录制或 HLS 清单分片；流媒体清单不是完整视频文件时会明确拒绝。高清测试结果、下载引擎对比与复现方法见 [视频封装验证](docs/video-parser-integration.zh-CN.md) 和 [测速记录](docs/mvp-benchmark.zh-CN.md)。
+目前主要覆盖单文件直链和公开视频。小红书遇到登录页时可手动提供本次解析所需的网页 Cookie；视频号普通分享链接需要元宝登录 Cookie。Cookie 只在本次解析请求中使用，不写入任务记录。视频号真实作品的下载与解密尚待样本验证。不支持浏览器接管、播放列表批量下载、直播录制或 HLS 清单分片；流媒体清单不是完整视频文件时会明确拒绝。高清测试结果、下载引擎对比与复现方法见 [视频封装验证](docs/video-parser-integration.zh-CN.md) 和 [测速记录](docs/mvp-benchmark.zh-CN.md)。
 
 ## 许可证
 

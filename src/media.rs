@@ -15,6 +15,8 @@ pub struct MediaStream {
     pub url: String,
     pub headers: Vec<(String, String)>,
     pub size: Option<u64>,
+    #[serde(default)]
+    pub decrypt_key: Option<u64>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -82,6 +84,11 @@ impl MediaPlan {
                 "此格式是流媒体清单，当前版本只下载完整媒体文件"
             );
             crate::download::validate_headers(&stream.headers)?;
+            ensure!(
+                stream.decrypt_key.is_none()
+                    || (self.platform == "WeChat Channels" && self.assembly == Assembly::Direct),
+                "加密媒体只能使用视频号单文件格式"
+            );
         }
         Ok(())
     }
@@ -126,6 +133,7 @@ pub struct MediaResolver {
     other_platforms: Ytdown,
     probe: crate::youtube::MediaProbe,
     bilibili: BiliClient,
+    chinese: crate::chinese_video::ChineseResolver,
     cache: Mutex<HashMap<String, Cached>>,
     slots: Semaphore,
     pub ffmpeg: Option<PathBuf>,
@@ -151,6 +159,7 @@ impl MediaResolver {
             bilibili: BiliClient::new(
                 ClientConfig::default().with_request_timeout(Duration::from_secs(15)),
             ),
+            chinese: crate::chinese_video::ChineseResolver::new()?,
             cache: Mutex::new(HashMap::new()),
             slots: Semaphore::new(2),
             ffmpeg,
@@ -158,14 +167,37 @@ impl MediaResolver {
     }
 
     pub async fn resolve(&self, raw: &str) -> Result<MediaPreview> {
+        self.resolve_with_cookie(raw, None).await
+    }
+
+    pub async fn resolve_with_cookie(
+        &self,
+        raw: &str,
+        platform_cookie: Option<&str>,
+    ) -> Result<MediaPreview> {
         let url = crate::filename::parse_url(raw)?;
-        let platform = platform(url.as_str()).context("暂不支持这个视频平台，请使用 YouTube、B 站、TikTok、Instagram、X 或 Reddit 的单个视频链接")?;
+        let platform = platform(url.as_str()).context(
+            "暂不支持这个视频平台，请使用 YouTube、B 站、抖音、小红书、视频号等单个视频链接",
+        )?;
         let _permit = self
             .slots
             .try_acquire()
             .context("已有两个视频正在解析，请稍后再试")?;
         let work = async {
-            if platform == "Bilibili" {
+            if matches!(platform, "Douyin" | "Xiaohongshu" | "WeChat Channels") {
+                let video = self
+                    .chinese
+                    .resolve(&url, platform, platform_cookie)
+                    .await
+                    .map_err(|error| {
+                        anyhow::anyhow!(
+                            "{}解析失败：{}",
+                            platform,
+                            safe_error(&format!("{error:#}"))
+                        )
+                    })?;
+                normalize_native(url.as_str(), platform, video)
+            } else if platform == "Bilibili" {
                 let plan = self
                     .bilibili
                     .plan_playback(url.as_str(), Some(Selection::Current))
@@ -327,6 +359,14 @@ pub fn platform(raw: &str) -> Option<&'static str> {
         Some("Bilibili")
     } else if matches("youtube.com") || matches("youtu.be") || matches("youtube-nocookie.com") {
         Some("YouTube")
+    } else if matches("douyin.com") || matches("iesdouyin.com") {
+        Some("Douyin")
+    } else if matches("xiaohongshu.com") || matches("xhslink.com") || matches("xhslink.cn") {
+        Some("Xiaohongshu")
+    } else if matches("weixin.qq.com") && url.path().starts_with("/sph/")
+        || matches("channels.weixin.qq.com") && url.path().starts_with("/finder-preview/pages/")
+    {
+        Some("WeChat Channels")
     } else if matches("tiktok.com") {
         Some("TikTok")
     } else if matches("instagram.com") {
@@ -386,6 +426,7 @@ fn yt_stream(format: &Format) -> MediaStream {
         url: format.url.clone(),
         headers: format.http_headers.clone(),
         size: format.filesize,
+        decrypt_key: None,
     }
 }
 
@@ -505,6 +546,46 @@ fn normalize_ytdown(
     })
 }
 
+fn normalize_native(
+    url: &str,
+    site: &str,
+    video: crate::chinese_video::NativeVideo,
+) -> Result<Resolved> {
+    let mut plans = Vec::new();
+    for variant in video.variants {
+        let media_url = crate::filename::parse_url(&variant.url)?;
+        if is_manifest(&media_url, None) {
+            continue;
+        }
+        plans.push((
+            variant.height,
+            false,
+            MediaPlan {
+                source_url: url.into(),
+                source_id: video.id.clone(),
+                platform: site.into(),
+                title: video.title.clone(),
+                format_id: variant.id,
+                label: variant.label,
+                extension: "mp4".into(),
+                assembly: Assembly::Direct,
+                streams: vec![MediaStream {
+                    url: variant.url,
+                    headers: variant.headers,
+                    size: variant.size,
+                    decrypt_key: variant.decrypt_key,
+                }],
+                extracted_at: crate::service::now_ms(),
+            },
+        ));
+    }
+    Ok(Resolved {
+        title: video.title,
+        duration: video.duration_seconds,
+        plans,
+    })
+}
+
 fn bili_stream(spec: &MediaRequestSpec) -> MediaStream {
     MediaStream {
         url: spec.url.clone(),
@@ -514,6 +595,7 @@ fn bili_stream(spec: &MediaRequestSpec) -> MediaStream {
             .map(|h| (h.name.clone(), h.value.clone()))
             .collect(),
         size: spec.size,
+        decrypt_key: None,
     }
 }
 
@@ -777,6 +859,15 @@ mod tests {
     fn routing_names_and_headers_reject_unsafe_inputs() {
         assert_eq!(platform("https://youtu.be/abcdefghijk"), Some("YouTube"));
         assert_eq!(platform("https://b23.tv/abc"), Some("Bilibili"));
+        assert_eq!(platform("https://v.douyin.com/example"), Some("Douyin"));
+        assert_eq!(
+            platform("https://xhslink.cn/o/example"),
+            Some("Xiaohongshu")
+        );
+        assert_eq!(
+            platform("https://weixin.qq.com/sph/example"),
+            Some("WeChat Channels")
+        );
         assert_eq!(
             platform("https://youtube.com.evil.example/watch?v=abc"),
             None

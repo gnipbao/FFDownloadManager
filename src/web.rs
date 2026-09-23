@@ -223,9 +223,21 @@ async fn filename(
 }
 async fn resolve_media(
     State(state): State<WebState>,
-    Json(request): Json<FilenameRequest>,
+    Json(request): Json<MediaResolveRequest>,
 ) -> ApiResult<crate::media::MediaPreview> {
-    Ok(Json(state.service.resolve_media(&request.url).await?))
+    Ok(Json(
+        state
+            .service
+            .resolve_media_with_cookie(&request.url, request.cookie.as_deref())
+            .await?,
+    ))
+}
+
+#[derive(Deserialize)]
+struct MediaResolveRequest {
+    url: String,
+    #[serde(default)]
+    cookie: Option<String>,
 }
 async fn create_media(
     State(state): State<WebState>,

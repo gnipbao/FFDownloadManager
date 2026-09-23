@@ -264,6 +264,7 @@ impl HttpClient for CheckedTransport {
                         url: url.into(),
                         headers: vec![],
                         size,
+                        decrypt_key: None,
                     };
                     self.probe.check(&media).await.is_ok().then_some(format)
                 }))
@@ -486,6 +487,7 @@ mod tests {
             url: format!("{base}/cdn/range-only"),
             headers: vec![],
             size: Some(16),
+            decrypt_key: None,
         };
         assert!(probe
             .check(&media)

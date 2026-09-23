@@ -58,8 +58,9 @@
     <form id="new-form">
       <div class="dialog-header"><div class="dialog-heading-icon" data-icon="download"></div><button type="button" class="icon-button close-dialog" aria-label="关闭新建下载"><span data-icon="x"></span></button></div>
       <h2 id="new-title">新建下载</h2><p class="dialog-subtitle">文件直链或视频页面链接，文件保存在本机。</p>
-      <label class="field-label" for="download-url">下载链接 <span>*</span></label><textarea id="download-url" rows="3" placeholder="粘贴文件、YouTube 或 B 站视频链接" required spellcheck="false" autocomplete="off"></textarea>
+      <label class="field-label" for="download-url">下载链接 <span>*</span></label><textarea id="download-url" rows="3" placeholder="粘贴文件或视频分享链接" required spellcheck="false" autocomplete="off"></textarea>
       <div id="media-source" class="media-source" hidden><span id="media-source-label"></span><button type="button" id="parse-video" class="button secondary">解析视频</button></div>
+      <div id="platform-auth" hidden><label class="field-label" for="platform-cookie" id="platform-cookie-label">网页 Cookie</label><input id="platform-cookie" class="field-input" type="password" placeholder="仅用于本次解析，不保存" autocomplete="off" spellcheck="false"><p class="filename-hint" id="platform-cookie-hint"></p></div>
       <section id="media-panel" class="media-panel" aria-label="视频解析结果" hidden>
         <div class="media-eyebrow">视频信息</div><h3 id="media-title"></h3><p id="media-meta"></p>
         <label class="field-label" for="media-format">下载格式</label><select id="media-format" class="field-input"></select>

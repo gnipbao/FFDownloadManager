@@ -1,4 +1,4 @@
-FFDownload 0.2.0 · macOS 预览版
+FFDownload 0.3.0 · macOS 预览版
 
 本次构建：Apple Silicon（M 系列芯片），系统最低设置为 macOS 13。
 
@@ -8,7 +8,8 @@ FFDownload 0.2.0 · macOS 预览版
 下载位置：~/Downloads/FFDownload
 任务与续传记录：~/Library/Application Support/com.ffdownload.manager
 
-粘贴文件直链可直接下载；粘贴 YouTube / B 站视频页面后，先解析并选择清晰度。
+粘贴文件直链可直接下载；粘贴 YouTube、B 站、抖音、小红书视频链接后，先解析并选择清晰度。
+视频号普通分享链接需要一次性填写元宝登录 Cookie；解析与解密仍属实验支持。
 应用自带音视频合并组件，无需安装 Rust、Node、Python 或 Homebrew。
 
 关闭窗口：任务继续在后台运行，点 Dock 图标可重新打开窗口。
@@ -21,4 +22,4 @@ Web 预览版与桌面版使用各自的下载目录和任务记录。
 
 这是本地临时签名的试用构建，尚未用 Apple Developer ID 签名及公证。
 分发到另一台 Mac 后可能触发 Gatekeeper 提示；该版本不承诺免提示安装。
-没有自动更新、登录 Cookie、直播录制或浏览器接管功能。
+没有自动更新、自动读取浏览器 Cookie、直播录制或浏览器接管功能。

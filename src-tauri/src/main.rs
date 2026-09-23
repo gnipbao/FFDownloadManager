@@ -48,8 +48,16 @@ async fn desktop_filename(state: State<'_, DesktopState>, url: String) -> Reply<
 }
 
 #[tauri::command]
-async fn desktop_resolve_media(state: State<'_, DesktopState>, url: String) -> Reply<MediaPreview> {
-    state.service.resolve_media(&url).await.map_err(error)
+async fn desktop_resolve_media(
+    state: State<'_, DesktopState>,
+    url: String,
+    cookie: Option<String>,
+) -> Reply<MediaPreview> {
+    state
+        .service
+        .resolve_media_with_cookie(&url, cookie.as_deref())
+        .await
+        .map_err(error)
 }
 
 #[tauri::command]

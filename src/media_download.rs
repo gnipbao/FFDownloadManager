@@ -57,8 +57,16 @@ pub async fn run(
         file.as_file().sync_all()?;
         file.persist_noclobber(&identity).map_err(|e| e.error)?;
     }
+    let engine = if matches!(
+        plan.platform.as_str(),
+        "Douyin" | "Xiaohongshu" | "WeChat Channels"
+    ) {
+        "native platform parser / gosh-dl"
+    } else {
+        "ytdown + bbdown-core / gosh-dl"
+    };
     let report = |outcome: &str, bytes: u64, hash: Option<String>| DownloadReport {
-        engine: "ytdown + bbdown-core / gosh-dl".into(),
+        engine: engine.into(),
         outcome: outcome.into(),
         output: output.clone(),
         connections,
@@ -230,9 +238,21 @@ pub async fn run(
         ..Default::default()
     });
     let dest = output.clone();
-    let (size, hash) =
-        tokio::task::spawn_blocking(move || publish(&source, &dest, expected_sha256.as_deref()))
-            .await??;
+    let decrypt_key = plan.streams.first().and_then(|stream| stream.decrypt_key);
+    let (size, hash) = tokio::task::spawn_blocking(move || {
+        if let Some(key) = decrypt_key {
+            let mut decrypted = tempfile::Builder::new()
+                .prefix("decrypted-")
+                .suffix(".mp4")
+                .tempfile_in(&work)?;
+            crate::wechat_crypto::decrypt_copy(&source, decrypted.as_file_mut(), key)?;
+            let path = decrypted.into_temp_path();
+            publish(path.as_ref(), &dest, expected_sha256.as_deref())
+        } else {
+            publish(&source, &dest, expected_sha256.as_deref())
+        }
+    })
+    .await??;
     // Remove only the completed intermediate tracks owned by this media job.
     for path in paths {
         let _ = std::fs::remove_file(path);

@@ -291,6 +291,14 @@ impl DownloadService {
         self.media.resolve(url).await
     }
 
+    pub async fn resolve_media_with_cookie(
+        &self,
+        url: &str,
+        platform_cookie: Option<&str>,
+    ) -> Result<MediaPreview> {
+        self.media.resolve_with_cookie(url, platform_cookie).await
+    }
+
     pub async fn create_media(self: &Arc<Self>, request: NewMediaTask) -> Result<Task> {
         ensure!((1..=16).contains(&request.connections), "连接数须为 1–16");
         let plan = self.media.select(&request.preview_id, &request.format_id)?;

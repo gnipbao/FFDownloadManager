@@ -251,6 +251,14 @@ function suggestName() {
   mediaSite = videoPlatform($('#download-url').value.trim());
   $('#media-panel').hidden = true;
   $('#media-source').hidden = !mediaSite;
+  $('#platform-auth').hidden = !['视频号', '小红书'].includes(mediaSite);
+  if (mediaSite === '视频号') {
+    $('#platform-cookie-label').textContent = '元宝登录 Cookie（普通视频号分享链接需要）';
+    $('#platform-cookie-hint').textContent = '若链接已包含 token 和 eid，可留空。仅用于本次向元宝请求播放页，不保存。';
+  } else if (mediaSite === '小红书') {
+    $('#platform-cookie-label').textContent = '小红书网页 Cookie（页面要求登录时填写）';
+    $('#platform-cookie-hint').textContent = '仅用于本次向小红书请求笔记页，不保存。请使用刚复制的完整分享链接。';
+  }
   $('#form-error').hidden = true;
   $('#parse-video').disabled = false;
   $('#parse-video').textContent = '解析视频';
@@ -277,11 +285,16 @@ function suggestName() {
 
 function videoPlatform(raw) {
   try {
-    const url = new URL(raw);
+    const url = new URL(videoUrl(raw));
     if (!['http:', 'https:'].includes(url.protocol)) return null;
-    const sites = {'bilibili.com':'Bilibili', 'b23.tv':'Bilibili', 'bilibili.tv':'Bilibili', 'youtube.com':'YouTube', 'youtu.be':'YouTube', 'youtube-nocookie.com':'YouTube', 'tiktok.com':'TikTok', 'instagram.com':'Instagram', 'x.com':'X', 'twitter.com':'X', 'reddit.com':'Reddit', 'redd.it':'Reddit'};
+    const sites = {'bilibili.com':'Bilibili', 'b23.tv':'Bilibili', 'bilibili.tv':'Bilibili', 'youtube.com':'YouTube', 'youtu.be':'YouTube', 'youtube-nocookie.com':'YouTube', 'douyin.com':'抖音', 'iesdouyin.com':'抖音', 'xiaohongshu.com':'小红书', 'xhslink.com':'小红书', 'xhslink.cn':'小红书', 'weixin.qq.com':'视频号', 'channels.weixin.qq.com':'视频号', 'tiktok.com':'TikTok', 'instagram.com':'Instagram', 'x.com':'X', 'twitter.com':'X', 'reddit.com':'Reddit', 'redd.it':'Reddit'};
     return Object.entries(sites).find(([host]) => url.hostname === host || url.hostname.endsWith(`.${host}`))?.[1] || null;
   } catch { return null; }
+}
+
+function videoUrl(raw) {
+  const match = raw.match(/https?:\/\/[^\s<>"']+/i);
+  return (match?.[0] || raw.trim()).replace(/[，。；;！!）)]+$/, '');
 }
 
 function updateSubmitButton() {
@@ -311,7 +324,7 @@ function applyMediaFormat() {
 async function parseVideo() {
   const version = filenameVersion;
   if (mediaRequest?.version === version) return mediaRequest.promise;
-  const url = $('#download-url').value.trim();
+  const url = videoUrl($('#download-url').value.trim());
   mediaPreview = null;
   $('#media-panel').hidden = true;
   $('#form-error').hidden = true;
@@ -322,7 +335,8 @@ async function parseVideo() {
   const promise = (async () => {
     try {
       if (!connected) throw new Error('本地服务尚未连接，请稍后重试。');
-      const result = await api.resolveMedia(url);
+      const cookie = ['视频号', '小红书'].includes(mediaSite) ? $('#platform-cookie').value.trim() || null : null;
+      const result = await api.resolveMedia(url, cookie);
       if (version !== filenameVersion || !$('#new-dialog').open) return;
       mediaPreview = result;
       $('#media-title').textContent = result.title;
@@ -366,7 +380,7 @@ document.querySelectorAll('dialog').forEach((dialog) => dialog.addEventListener(
 $('#download-url').addEventListener('input', suggestName);
 $('#download-filename').addEventListener('input', () => { filenameEdited = true; });
 $('#download-filename').addEventListener('blur', completeFilenameInput);
-$('#new-dialog').addEventListener('close', () => { clearTimeout(filenameTimer); filenameVersion++; });
+$('#new-dialog').addEventListener('close', () => { clearTimeout(filenameTimer); filenameVersion++; $('#platform-cookie').value = ''; });
 $('#new-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   if (submitting) return;
