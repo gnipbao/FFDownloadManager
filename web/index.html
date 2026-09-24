@@ -27,7 +27,7 @@
       </nav>
       <div class="sidebar-bottom">
         <button class="folder-shortcut" id="sidebar-folder"><span data-icon="folder"></span><span>打开下载文件夹</span><span data-icon="external"></span></button>
-        <div class="sidebar-version"><span>FFDownload</span><span>0.1 · 预览版</span></div>
+        <div class="sidebar-version"><span>FFDownload</span><span>MVP · 本地验证</span></div>
       </div>
     </aside>
 
@@ -35,6 +35,43 @@
       <div class="topbar"><div class="breadcrumb"><span data-icon="home"></span><span>本地空间</span><span class="separator">/</span><strong>下载管理</strong></div><div class="connection-pill" id="connection-pill"><i></i><span>正在连接内核</span></div></div>
       <div class="page-content">
         <header class="page-header"><div><div class="eyebrow">YOUR FILES, AT FULL SPEED</div><h1>下载管理<span class="preview-badge">本地工作台</span></h1><p>从链接到本地，让每一次下载都井然有序。</p></div><div class="header-actions"><button id="pause-all" class="button secondary" disabled><span data-icon="pause"></span>全部暂停</button><button class="button primary" data-new><span data-icon="plus"></span>新建下载<kbd id="new-shortcut">⌘ K</kbd></button></div></header>
+
+        <div id="workbench-tabs" class="workbench-tabs" hidden role="tablist" aria-label="工作台视图">
+          <button class="selected" id="tab-downloads" role="tab" aria-selected="true" data-view="downloads">下载任务</button>
+          <button id="tab-capture" hidden role="tab" aria-selected="false" data-view="capture">资源捕获 <span>DEV</span></button>
+          <button id="tab-speedtest" hidden role="tab" aria-selected="false" data-view="speedtest">内核测速</button>
+        </div>
+        <section id="capture-view" class="workbench-panel" role="tabpanel" aria-labelledby="tab-capture" hidden>
+          <div class="capture-heading"><div><div class="eyebrow">RUST RESOURCE CAPTURE</div><h2 id="capture-heading-title">后台查找媒体。</h2><p id="capture-heading-description">粘贴网页链接，自动加载并发现可下载的音视频。</p></div><div class="capture-actions"><span id="capture-status" class="capture-status">未启动</span><button class="button secondary" id="capture-toggle" hidden>停止捕获</button></div></div>
+          <div id="capture-modes" class="capture-modes" hidden role="tablist" aria-label="捕获方式"><button class="selected" id="capture-browser-tab" role="tab" aria-selected="true" aria-controls="capture-browser-panel" data-capture-mode="browser">后台解析</button><button id="capture-application-tab" hidden role="tab" aria-selected="false" aria-controls="capture-application-panel" data-capture-mode="application">应用抓包 <span>macOS</span></button></div>
+          <div id="capture-browser-panel" role="tabpanel" aria-labelledby="capture-browser-tab">
+          <form id="capture-open-form" class="capture-open-form"><label for="capture-url" class="sr-only">视频网页或分享链接</label><input class="field-input" id="capture-url" placeholder="粘贴可在网页播放的视频或音频链接" required autocomplete="off"><button class="button primary" id="capture-open" type="submit">后台解析</button></form>
+          <div class="capture-context"><span>默认不弹出窗口。需要登录或手动播放时，可打开窗口处理，再继续后台解析。</span><button class="text-button" id="capture-browser-manual" type="button">打开窗口处理</button><button class="text-button" id="capture-demo" hidden>测试捕获流程</button></div>
+          <p id="capture-browser-status" class="capture-browser-status" role="status">等待网页链接</p>
+          </div>
+          <div id="capture-application-panel" role="tabpanel" aria-labelledby="capture-application-tab" hidden>
+            <p class="application-intro">在微信、音乐客户端中播放，无需网页链接。先信任本机证书，再开启网络代理抓包。</p>
+            <div class="application-steps">
+              <section class="application-step"><div class="application-step-title"><b>1</b><strong>信任本机证书</strong><span id="capture-trust-status">待检测</span></div><p id="capture-trust-instructions">在钥匙串中导入下方证书，双击后展开“信任”，将安全套接字层（SSL）设为“始终信任”。部分应用需要导入“系统”钥匙串。</p><div class="application-buttons"><button id="capture-cert-open" class="button secondary">打开证书</button><button id="capture-setup-refresh" class="text-button">刷新状态</button></div><small id="capture-cert-name">正在准备本机证书…</small></section>
+              <section class="application-step"><div class="application-step-title"><b>2</b><strong>连接应用流量</strong><span id="capture-system-status">未启用</span></div><label class="sr-only" for="capture-network">当前使用的网络服务</label><select id="capture-network" class="field-input" aria-label="当前使用的网络服务"><option value="">检测网络服务中…</option></select><p id="capture-upstream">会保存当前代理设置，在停止捕获时恢复。</p><div class="application-buttons"><button id="capture-app-start" class="button primary" disabled>开启系统代理抓包</button><button id="capture-app-restore" class="button secondary" hidden>恢复原代理</button></div></section>
+              <section class="application-step"><div class="application-step-title"><b>3</b><strong>在应用中播放</strong></div><p>回到微信打开视频号、小程序或公众号，或在音乐客户端播放歌曲。重新打开播放页，让新连接经过代理。</p><p>资源出现在下方后即可下载。切换画质或音质，可发现播放器实际加载的新版本。</p><small>仅覆盖使用系统 HTTP / HTTPS 代理的应用流量。</small></section>
+            </div>
+            <p id="capture-setup-error" class="application-error" role="alert" hidden></p>
+            <p class="capture-footnote">开启会更改所选网络的 HTTP / HTTPS 代理，并临时关闭该网络的 SOCKS 代理。原 HTTP 代理会作为上游继续使用；停止时恢复配置。证书信任由你在钥匙串中管理。</p>
+          </div>
+          <details class="capture-help" id="capture-application-help" hidden><summary>平台支持情况与代理信息</summary><div class="capture-support-grid"><p><strong>抖音 · 小红书</strong><span>网页样例已捕获并下载；应用端待验证。</span></p><p><strong>快手 · 小程序 · 公众号</strong><span>已接入通用媒体识别，需用实际播放内容验证。</span></p><p><strong>视频号</strong><span>加密视频需要对应 decodeKey；关联播放详情中的标题与密钥；网络候选可能是预加载，不代表当前播放内容。</span></p><p><strong>酷狗音乐 · QQ 音乐</strong><span>可识别普通音频流；试播只得到试播片段，加密格式会标记为暂不支持。</span></p></div><p>手动 HTTP / HTTPS 代理：<code id="capture-proxy">启动后显示</code></p><p>微信小程序可以使用任意业务域名，因此通过实际媒体响应识别。绕过系统代理、证书固定、UDP / QUIC 或非 HTTP 协议的流量可能无法捕获。</p><details><summary>证书 SHA-256 指纹</summary><code id="capture-fingerprint" class="certificate-fingerprint">切换到应用抓包后显示</code></details></details>
+          <p id="capture-wechat-status" class="capture-browser-status" role="status" hidden></p>
+          <details id="capture-wechat-diagnostics" class="capture-help" hidden><summary>查看视频号连接诊断</summary><p id="capture-wechat-counters"></p><div id="capture-wechat-assets"></div></details>
+          <div class="capture-list-toolbar"><div><strong>发现的资源</strong> <span id="capture-count">0</span><small id="capture-observed">仅列出媒体响应</small></div><div><select id="capture-connections" class="field-input" aria-label="捕获资源下载连接数"><option value="1">1 路</option><option value="4">4 路</option><option value="8" selected>8 路</option><option value="16">16 路</option></select><button class="button secondary" id="capture-clear">清空列表</button></div></div>
+          <div class="capture-filters"><input id="capture-search" type="search" class="field-input" placeholder="搜索来源、域名或文件名" aria-label="搜索捕获资源"><select id="capture-platform" class="field-input" aria-label="来源平台"><option value="all">所有来源</option><option>抖音</option><option>快手</option><option>小红书</option><option>视频号</option><option>小程序</option><option>公众号</option><option>酷狗音乐</option><option>QQ 音乐</option><option>微信媒体</option><option>其他来源</option></select><select id="capture-kind" class="field-input" aria-label="资源类型"><option value="all">音视频</option><option value="video">视频</option><option value="audio">音频</option></select><select id="capture-wechat-scope" class="field-input" aria-label="视频号资源范围"><option value="detail">视频号：已关联详情</option><option value="all">视频号：全部网络候选</option></select><select id="capture-sort" class="field-input" aria-label="捕获资源排序"><option value="recent">最近详情 / 最近请求</option><option value="size">体积从大到小</option></select></div>
+          <div id="capture-resources" aria-live="polite"><div class="capture-empty">还没有发现媒体资源<span>粘贴网页链接后点“后台解析”，资源会自动出现在这里。</span></div></div>
+          <p class="capture-footnote">资源最多保留 30 分钟。支持 MP4、WebM、MP3、M4A、AAC、FLAC、WAV 等完整媒体；HLS / DASH 清单、分片与平台加密音频会明确标记。来源标签按域名推断。</p>
+        </section>
+        <section id="speedtest-view" class="workbench-panel" role="tabpanel" aria-labelledby="tab-speedtest" hidden>
+          <div class="capture-heading"><div><div class="eyebrow">MEASURE, THEN OPTIMIZE</div><h2>让速度有据可查。</h2><p>同一份 32 MiB 数据，对比单流与 Rust 下载器的 1 / 4 / 8 路连接，每份文件校验 SHA-256。</p></div><button class="button primary" id="benchmark-start">开始受控测速</button></div>
+          <p class="benchmark-scope">本机测试包含不限速和每条连接限制 100 Mbps 两种场景，用于检查内核与分段并发。不代表家庭宽带速度，也不是与 Neat 的对比。</p>
+          <div id="benchmark-results"><div class="capture-empty">等待测速<span>建议先暂停其他下载，测试通常需要约 20 秒。</span></div></div>
+        </section>
 
         <section class="overview" aria-label="实时下载概览">
           <div class="speed-card"><div class="card-label"><span><span class="live-dot"></span>实时下载速度</span><span class="muted">最近 60 秒</span></div><div class="speed-value"><span id="speed-number">0</span><span id="speed-unit">MB/s</span></div><div class="speed-caption" id="speed-caption">内核就绪后即可开始下载</div><div class="chart-wrap"><svg id="speed-chart" viewBox="0 0 600 84" preserveAspectRatio="none" role="img" aria-label="最近 60 秒实际下载速度曲线"><defs><linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#19b69b" stop-opacity=".18"/><stop offset="100%" stop-color="#19b69b" stop-opacity="0"/></linearGradient></defs><path class="chart-grid" d="M0 20 H600 M0 48 H600 M0 77 H600"/><path id="chart-area" fill="url(#chart-fill)"/><path id="chart-line" d="M0 77 H600" fill="none" stroke="#13a58c" stroke-width="2" vector-effect="non-scaling-stroke"/></svg></div><div class="chart-axis"><span>60 秒前</span><span id="chart-scale">0 MB/s</span><span>现在</span></div></div>

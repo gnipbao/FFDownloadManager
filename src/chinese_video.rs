@@ -11,6 +11,7 @@ const DOUYIN_AGENT: &str = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS 
 const DOUYIN_FEED_AGENT: &str = "com.ss.android.ugc.aweme/370000 (Linux; U; Android 14; zh_CN)";
 const XHS_AGENT: &str = DOUYIN_AGENT;
 const MAX_PAGE_BYTES: usize = 8 * 1024 * 1024;
+pub(crate) const XHS_ORIGINAL_FORMAT: &str = "xhs-original";
 
 #[derive(Debug)]
 pub struct NativeVariant {
@@ -33,6 +34,7 @@ pub struct NativeVideo {
 
 pub struct ChineseResolver {
     client: Client,
+    original_client: Client,
 }
 
 impl ChineseResolver {
@@ -59,7 +61,28 @@ impl ChineseResolver {
             }))
             .user_agent(USER_AGENT)
             .build()?;
-        Ok(Self { client })
+        // Original media requests carry no page Cookie and may redirect only
+        // within the platform's CDN. Keep that policy separate from page fetches.
+        let original_client = Client::builder()
+            .use_native_tls()
+            .connect_timeout(Duration::from_secs(4))
+            .timeout(Duration::from_secs(6))
+            .user_agent(USER_AGENT)
+            .redirect(Policy::custom(|attempt| {
+                if attempt.previous().len() < 3
+                    && attempt.url().scheme() == "https"
+                    && host_matches(attempt.url(), "xhscdn.com")
+                {
+                    attempt.follow()
+                } else {
+                    attempt.error("original media redirected outside the platform CDN")
+                }
+            }))
+            .build()?;
+        Ok(Self {
+            client,
+            original_client,
+        })
     }
 
     pub async fn resolve(
@@ -171,8 +194,96 @@ impl ChineseResolver {
             .path_segments()
             .and_then(|mut segments| segments.next_back())
             .filter(|part| !part.is_empty());
-        parse_xiaohongshu(&html, id)
-            .context("小红书页面没有可下载的视频；请确认是公开视频笔记且分享链接仍有效")
+        let mut video = parse_xiaohongshu(&html, id)
+            .context("小红书页面没有可下载的视频；请确认是公开视频笔记且分享链接仍有效")?;
+        self.verify_xiaohongshu_original(&mut video).await;
+        if !video.variants.iter().any(|v| v.id == XHS_ORIGINAL_FORMAT) {
+            // Some share pages omit the original key while the desktop state
+            // still supplies it. Only accept metadata for this same note.
+            if let Ok(Ok((_, html))) = tokio::time::timeout(
+                Duration::from_secs(8),
+                self.fetch_page_with_url(page.clone(), Some(USER_AGENT), cookie),
+            )
+            .await
+            {
+                if let Ok(mut desktop) = parse_xiaohongshu(&html, id) {
+                    self.verify_xiaohongshu_original(&mut desktop).await;
+                    if let Some(original) = desktop
+                        .variants
+                        .into_iter()
+                        .find(|v| v.id == XHS_ORIGINAL_FORMAT)
+                    {
+                        video.variants.insert(0, original);
+                    }
+                }
+            }
+        }
+        ensure!(!video.variants.is_empty(), "小红书原始文件当前不可读取");
+        Ok(video)
+    }
+
+    async fn verify_xiaohongshu_original(&self, video: &mut NativeVideo) {
+        let Some(index) = video
+            .variants
+            .iter()
+            .position(|v| v.id == XHS_ORIGINAL_FORMAT)
+        else {
+            return;
+        };
+        match self
+            .check_xiaohongshu_original(&video.variants[index].url)
+            .await
+        {
+            Ok(size) => video.variants[index].size = size,
+            Err(_) => {
+                video.variants.remove(index);
+            }
+        }
+    }
+
+    async fn check_xiaohongshu_original(&self, url: &str) -> Result<Option<u64>> {
+        // Read a bounded prefix, never download the whole original while parsing.
+        // A CDN error page with HTTP 200 must not become the default MP4 option.
+        let mut response = self
+            .original_client
+            .get(url)
+            .header(header::REFERER, "https://www.xiaohongshu.com/")
+            .header(header::ACCEPT_ENCODING, "identity")
+            .header(header::RANGE, "bytes=0-31")
+            .send()
+            .await?;
+        let size = if response.status() == reqwest_media::StatusCode::PARTIAL_CONTENT {
+            let range = response
+                .headers()
+                .get(header::CONTENT_RANGE)
+                .and_then(|value| value.to_str().ok())
+                .context("原始文件范围响应无效")?;
+            let total: u64 = range
+                .strip_prefix("bytes 0-31/")
+                .context("原始文件范围不匹配")?
+                .parse()?;
+            ensure!(total > 31, "原始文件为空");
+            Some(total)
+        } else {
+            ensure!(
+                response.status() == reqwest_media::StatusCode::OK,
+                "原始文件不可读取"
+            );
+            response.content_length()
+        };
+        let mut prefix = Vec::with_capacity(32);
+        while prefix.len() < 32 {
+            let Some(chunk) = response.chunk().await? else {
+                break;
+            };
+            prefix.extend_from_slice(&chunk[..chunk.len().min(32 - prefix.len())]);
+        }
+        ensure!(
+            prefix.len() == 32 && &prefix[4..8] == b"ftyp",
+            "原始文件不是 MP4"
+        );
+        ensure!(&prefix[8..12] != b"qt  ", "原始文件为 QuickTime 容器");
+        Ok(size)
     }
 
     async fn wechat(&self, input: &Url, cookie: Option<&str>) -> Result<NativeVideo> {
@@ -629,6 +740,30 @@ fn parse_xiaohongshu(html: &str, id: Option<&str>) -> Result<NativeVideo> {
         .to_owned();
     let mut variants = Vec::new();
     let mut seen = std::collections::HashSet::new();
+    if let Some(url) = note["video"]["consumer"]["originVideoKey"]
+        .as_str()
+        .and_then(xiaohongshu_original_url)
+    {
+        // These dimensions describe the source, not the smaller playback stream.
+        let metadata = &note["video"]["media"]["video"];
+        let width = metadata["width"].as_u64().unwrap_or(0) as u32;
+        let height = metadata["height"].as_u64().unwrap_or(0) as u32;
+        let dimensions = if width > 0 && height > 0 {
+            format!(" · {width}×{height}")
+        } else {
+            String::new()
+        };
+        seen.insert(url.clone());
+        variants.push(NativeVariant {
+            id: XHS_ORIGINAL_FORMAT.into(),
+            label: format!("原始文件{dimensions} · MP4"),
+            height: width.min(height),
+            url,
+            size: None,
+            headers: media_headers("https://www.xiaohongshu.com/"),
+            decrypt_key: None,
+        });
+    }
     for (codec, key) in [("H.264", "h264"), ("HEVC", "h265"), ("AV1", "av1")] {
         if let Some(formats) = stream[key].as_array() {
             for format in formats {
@@ -653,9 +788,9 @@ fn parse_xiaohongshu(html: &str, id: Option<&str>) -> Result<NativeVideo> {
                 variants.push(NativeVariant {
                     id: format!("xhs-{key}-{}", variants.len()),
                     label: if height > 0 {
-                        format!("{height}p · MP4 · {codec}")
+                        format!("网页播放版 · {height}p · MP4 · {codec} · 可能含水印")
                     } else {
-                        format!("视频 · MP4 · {codec}")
+                        format!("网页播放版 · MP4 · {codec} · 可能含水印")
                     },
                     height,
                     url: url.into(),
@@ -671,13 +806,32 @@ fn parse_xiaohongshu(html: &str, id: Option<&str>) -> Result<NativeVideo> {
         .as_array()
         .and_then(|items| items.first())
         .and_then(|item| item["duration"].as_u64())
-        .map(|ms| ms / 1000);
+        .map(|ms| ms / 1000)
+        .or_else(|| note["video"]["capa"]["duration"].as_u64());
     Ok(NativeVideo {
         id: id.unwrap_or("note").into(),
         title,
         duration_seconds,
         variants,
     })
+}
+
+fn xiaohongshu_original_url(key: &str) -> Option<String> {
+    // The page supplies a CDN object key, not an arbitrary URL. Reject absolute
+    // URLs, queries, escaping and path traversal instead of guessing source IDs.
+    if key.len() > 1024
+        || !key.contains('/')
+        || key.split('/').any(|part| {
+            part.is_empty()
+                || matches!(part, "." | "..")
+                || !part
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b"-_.".contains(&b))
+        })
+    {
+        return None;
+    }
+    Some(format!("https://sns-video-bd.xhscdn.com/{key}"))
 }
 
 fn parse_wechat(data: &Value, eid: &str) -> Result<NativeVideo> {
@@ -780,9 +934,159 @@ mod tests {
     fn parses_xiaohongshu_mobile_share_state_and_portrait_resolution() {
         let page = r#"<script>window.__INITIAL_STATE__={"noteData":{"data":{"noteData":{"noteId":"abc123","type":"video","title":"竖屏","video":{"media":{"stream":{"h264":[{"masterUrl":"https://sns-video.example/video.mp4","width":720,"height":1280,"size":3660686,"duration":30059}]}}}}}}};</script>"#;
         let result = parse_xiaohongshu(page, Some("abc123")).unwrap();
-        assert_eq!(result.variants[0].label, "720p · MP4 · H.264");
+        assert_eq!(result.variants[0].height, 720);
+        assert!(result.variants[0].label.contains("网页播放版"));
+        assert!(result.variants[0].label.contains("可能含水印"));
         assert_eq!(result.duration_seconds, Some(30));
         assert!(parse_xiaohongshu(page, Some("other")).is_err());
+    }
+
+    #[test]
+    fn xiaohongshu_original_uses_source_metadata_in_both_page_layouts() {
+        let note = json!({"noteId":"abc123","type":"video","title":"原视频",
+            "video":{"consumer":{"originVideoKey":"pre_post/original_123"},
+            "capa":{"duration":7},"media":{"video":{"width":882,"height":1920},
+            "stream":{"h264":[{"masterUrl":"https://sns-video.example/playback.mp4",
+            "width":720,"height":1568,"size":1607131,"duration":7477}]}}}});
+        for data in [
+            json!({"noteData":{"data":{"noteData":note.clone()}}}),
+            json!({"note":{"noteDetailMap":{"abc123":{"note":note}}}}),
+        ] {
+            let video =
+                parse_xiaohongshu(&format!("window.__INITIAL_STATE__={data};"), Some("abc123"))
+                    .unwrap();
+            let original = &video.variants[0];
+            assert_eq!(original.id, XHS_ORIGINAL_FORMAT);
+            assert_eq!(
+                original.url,
+                "https://sns-video-bd.xhscdn.com/pre_post/original_123"
+            );
+            assert_eq!(original.label, "原始文件 · 882×1920 · MP4");
+            assert_eq!(original.height, 882);
+            assert_eq!(original.size, None);
+            assert_eq!(video.variants[1].size, Some(1607131));
+            assert!(video.variants[1].label.contains("可能含水印"));
+        }
+    }
+
+    #[test]
+    fn xiaohongshu_original_keys_cannot_redirect_or_escape_the_cdn() {
+        for key in [
+            "",
+            "https://evil.example/video.mp4",
+            "//evil.example/video",
+            "/pre_post/abc",
+            "pre_post/../abc",
+            "pre_post/%2e%2e/abc",
+            "pre_post/abc?redirect=evil",
+            "pre_post/abc#fragment",
+            "pre_post/a\\b",
+        ] {
+            assert!(xiaohongshu_original_url(key).is_none(), "accepted {key}");
+        }
+        assert_eq!(
+            xiaohongshu_original_url("spectrum/1040g0jg123.mp4").unwrap(),
+            "https://sns-video-bd.xhscdn.com/spectrum/1040g0jg123.mp4"
+        );
+    }
+
+    #[tokio::test]
+    async fn xiaohongshu_original_probe_checks_container_and_drops_unreadable_sources() {
+        use axum::{body::Body, extract::Request, http::Response, Router};
+        async fn fixture(request: Request) -> Response<Body> {
+            assert_eq!(request.headers()["range"], "bytes=0-31");
+            assert_eq!(request.headers()["referer"], "https://www.xiaohongshu.com/");
+            assert!(!request.headers().contains_key("cookie"));
+            let mut data = b"\x00\x00\x00\x20ftypisom".to_vec();
+            data.resize(32, 0);
+            let mut response = Response::builder()
+                .status(206)
+                .header("content-range", "bytes 0-31/4096");
+            match request.uri().path() {
+                "/full" => {
+                    response = Response::builder().status(200);
+                    data.resize(4096, 0);
+                }
+                "/html" => {
+                    response = Response::builder().status(200);
+                    data = b"<html>temporarily unavailable</html>".to_vec();
+                }
+                "/denied" => {
+                    response = Response::builder().status(403);
+                }
+                "/wrong-range" => {
+                    response = Response::builder()
+                        .status(206)
+                        .header("content-range", "bytes 4-35/4096");
+                }
+                "/truncated" => {
+                    data.truncate(12);
+                }
+                "/quicktime" => {
+                    data[8..12].copy_from_slice(b"qt  ");
+                }
+                _ => {}
+            }
+            response
+                .header("content-length", data.len())
+                .body(Body::from(data))
+                .unwrap()
+        }
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let base = format!("http://{}", listener.local_addr().unwrap());
+        let server = tokio::spawn(async move {
+            axum::serve(listener, Router::new().fallback(fixture))
+                .await
+                .unwrap();
+        });
+        let mut resolver = ChineseResolver::new().unwrap();
+        resolver.original_client = Client::builder().no_proxy().build().unwrap();
+        for path in ["/range", "/full"] {
+            assert_eq!(
+                resolver
+                    .check_xiaohongshu_original(&format!("{base}{path}"))
+                    .await
+                    .unwrap(),
+                Some(4096)
+            );
+        }
+        for path in [
+            "/html",
+            "/denied",
+            "/wrong-range",
+            "/truncated",
+            "/quicktime",
+        ] {
+            let mut video = NativeVideo {
+                id: "note".into(),
+                title: "Test".into(),
+                duration_seconds: None,
+                variants: vec![
+                    NativeVariant {
+                        id: XHS_ORIGINAL_FORMAT.into(),
+                        label: "原始文件".into(),
+                        height: 0,
+                        url: format!("{base}{path}"),
+                        size: None,
+                        headers: vec![],
+                        decrypt_key: None,
+                    },
+                    NativeVariant {
+                        id: "xhs-h264".into(),
+                        label: "网页播放版 · 可能含水印".into(),
+                        height: 720,
+                        url: format!("{base}/range"),
+                        size: Some(4096),
+                        headers: vec![],
+                        decrypt_key: None,
+                    },
+                ],
+            };
+            resolver.verify_xiaohongshu_original(&mut video).await;
+            assert_eq!(video.variants.len(), 1, "invalid original offered: {path}");
+            assert_eq!(video.variants[0].id, "xhs-h264");
+        }
+        server.abort();
     }
 
     #[test]

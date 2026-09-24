@@ -1,11 +1,13 @@
 {
   "name": "ffdownload-desktop",
-  "version": "0.3.0",
+  "version": "0.3.4",
   "private": true,
   "scripts": {
     "tauri": "tauri",
     "desktop:build": "sh scripts/build-macos.sh",
-    "desktop:build:windows": "powershell -ExecutionPolicy Bypass -File scripts/build-windows.ps1"
+    "desktop:build:windows": "powershell -ExecutionPolicy Bypass -File scripts/build-windows.ps1",
+    "desktop:dev": "tauri dev",
+    "web:dev": "sh scripts/start-web.sh --dev"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.11.5"

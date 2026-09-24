@@ -30,6 +30,10 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo test --workspace --locked
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Verify release capabilities and desktop IPC
+        run: |
+          cargo test --release --locked --test web_flow web_capabilities_gate_dev_tools_and_never_expose_system_proxy_controls
+          cargo test --release --locked -p ffdownload-desktop native_ipc_download_checkpoints_on_exit_and_rejects_untrusted_windows
       - run: sh scripts/build-macos.sh
       - uses: actions/upload-artifact@v4
         with:
@@ -100,7 +104,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          sha256sum release/* > SHA256SUMS.txt
+          sed -i 's|  release/|  |' SHA256SUMS.txt
+          mv SHA256SUMS.txt release/
           gh release create "$GITHUB_REF_NAME" release/* \
             --title "FFDownload $GITHUB_REF_NAME" \
-            --notes "macOS Apple Silicon DMG/ZIP and Windows x64 NSIS installer. Preview builds are unsigned; see README for requirements and source." \
+            --notes-file "docs/releases/$GITHUB_REF_NAME.md" \
             --verify-tag

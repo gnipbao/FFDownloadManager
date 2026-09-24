@@ -2,13 +2,35 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main-window",
   "description": "Only the bundled main window receives desktop event access.",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:event:default",
-    "allow-desktop-snapshot", "allow-desktop-create", "allow-desktop-filename",
-    "allow-desktop-resolve-media", "allow-desktop-create-media", "allow-desktop-pause",
-    "allow-desktop-resume", "allow-desktop-remove", "allow-desktop-reveal",
-    "allow-desktop-pause-all", "allow-desktop-open-folder", "allow-desktop-copy-link",
-    "allow-desktop-info"
+    "allow-desktop-snapshot",
+    "allow-desktop-create",
+    "allow-desktop-filename",
+    "allow-desktop-resolve-media",
+    "allow-desktop-create-media",
+    "allow-desktop-pause",
+    "allow-desktop-resume",
+    "allow-desktop-remove",
+    "allow-desktop-reveal",
+    "allow-desktop-pause-all",
+    "allow-desktop-open-folder",
+    "allow-desktop-copy-link",
+    "allow-desktop-info",
+    "allow-desktop-capabilities",
+    "allow-desktop-capture",
+    "allow-desktop-capture-browser",
+    "allow-desktop-capture-stop",
+    "allow-desktop-capture-clear",
+    "allow-desktop-capture-download",
+    "allow-desktop-capture-setup",
+    "allow-desktop-capture-application-start",
+    "allow-desktop-capture-restore",
+    "allow-desktop-capture-certificate-open",
+    "allow-desktop-benchmark",
+    "allow-desktop-benchmark-start"
   ]
 }

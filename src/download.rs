@@ -353,6 +353,7 @@ pub async fn download_with_headers(
         min_segment_size: 1024 * 1024,
         database_path: Some(paths.state.join("engine.sqlite")),
         http: HttpConfig {
+            proxy_url: crate::capture_transport::download_proxy(),
             max_retries: 2,
             connect_timeout: 15,
             read_timeout: 30,

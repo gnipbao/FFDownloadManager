@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-capture-clear"
+description = "Enables the desktop_capture_clear command without any pre-configured scope."
+commands.allow = ["desktop_capture_clear"]
+
+[[permission]]
+identifier = "deny-desktop-capture-clear"
+description = "Denies the desktop_capture_clear command without any pre-configured scope."
+commands.deny = ["desktop_capture_clear"]

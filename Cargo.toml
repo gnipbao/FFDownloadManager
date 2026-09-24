@@ -1,6 +1,6 @@
 [package]
 name = "ffdownload-manager"
-version = "0.3.0"
+version = "0.3.4"
 edition = "2021"
 rust-version = "1.95"
 description = "A Rust HTTP download MVP with reproducible benchmarks"
@@ -25,9 +25,17 @@ async-trait = "0.1"
 bbdown-core = "=0.5.0"
 axum = "0.8"
 bytes = "1"
+base64 = "0.22"
 clap = { version = "4", features = ["derive"] }
 fs2 = "0.4"
 futures-util = "0.3"
+http-body-util = "0.1"
+hudsucker = { version = "=0.25.0", default-features = false, features = ["rcgen-ca", "rustls-client", "http2"] }
+rcgen = { version = "=0.14.10", default-features = false, features = ["aws_lc_rs", "pem", "x509-parser"] }
+regex = "1"
+flate2 = "1"
+brotli = "8"
+time = "0.3"
 percent-encoding = "2"
 gosh-dl = { version = "=0.6.3", default-features = false, features = ["http", "storage"] }
 # Explicitly enable H2: gosh-dl disables reqwest's default features.
@@ -38,8 +46,12 @@ serde_json = "1"
 sha2 = "0.10"
 tempfile = "3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "time", "net", "fs", "process"] }
+tokio-tungstenite = { version = "=0.30.0", default-features = false, features = ["connect"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 ytdown = { version = "=0.8.0", default-features = false, features = ["native-tls"] }
+
+[dev-dependencies]
+boa_engine = "0.20"
 
 [profile.release]
 lto = "thin"

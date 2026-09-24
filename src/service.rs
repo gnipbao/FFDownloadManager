@@ -37,6 +37,10 @@ pub struct Task {
     pub sha256: Option<String>,
     pub expected_sha256: Option<String>,
     pub error: Option<String>,
+    #[serde(default)]
+    pub last_run_seconds: Option<f64>,
+    #[serde(default)]
+    pub average_mbps: Option<f64>,
     pub demo: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub media: Option<MediaPlan>,
@@ -340,6 +344,22 @@ impl DownloadService {
         )
     }
 
+    /// Captured plans are created by the Rust proxy, never accepted from the browser.
+    pub fn create_captured(self: &Arc<Self>, plan: MediaPlan, connections: usize) -> Result<Task> {
+        ensure!((1..=16).contains(&connections), "连接数须为 1–16");
+        plan.validate()?;
+        let filename = plan.filename();
+        validate_filename(&filename)?;
+        self.enqueue(
+            plan.source_url.clone(),
+            filename,
+            connections,
+            None,
+            Some(plan),
+            false,
+        )
+    }
+
     fn enqueue(
         self: &Arc<Self>,
         url: String,
@@ -368,6 +388,8 @@ impl DownloadService {
             sha256: None,
             expected_sha256,
             error: None,
+            last_run_seconds: None,
+            average_mbps: None,
             demo,
             media,
         };
@@ -478,6 +500,8 @@ impl DownloadService {
             task.eta_seconds = None;
             match result {
                 Ok(report) => {
+                    task.last_run_seconds = Some(report.total_seconds);
+                    task.average_mbps = report.average_mbps;
                     task.state = report.outcome;
                     task.completed_bytes = report.bytes;
                     if task.state == "completed" {

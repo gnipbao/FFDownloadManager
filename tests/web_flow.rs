@@ -271,3 +271,104 @@ async fn http_ui_creates_real_download_and_blocks_foreign_mutations() {
     server_task.abort();
     source.stop().await.unwrap();
 }
+
+#[tokio::test]
+async fn web_capabilities_gate_dev_tools_and_never_expose_system_proxy_controls() {
+    let dir = tempfile::tempdir().unwrap();
+    let web = LocalWeb::bind(0, dir.path().join("files"), dir.path().join("state"))
+        .await
+        .unwrap();
+    let origin = format!("http://{}", web.address);
+    let service = web.service.clone();
+    let server = tokio::spawn(async move {
+        axum::serve(web.listener, web.router).await.unwrap();
+    });
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    let info: Value = serde_json::from_str(
+        &client
+            .get(format!("{origin}/api/capabilities"))
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(info["dev_mode"], cfg!(debug_assertions));
+    assert_eq!(info["application_capture"], false);
+    assert_eq!(info["browser_capture"], cfg!(debug_assertions));
+    let capture = client
+        .get(format!("{origin}/api/capture"))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(
+        capture.status().as_u16(),
+        if cfg!(debug_assertions) { 200 } else { 404 }
+    );
+    let benchmark = client
+        .get(format!("{origin}/api/benchmark"))
+        .send()
+        .await
+        .unwrap();
+    assert_eq!(
+        benchmark.status().as_u16(),
+        if cfg!(debug_assertions) { 200 } else { 404 }
+    );
+    if !cfg!(debug_assertions) {
+        for (method, path) in [
+            (reqwest::Method::DELETE, "/api/capture"),
+            (reqwest::Method::POST, "/api/capture/start"),
+            (reqwest::Method::POST, "/api/capture/stop"),
+            (reqwest::Method::POST, "/api/capture/browser"),
+            (reqwest::Method::POST, "/api/capture/test/download"),
+        ] {
+            assert_eq!(
+                client
+                    .request(method, format!("{origin}{path}"))
+                    .header("x-ffdm-client", "local-ui")
+                    .header("content-type", "application/json")
+                    .body(r#"{"url":"http://127.0.0.1/","connections":4}"#)
+                    .send()
+                    .await
+                    .unwrap()
+                    .status(),
+                404,
+                "{path}"
+            );
+        }
+        assert_eq!(
+            client
+                .post(format!("{origin}/api/benchmark"))
+                .header("x-ffdm-client", "local-ui")
+                .send()
+                .await
+                .unwrap()
+                .status(),
+            404
+        );
+    }
+    for path in [
+        "/api/capture/application/setup",
+        "/api/capture/application/start",
+        "/api/capture/application/restore",
+        "/api/capture/certificate/open",
+    ] {
+        let response = client
+            .post(format!("{origin}{path}"))
+            .header("x-ffdm-client", "local-ui")
+            .header("content-type", "application/json")
+            .body("{}")
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(
+            response.status(),
+            404,
+            "web must not mutate system settings: {path}"
+        );
+    }
+    service.shutdown().await.unwrap();
+    server.abort();
+}

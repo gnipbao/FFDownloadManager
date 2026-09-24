@@ -65,9 +65,21 @@ impl MediaPlan {
         ensure!(
             matches!(
                 self.extension.as_str(),
-                "mp4" | "webm" | "mkv" | "m4a" | "mp3" | "ogg" | "flv"
+                "mp4"
+                    | "webm"
+                    | "mkv"
+                    | "mov"
+                    | "m4a"
+                    | "mp3"
+                    | "ogg"
+                    | "flv"
+                    | "flac"
+                    | "wav"
+                    | "aac"
+                    | "opus"
+                    | "ape"
             ),
-            "不支持的视频容器"
+            "不支持的媒体容器"
         );
         ensure!(
             self.assembly != Assembly::Direct || self.streams.len() == 1,
@@ -262,6 +274,13 @@ impl MediaResolver {
         );
         resolved.plans.sort_by(|a, b| {
             a.1.cmp(&b.1)
+                .then_with(|| {
+                    let original = |plan: &MediaPlan| {
+                        plan.platform == "Xiaohongshu"
+                            && plan.format_id == crate::chinese_video::XHS_ORIGINAL_FORMAT
+                    };
+                    original(&b.2).cmp(&original(&a.2))
+                })
                 .then(b.0.cmp(&a.0))
                 .then((!a.2.label.contains("H.264")).cmp(&(!b.2.label.contains("H.264"))))
                 .then(a.2.extension.cmp(&b.2.extension))
@@ -854,6 +873,45 @@ mod tests {
     use super::*;
     use axum::{extract::Request, response::IntoResponse, Json, Router};
     use serde_json::json;
+
+    #[test]
+    fn xiaohongshu_original_is_selected_before_higher_resolution_playback() {
+        use crate::chinese_video::{NativeVariant, NativeVideo, XHS_ORIGINAL_FORMAT};
+        let resolver = MediaResolver::new().unwrap();
+        let video = NativeVideo {
+            id: "note".into(),
+            title: "小红书原始文件".into(),
+            duration_seconds: None,
+            variants: [("xhs-h264-0", 1080), (XHS_ORIGINAL_FORMAT, 0)]
+                .into_iter()
+                .map(|(id, height)| NativeVariant {
+                    id: id.into(),
+                    label: id.into(),
+                    height,
+                    url: format!("https://sns-video-bd.xhscdn.com/pre_post/{id}"),
+                    size: None,
+                    headers: vec![],
+                    decrypt_key: None,
+                })
+                .collect(),
+        };
+        let resolved = normalize_native(
+            "https://www.xiaohongshu.com/explore/note",
+            "Xiaohongshu",
+            video,
+        )
+        .unwrap();
+        let preview = resolver.cache_resolved("Xiaohongshu", resolved).unwrap();
+        assert_eq!(preview.formats[0].id, XHS_ORIGINAL_FORMAT);
+        let plan = resolver
+            .select(&preview.id, &preview.formats[0].id)
+            .unwrap();
+        assert_eq!(plan.assembly, Assembly::Direct);
+        assert!(plan.streams[0].url.ends_with(XHS_ORIGINAL_FORMAT));
+        assert!(!serde_json::to_string(&preview)
+            .unwrap()
+            .contains("xhscdn.com"));
+    }
 
     #[test]
     fn routing_names_and_headers_reject_unsafe_inputs() {

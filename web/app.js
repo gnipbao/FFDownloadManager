@@ -1,4 +1,5 @@
 import { api, isDesktop, onDesktopEvent } from './api.js';
+import { initWorkbench } from './workbench.js';
 
 const $ = (selector) => document.querySelector(selector);
 const icons = {
@@ -318,7 +319,13 @@ function applyMediaFormat() {
     completeFilenameInput();
   }
   $('#filename-hint').textContent = `已识别 .${format.extension} · 与所选下载格式一致`;
-  $('#media-format-info').textContent = [format.total_bytes ? bytes(format.total_bytes) : '大小以下载时为准', format.needs_merge ? '下载完成后自动合并音视频' : format.audio_only ? '保存音频文件' : '包含完整音视频'].join(' · ');
+  const sourceInfo = mediaPreview.platform === 'Xiaohongshu'
+    ? format.id === 'xhs-original' ? '原始文件直接保存，不转码'
+      : mediaPreview.formats.some(f => f.id === 'xhs-original')
+        ? '网页播放版可能含平台水印，建议选择原始文件'
+        : '未取得可用原始文件，当前版本可能含平台水印'
+    : null;
+  $('#media-format-info').textContent = [format.total_bytes ? bytes(format.total_bytes) : '大小以下载时为准', format.needs_merge ? '下载完成后自动合并音视频' : format.audio_only ? '保存音频文件' : '包含完整音视频', sourceInfo].filter(Boolean).join(' · ');
 }
 
 async function parseVideo() {
@@ -483,6 +490,8 @@ function renderDetail() {
     ${pair('分段设置', `${task.connections} 路（当前活跃 ${task.active_connections} 路）`)}
     ${pair('添加时间', new Date(task.created_at).toLocaleString('zh-CN', {hour12:false}))}
     ${task.completed_at ? pair('完成时间', new Date(task.completed_at).toLocaleString('zh-CN', {hour12:false})) : ''}
+    ${task.last_run_seconds != null ? pair('本次运行耗时', `${task.last_run_seconds.toFixed(2)} 秒（包含文件落盘与校验）`) : ''}
+    ${task.average_mbps != null ? pair('全流程平均速率', `${task.average_mbps.toFixed(1)} Mbps · ${(task.average_mbps / 8).toFixed(2)} MB/s`) : ''}
     ${task.sha256 ? pair('SHA-256', task.sha256, true) : ''}</dl>
     ${task.error ? `<p class="form-error">${escape(task.error)}</p>` : ''}
     <p class="detail-note">${task.sha256 ? task.expected_sha256 ? '已与提供的 SHA-256 比对，内容校验通过。' : '已计算文件摘要。未提供预期摘要，尚未与发布方进行比对。' : '暂停后会保留分段进度，可在本地服务下次启动时继续。'}${task.demo ? '<br>这是通过 Rust 内核下载的本地数据，用于体验操作，不作为公网测速。' : ''}<br>移除记录会保留已经下载的文件及临时数据。</p>`;
@@ -526,3 +535,5 @@ if (isDesktop) {
   onDesktopEvent('desktop-status', message => toast(message)).catch(error => toast(error.message, true));
 }
 poll();
+
+initWorkbench({toast, onTaskCreated: refresh, hasActive: () => snapshot.tasks.some(active)});

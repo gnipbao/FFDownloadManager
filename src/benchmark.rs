@@ -230,3 +230,39 @@ pub fn summarize(report: &BenchmarkReport) -> String {
 pub fn default_report_path() -> PathBuf {
     PathBuf::from("benchmarks/local-results.json")
 }
+
+/// One reproducible test at a time; the UI receives measured samples and hashes.
+pub struct WebBenchmark {
+    status: std::sync::Mutex<serde_json::Value>,
+    output: PathBuf,
+}
+impl WebBenchmark {
+    pub fn new(output: PathBuf) -> std::sync::Arc<Self> {
+        std::sync::Arc::new(Self {
+            status: std::sync::Mutex::new(
+                serde_json::json!({"running":false,"report":null,"error":null}),
+            ),
+            output,
+        })
+    }
+    pub fn snapshot(&self) -> serde_json::Value {
+        self.status.lock().unwrap().clone()
+    }
+    pub fn start(self: &std::sync::Arc<Self>) -> Result<()> {
+        ensure!(cfg!(debug_assertions), "内核测速仅在开发模式可用");
+        let mut status = self.status.lock().unwrap();
+        ensure!(status["running"] != true, "测速正在进行中");
+        *status = serde_json::json!({"running":true,"report":null,"error":null});
+        let this = self.clone();
+        tokio::spawn(async move {
+            let result = local_benchmark(32, 1, vec![1, 4, 8], &this.output).await;
+            *this.status.lock().unwrap() = match result {
+                Ok(report) => serde_json::json!({"running":false,"report":report,"error":null}),
+                Err(error) => {
+                    serde_json::json!({"running":false,"report":null,"error":crate::media::safe_error(&error.to_string())})
+                }
+            };
+        });
+        Ok(())
+    }
+}

@@ -8,6 +8,12 @@
 
 ![FFDownload macOS 客户端截图](site/app-screenshot.png)
 
+## v0.3.4 发布说明
+
+本版保留文件直链下载、暂停续传和视频链接解析。资源捕获、后台浏览器捕获与视频号系统代理抓包仍在调试，正式安装包和 release 模式的 Web 工作台暂不开放；“内核测速”也仅用于开发。旧的 `#capture` / `#speedtest` 地址会回到下载任务，发布版不能通过接口启动捕获。
+
+开发者可用 debug 构建继续验证实验功能，见 [开发验证说明](docs/rust-capture-mvp.zh-CN.md)。完整变更与安装信息见 [v0.3.4 发布说明](docs/releases/v0.3.4.md)。
+
 ## 能做什么
 
 - **大文件下载**：HTTP/HTTPS、1–16 路连接、任务队列、实时速度与进度；服务器不支持 Range 时回退单连接。

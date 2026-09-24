@@ -22,12 +22,16 @@ use tokio::{io::AsyncReadExt, net::TcpListener};
 #[derive(Clone)]
 struct WebState {
     service: Arc<DownloadService>,
+    capture: Arc<crate::capture::CaptureService>,
+    #[cfg(debug_assertions)]
+    benchmark: Arc<crate::benchmark::WebBenchmark>,
     origin: String,
     demo_hash: String,
 }
 
 pub struct LocalWeb {
     pub service: Arc<DownloadService>,
+    pub capture: Arc<crate::capture::CaptureService>,
     pub address: SocketAddr,
     pub router: Router,
     pub listener: TcpListener,
@@ -44,8 +48,18 @@ impl LocalWeb {
         let demo_hash = format!("{:x}", Sha256::digest(&data));
         let mut config = ServerConfig::new(data);
         config.per_response_mbps = Some(6.0);
+        let capture = crate::capture::CaptureService::new(
+            state_directory.join("capture-browser"),
+            format!("http://{address}"),
+        );
+        if let Err(error) = capture.recover_system_proxy().await {
+            eprintln!("上次代理配置仍需恢复，请在 macOS 网络设置中检查：{error}");
+        }
         let state = WebState {
             service: service.clone(),
+            capture: capture.clone(),
+            #[cfg(debug_assertions)]
+            benchmark: crate::benchmark::WebBenchmark::new(state_directory.join("speed-test.json")),
             origin: format!("http://{address}"),
             demo_hash,
         };
@@ -53,8 +67,10 @@ impl LocalWeb {
             .route("/", get(index))
             .route("/app.js", get(app_js))
             .route("/api.js", get(api_js))
+            .route("/workbench.js", get(workbench_js))
             .route("/style.css", get(style))
             .route("/favicon.svg", get(favicon))
+            .route("/api/capabilities", get(capabilities))
             .route("/api/tasks", get(snapshot).post(create))
             .route("/api/filename", post(filename))
             .route("/api/media/resolve", post(resolve_media))
@@ -66,13 +82,34 @@ impl LocalWeb {
             .route("/api/tasks/{id}/reveal", post(reveal))
             .route("/api/tasks/{id}/file", get(file))
             .route("/api/tasks/{id}", axum::routing::delete(remove))
-            .route("/api/folder/open", post(open_folder))
+            .route("/api/folder/open", post(open_folder));
+        let router = if crate::capabilities::Capabilities::for_host(false).browser_capture {
+            router
+                .route("/api/capture", get(capture_snapshot).delete(capture_clear))
+                .route("/api/capture/start", post(capture_start))
+                .route("/api/capture/stop", post(capture_stop))
+                .route("/api/capture/browser", post(capture_browser))
+                .route("/api/capture/{id}/download", post(capture_download))
+        } else {
+            router
+        };
+        #[cfg(debug_assertions)]
+        let router = router
+            .route(
+                "/api/benchmark",
+                get(benchmark_snapshot).post(benchmark_start),
+            )
+            .route("/capture-demo", get(capture_demo));
+        // A tiny local media fixture is also used by download integration tests.
+        let router = router
+            .route("/capture-demo/sample.mp4", get(capture_sample))
             .with_state(state.clone())
             .nest("/sample", fixture_router(config))
             .layer(DefaultBodyLimit::max(16 * 1024))
             .layer(middleware::from_fn_with_state(state, local_only));
         Ok(Self {
             service,
+            capture,
             address,
             router,
             listener,
@@ -86,9 +123,13 @@ pub async fn serve(port: u16, directory: PathBuf, state_directory: PathBuf) -> R
     println!("下载位置：{}", web.service.directory().display());
     println!("按 Ctrl-C 保存下载进度并退出。");
     let service = web.service.clone();
+    let capture = web.capture.clone();
     axum::serve(web.listener, web.router)
         .with_graceful_shutdown(async move {
             wait_for_exit().await;
+            if let Err(error) = capture.stop().await {
+                eprintln!("恢复代理失败：{error}；请在 macOS 网络设置中检查代理配置");
+            }
             if let Err(error) = service.shutdown().await {
                 eprintln!("保存进度失败：{error}");
             }
@@ -152,12 +193,15 @@ async fn local_only(State(state): State<WebState>, request: Request, next: Next)
         HeaderValue::from_static("nosniff"),
     );
     headers.insert("referrer-policy", HeaderValue::from_static("no-referrer"));
-    headers.insert("content-security-policy", HeaderValue::from_static("default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"));
+    headers.insert("content-security-policy", HeaderValue::from_static("default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; media-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"));
     response
 }
 
 fn asset(content_type: &'static str, contents: &'static str) -> impl IntoResponse {
     ([(header::CONTENT_TYPE, content_type)], contents)
+}
+async fn capabilities() -> Json<crate::capabilities::Capabilities> {
+    Json(crate::capabilities::Capabilities::for_host(false))
 }
 async fn index() -> impl IntoResponse {
     asset(
@@ -175,6 +219,12 @@ async fn api_js() -> impl IntoResponse {
     asset(
         "text/javascript; charset=utf-8",
         include_str!("../web/api.js"),
+    )
+}
+async fn workbench_js() -> impl IntoResponse {
+    asset(
+        "text/javascript; charset=utf-8",
+        include_str!("../web/workbench.js"),
     )
 }
 async fn style() -> impl IntoResponse {
@@ -355,4 +405,114 @@ async fn file(
         Body::from_stream(stream),
     )
         .into_response())
+}
+
+async fn capture_snapshot(State(state): State<WebState>) -> Json<crate::capture::CaptureSnapshot> {
+    Json(state.capture.snapshot().await)
+}
+async fn capture_start(State(state): State<WebState>) -> ApiResult<serde_json::Value> {
+    state.capture.start().await?;
+    Ok(done())
+}
+async fn capture_stop(State(state): State<WebState>) -> ApiResult<serde_json::Value> {
+    state.capture.stop().await?;
+    Ok(done())
+}
+async fn capture_clear(State(state): State<WebState>) -> Json<serde_json::Value> {
+    state.capture.clear();
+    done()
+}
+#[derive(Deserialize)]
+struct CaptureBrowserRequest {
+    url: String,
+    #[serde(default)]
+    visible: bool,
+}
+async fn capture_browser(
+    State(state): State<WebState>,
+    Json(request): Json<CaptureBrowserRequest>,
+) -> ApiResult<serde_json::Value> {
+    state
+        .capture
+        .open_browser_mode(&request.url, request.visible)
+        .await?;
+    Ok(done())
+}
+#[derive(Deserialize)]
+struct CaptureDownload {
+    #[serde(default = "capture_connections")]
+    connections: usize,
+    #[serde(default)]
+    decode_key: Option<String>,
+}
+fn capture_connections() -> usize {
+    8
+}
+async fn capture_download(
+    State(state): State<WebState>,
+    Path(id): Path<String>,
+    Json(request): Json<CaptureDownload>,
+) -> ApiResult<crate::service::Task> {
+    let plan = state.capture.select(&id, request.decode_key.as_deref())?;
+    Ok(Json(
+        state.service.create_captured(plan, request.connections)?,
+    ))
+}
+#[cfg(debug_assertions)]
+async fn benchmark_snapshot(State(state): State<WebState>) -> Json<serde_json::Value> {
+    Json(state.benchmark.snapshot())
+}
+#[cfg(debug_assertions)]
+async fn benchmark_start(State(state): State<WebState>) -> ApiResult<serde_json::Value> {
+    state.benchmark.start()?;
+    Ok(done())
+}
+#[cfg(debug_assertions)]
+async fn capture_demo() -> impl IntoResponse {
+    asset("text/html; charset=utf-8", "<!doctype html><meta charset=utf-8><title>FFDownload 捕获测试</title><h1>资源捕获测试页</h1><p>播放下方测试视频，然后回到 FFDownload 的资源捕获列表下载。此页面用于验证流程，不代表平台解析或公网速度。</p><video controls width=480 src=/capture-demo/sample.mp4></video>")
+}
+async fn capture_sample(request: Request) -> Response {
+    let data = include_bytes!("../tests/fixtures/sample-av.mp4");
+    let range = request
+        .headers()
+        .get(header::RANGE)
+        .and_then(|v| v.to_str().ok())
+        .and_then(|s| s.strip_prefix("bytes="))
+        .and_then(|s| s.split_once('-'))
+        .and_then(|(a, b)| {
+            Some((
+                a.parse::<usize>().ok()?,
+                if b.is_empty() {
+                    data.len() - 1
+                } else {
+                    b.parse::<usize>().ok()?.min(data.len() - 1)
+                },
+            ))
+        });
+    let (start, end) = range.unwrap_or((0, data.len() - 1));
+    if start > end || start >= data.len() {
+        return StatusCode::RANGE_NOT_SATISFIABLE.into_response();
+    }
+    let mut response = Response::builder()
+        .status(if range.is_some() {
+            StatusCode::PARTIAL_CONTENT
+        } else {
+            StatusCode::OK
+        })
+        .header(header::CONTENT_TYPE, "video/mp4")
+        .header(header::ACCEPT_RANGES, "bytes")
+        .header(header::CONTENT_LENGTH, end - start + 1);
+    if range.is_some() {
+        response = response.header(
+            header::CONTENT_RANGE,
+            format!("bytes {start}-{end}/{}", data.len()),
+        );
+    }
+    response
+        .body(if request.method() == Method::HEAD {
+            Body::empty()
+        } else {
+            Body::from(data[start..=end].to_vec())
+        })
+        .unwrap()
 }

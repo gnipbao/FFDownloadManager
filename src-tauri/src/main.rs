@@ -23,9 +23,149 @@ type Reply<T> = Result<T, String>;
 
 struct DesktopState {
     service: Arc<DownloadService>,
+    capture: Arc<ffdownload::capture::CaptureService>,
+    #[cfg(debug_assertions)]
+    benchmark: Arc<ffdownload::benchmark::WebBenchmark>,
     ffmpeg: PathBuf,
     quitting: AtomicBool,
     saved: AtomicBool,
+}
+
+impl DesktopState {
+    async fn shutdown(&self) -> anyhow::Result<()> {
+        let proxy = self.capture.stop().await;
+        let tasks = self.service.shutdown().await;
+        proxy.and(tasks)
+    }
+}
+
+#[tauri::command]
+fn desktop_capabilities() -> ffdownload::capabilities::Capabilities {
+    ffdownload::capabilities::Capabilities::for_host(true)
+}
+
+fn require_capture() -> Reply<()> {
+    if desktop_capabilities().browser_capture {
+        Ok(())
+    } else {
+        Err("资源捕获与应用抓包暂未在发布版开放".into())
+    }
+}
+
+#[tauri::command]
+async fn desktop_capture(
+    state: State<'_, DesktopState>,
+) -> Reply<ffdownload::capture::CaptureSnapshot> {
+    require_capture()?;
+    Ok(state.capture.snapshot().await)
+}
+
+#[tauri::command]
+async fn desktop_capture_browser(
+    state: State<'_, DesktopState>,
+    url: String,
+    visible: Option<bool>,
+) -> Reply<()> {
+    require_capture()?;
+    state
+        .capture
+        .open_browser_mode(&url, visible.unwrap_or(false))
+        .await
+        .map_err(error)
+}
+
+#[tauri::command]
+async fn desktop_capture_stop(state: State<'_, DesktopState>) -> Reply<()> {
+    // Cleanup must remain available when upgrading from a capture test build.
+    state.capture.stop().await.map_err(error)
+}
+
+#[tauri::command]
+fn desktop_capture_clear(state: State<'_, DesktopState>) -> Reply<()> {
+    require_capture()?;
+    state.capture.clear();
+    Ok(())
+}
+
+#[tauri::command]
+fn desktop_capture_download(
+    state: State<'_, DesktopState>,
+    id: String,
+    connections: usize,
+    decode_key: Option<String>,
+) -> Reply<Task> {
+    require_capture()?;
+    let plan = state
+        .capture
+        .select(&id, decode_key.as_deref())
+        .map_err(error)?;
+    state
+        .service
+        .create_captured(plan, connections)
+        .map_err(error)
+}
+
+#[tauri::command]
+async fn desktop_capture_setup(
+    state: State<'_, DesktopState>,
+    service: Option<String>,
+) -> Reply<serde_json::Value> {
+    require_capture()?;
+    state
+        .capture
+        .application_setup(service.as_deref())
+        .await
+        .map_err(error)
+}
+
+#[tauri::command]
+async fn desktop_capture_application_start(
+    state: State<'_, DesktopState>,
+    service: String,
+) -> Reply<()> {
+    require_capture()?;
+    state
+        .capture
+        .start_application(&service)
+        .await
+        .map_err(error)
+}
+
+#[tauri::command]
+async fn desktop_capture_restore(state: State<'_, DesktopState>) -> Reply<()> {
+    state.capture.recover_system_proxy().await.map_err(error)
+}
+
+#[tauri::command]
+async fn desktop_capture_certificate_open(state: State<'_, DesktopState>) -> Reply<()> {
+    require_capture()?;
+    state.capture.open_certificate().await.map_err(error)
+}
+
+#[tauri::command]
+fn desktop_benchmark(state: State<'_, DesktopState>) -> Reply<serde_json::Value> {
+    #[cfg(debug_assertions)]
+    {
+        Ok(state.benchmark.snapshot())
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        let _ = state;
+        Err("内核测速仅在开发模式可用".into())
+    }
+}
+
+#[tauri::command]
+fn desktop_benchmark_start(state: State<'_, DesktopState>) -> Reply<()> {
+    #[cfg(debug_assertions)]
+    {
+        state.benchmark.start().map_err(error)
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        let _ = state;
+        Err("内核测速仅在开发模式可用".into())
+    }
 }
 
 fn error(e: anyhow::Error) -> String {
@@ -255,11 +395,10 @@ fn begin_shutdown(app: &AppHandle) {
     if state.quitting.swap(true, Ordering::SeqCst) {
         return;
     }
-    let service = state.service.clone();
     let app = app.clone();
     let _ = app.emit("desktop-status", "正在保存下载进度，完成后退出…");
     tauri::async_runtime::spawn(async move {
-        match service.shutdown().await {
+        match app.state::<DesktopState>().shutdown().await {
             Ok(()) => {
                 app.state::<DesktopState>()
                     .saved
@@ -273,7 +412,7 @@ fn begin_shutdown(app: &AppHandle) {
                 show_main(&app);
                 app.dialog()
                     .message(format!(
-                        "保存进度失败，应用暂未退出。请检查磁盘空间后再次退出。\n{}",
+                        "恢复代理或保存进度失败，应用暂未退出。请处理以下问题后再次退出。\n{}",
                         error(e)
                     ))
                     .title("FFDownload")
@@ -293,9 +432,9 @@ fn save_before_system_exit(app: &AppHandle) {
     // Exit still runs before Tauri tears down the app. Wait here for the Rust
     // workers (which do not need the UI thread) instead of spawning work that
     // would be killed as soon as this callback returns.
-    match tauri::async_runtime::block_on(state.service.shutdown()) {
+    match tauri::async_runtime::block_on(state.shutdown()) {
         Ok(()) => state.saved.store(true, Ordering::SeqCst),
-        Err(e) => eprintln!("退出时保存下载进度失败：{}", error(e)),
+        Err(e) => eprintln!("退出时恢复代理或保存进度失败：{}", error(e)),
     }
 }
 
@@ -329,7 +468,16 @@ fn main() {
             let service = tauri::async_runtime::block_on(async {
                 DownloadService::open_with_ffmpeg(&directory, &state_directory, Some(ffmpeg.clone()))
             })?;
-            app.manage(DesktopState { service, ffmpeg, quitting: AtomicBool::new(false), saved: AtomicBool::new(false) });
+            let capture = ffdownload::capture::CaptureService::new(state_directory.join("capture-browser"), "tauri://localhost".into());
+            if let Err(error) = tauri::async_runtime::block_on(capture.recover_system_proxy()) {
+                eprintln!("上次代理配置仍需恢复，请在 macOS 网络设置中检查：{error}");
+            }
+            app.manage(DesktopState {
+                service, capture, ffmpeg,
+                #[cfg(debug_assertions)]
+                benchmark: ffdownload::benchmark::WebBenchmark::new(state_directory.join("speed-test.json")),
+                quitting: AtomicBool::new(false), saved: AtomicBool::new(false),
+            });
             let config = &app.config().app.windows[0];
             WebviewWindowBuilder::from_config(app, config)?
                 .on_navigation(|url| {
@@ -354,6 +502,7 @@ fn main() {
             desktop_snapshot, desktop_create, desktop_filename, desktop_resolve_media,
             desktop_create_media, desktop_pause, desktop_resume, desktop_remove,
             desktop_reveal, desktop_pause_all, desktop_open_folder, desktop_copy_link, desktop_info,
+            desktop_capabilities, desktop_capture, desktop_capture_browser, desktop_capture_stop, desktop_capture_clear, desktop_capture_download, desktop_capture_setup, desktop_capture_application_start, desktop_capture_restore, desktop_capture_certificate_open, desktop_benchmark, desktop_benchmark_start,
         ])
         .on_menu_event(|app, event| match event.id().as_ref() {
             "quit" => begin_shutdown(app),
@@ -445,6 +594,12 @@ mod tests {
         let app = mock_builder()
             .manage(DesktopState {
                 service: service.clone(),
+                capture: ffdownload::capture::CaptureService::new(
+                    store.join("capture-browser"),
+                    "tauri://localhost".into(),
+                ),
+                #[cfg(debug_assertions)]
+                benchmark: ffdownload::benchmark::WebBenchmark::new(store.join("speed-test.json")),
                 ffmpeg: "missing".into(),
                 quitting: AtomicBool::new(false),
                 saved: AtomicBool::new(false),
@@ -453,7 +608,17 @@ mod tests {
                 desktop_snapshot,
                 desktop_create,
                 desktop_resume,
-                desktop_remove
+                desktop_remove,
+                desktop_capabilities,
+                desktop_capture,
+                desktop_capture_clear,
+                desktop_capture_stop,
+                desktop_capture_browser,
+                desktop_capture_download,
+                desktop_capture_setup,
+                desktop_capture_application_start,
+                desktop_capture_certificate_open,
+                desktop_benchmark
             ])
             .build(tauri::generate_context!())
             .unwrap();
@@ -466,6 +631,69 @@ mod tests {
         assert!(
             invoke(&untrusted, "desktop_snapshot", json!({})).is_err(),
             "only the bundled main window may access tasks"
+        );
+        let capabilities = invoke(&window, "desktop_capabilities", json!({})).unwrap();
+        assert_eq!(capabilities["dev_mode"], cfg!(debug_assertions));
+        assert_eq!(capabilities["browser_capture"], cfg!(debug_assertions));
+        assert_eq!(
+            capabilities["application_capture"],
+            cfg!(all(debug_assertions, target_os = "macos"))
+        );
+        assert!(invoke(&untrusted, "desktop_capture", json!({})).is_err());
+        if cfg!(debug_assertions) {
+            assert!(
+                !invoke(&window, "desktop_capture", json!({})).unwrap()["running"]
+                    .as_bool()
+                    .unwrap()
+            );
+            app.state::<DesktopState>().capture.start().await.unwrap();
+            assert!(
+                invoke(&window, "desktop_capture", json!({})).unwrap()["running"]
+                    .as_bool()
+                    .unwrap()
+            );
+            invoke(&window, "desktop_capture_clear", json!({})).unwrap();
+            invoke(&window, "desktop_capture_stop", json!({})).unwrap();
+            assert!(
+                !invoke(&window, "desktop_capture", json!({})).unwrap()["running"]
+                    .as_bool()
+                    .unwrap()
+            );
+        } else {
+            for (command, args) in [
+                ("desktop_capture", json!({})),
+                ("desktop_capture_clear", json!({})),
+                (
+                    "desktop_capture_browser",
+                    json!({"url":"http://127.0.0.1/"}),
+                ),
+                (
+                    "desktop_capture_download",
+                    json!({"id":"test","connections":4}),
+                ),
+                ("desktop_capture_setup", json!({})),
+                (
+                    "desktop_capture_application_start",
+                    json!({"service":"Wi-Fi"}),
+                ),
+                ("desktop_capture_certificate_open", json!({})),
+            ] {
+                let result = invoke(&window, command, args).unwrap_err();
+                assert!(
+                    result.as_str().unwrap().contains("暂未在发布版开放"),
+                    "{command}: {result}"
+                );
+            }
+            assert!(!app.state::<DesktopState>().capture.snapshot().await.running);
+            assert!(
+                !store.join("capture-browser").exists(),
+                "disabled commands must not prepare a CA or browser profile"
+            );
+            invoke(&window, "desktop_capture_stop", json!({})).unwrap();
+        }
+        assert_eq!(
+            invoke(&window, "desktop_benchmark", json!({})).is_ok(),
+            cfg!(debug_assertions)
         );
         assert!(invoke(
             &window,

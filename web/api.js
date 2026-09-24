@@ -24,6 +24,15 @@ async function request(path, method = 'GET', body, timeout = 15000) {
   return response.json();
 }
 const webApi = {
+  capabilities: () => request('/capabilities'),
+  capture: () => request('/capture'),
+  captureStart: () => request('/capture/start', 'POST'),
+  captureStop: () => request('/capture/stop', 'POST'),
+  captureBrowser: (url, visible = false) => request('/capture/browser', 'POST', {url, visible}),
+  captureClear: () => request('/capture', 'DELETE'),
+  captureDownload: (id, connections, decode_key) => request(`/capture/${encodeURIComponent(id)}/download`, 'POST', {connections, decode_key}),
+  benchmark: () => request('/benchmark'),
+  benchmarkStart: () => request('/benchmark', 'POST'),
   snapshot: () => request('/tasks'),
   create: (task) => request('/tasks', 'POST', task),
   filename: (url) => request('/filename', 'POST', {url}),
@@ -39,6 +48,18 @@ const webApi = {
 };
 
 const desktopApi = {
+  capabilities: () => invoke('desktop_capabilities'),
+  capture: () => invoke('desktop_capture'),
+  captureStop: () => invoke('desktop_capture_stop'),
+  captureBrowser: (url, visible = false) => invoke('desktop_capture_browser', {url, visible}),
+  captureSetup: service => invoke('desktop_capture_setup', {service:service || null}),
+  captureApplicationStart: service => invoke('desktop_capture_application_start', {service}),
+  captureRestore: () => invoke('desktop_capture_restore'),
+  captureCertificateOpen: () => invoke('desktop_capture_certificate_open'),
+  captureClear: () => invoke('desktop_capture_clear'),
+  captureDownload: (id, connections, decode_key) => invoke('desktop_capture_download', {id, connections, decodeKey:decode_key || null}),
+  benchmark: () => invoke('desktop_benchmark'),
+  benchmarkStart: () => invoke('desktop_benchmark_start'),
   snapshot: () => invoke('desktop_snapshot'),
   create: task => invoke('desktop_create', {task}),
   filename: url => invoke('desktop_filename', {url}),

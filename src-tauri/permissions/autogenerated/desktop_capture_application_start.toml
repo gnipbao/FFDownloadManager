@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-capture-application-start"
+description = "Enables the desktop_capture_application_start command without any pre-configured scope."
+commands.allow = ["desktop_capture_application_start"]
+
+[[permission]]
+identifier = "deny-desktop-capture-application-start"
+description = "Denies the desktop_capture_application_start command without any pre-configured scope."
+commands.deny = ["desktop_capture_application_start"]

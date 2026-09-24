@@ -1,4 +1,11 @@
 pub mod benchmark;
+pub mod capabilities;
+pub mod capture;
+mod capture_browser;
+mod capture_ca;
+mod capture_system;
+mod capture_transport;
+mod capture_wechat;
 mod chinese_video;
 pub mod download;
 pub mod filename;

@@ -45,7 +45,8 @@ pub async fn run(
     lock.try_lock_exclusive()
         .context("另一个进程正在处理此视频")?;
     let identity = work.join("plan.json");
-    if identity.exists() {
+    let resumed_session = identity.exists();
+    if resumed_session {
         let saved: MediaPlan = serde_json::from_reader(File::open(&identity)?)?;
         ensure!(
             serde_json::to_value(saved)? == serde_json::to_value(&plan)?,
@@ -57,7 +58,9 @@ pub async fn run(
         file.as_file().sync_all()?;
         file.persist_noclobber(&identity).map_err(|e| e.error)?;
     }
-    let engine = if matches!(
+    let engine = if plan.platform == "Rust Capture" {
+        "Rust capture / gosh-dl"
+    } else if matches!(
         plan.platform.as_str(),
         "Douyin" | "Xiaohongshu" | "WeChat Channels"
     ) {
@@ -75,11 +78,15 @@ pub async fn run(
         transfer_seconds: started.elapsed().as_secs_f64(),
         finalize_seconds: 0.0,
         total_seconds: started.elapsed().as_secs_f64(),
-        average_mbps: None,
+        average_mbps: (outcome == "completed" && !resumed_session)
+            .then(|| bytes as f64 * 8.0 / started.elapsed().as_secs_f64() / 1_000_000.0),
         sha256: hash,
     };
     let mut paths = Vec::new();
     let mut completed = 0;
+    // The downloader has already hashed this exact, newly completed track.
+    // A direct file needs no second full-file read before publication.
+    let mut verified_direct_hash = None;
     for (index, stream) in plan.streams.iter().enumerate() {
         if *control.pause.borrow() {
             return Ok(report(
@@ -155,6 +162,9 @@ pub async fn run(
         completed += result.bytes;
         if result.outcome == "paused" {
             return Ok(report("paused", completed, None));
+        }
+        if plan.assembly == Assembly::Direct && stream.decrypt_key.is_none() {
+            verified_direct_hash = result.sha256;
         }
         paths.push(track);
     }
@@ -247,9 +257,14 @@ pub async fn run(
                 .tempfile_in(&work)?;
             crate::wechat_crypto::decrypt_copy(&source, decrypted.as_file_mut(), key)?;
             let path = decrypted.into_temp_path();
-            publish(path.as_ref(), &dest, expected_sha256.as_deref())
+            publish(path.as_ref(), &dest, expected_sha256.as_deref(), None)
         } else {
-            publish(&source, &dest, expected_sha256.as_deref())
+            publish(
+                &source,
+                &dest,
+                expected_sha256.as_deref(),
+                verified_direct_hash,
+            )
         }
     })
     .await??;
@@ -268,12 +283,20 @@ async fn wait_for_pause(pause: &mut watch::Receiver<bool>) {
     }
 }
 
-fn publish(source: &Path, output: &Path, expected: Option<&str>) -> Result<(u64, String)> {
+fn publish(
+    source: &Path,
+    output: &Path,
+    expected: Option<&str>,
+    verified_hash: Option<String>,
+) -> Result<(u64, String)> {
     let file = OpenOptions::new().write(true).open(source)?;
     file.sync_all()?;
     let size = file.metadata()?.len();
     ensure!(size > 0, "合并结果为空，原始轨道已保留");
-    let hash = sha256_file(source)?;
+    let hash = match verified_hash {
+        Some(hash) => hash,
+        None => sha256_file(source)?,
+    };
     if let Some(expected) = expected {
         ensure!(
             hash.eq_ignore_ascii_case(expected),

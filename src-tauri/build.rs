@@ -14,6 +14,18 @@ fn main() {
             "desktop_open_folder",
             "desktop_copy_link",
             "desktop_info",
+            "desktop_capabilities",
+            "desktop_capture",
+            "desktop_capture_browser",
+            "desktop_capture_stop",
+            "desktop_capture_clear",
+            "desktop_capture_download",
+            "desktop_capture_setup",
+            "desktop_capture_application_start",
+            "desktop_capture_restore",
+            "desktop_capture_certificate_open",
+            "desktop_benchmark",
+            "desktop_benchmark_start",
         ]),
     ))
     .expect("build desktop assets and permissions");

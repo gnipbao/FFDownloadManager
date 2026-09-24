@@ -1,6 +1,6 @@
 [package]
 name = "ffdownload-desktop"
-version = "0.3.0"
+version = "0.3.4"
 edition = "2021"
 rust-version = "1.95"
 description = "FFDownload for macOS and Windows"

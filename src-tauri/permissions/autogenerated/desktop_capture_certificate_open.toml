@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-capture-certificate-open"
+description = "Enables the desktop_capture_certificate_open command without any pre-configured scope."
+commands.allow = ["desktop_capture_certificate_open"]
+
+[[permission]]
+identifier = "deny-desktop-capture-certificate-open"
+description = "Denies the desktop_capture_certificate_open command without any pre-configured scope."
+commands.deny = ["desktop_capture_certificate_open"]

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-desktop-capture-download"
+description = "Enables the desktop_capture_download command without any pre-configured scope."
+commands.allow = ["desktop_capture_download"]
+
+[[permission]]
+identifier = "deny-desktop-capture-download"
+description = "Denies the desktop_capture_download command without any pre-configured scope."
+commands.deny = ["desktop_capture_download"]
