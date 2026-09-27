@@ -146,6 +146,7 @@ pub struct MediaResolver {
     probe: crate::youtube::MediaProbe,
     bilibili: BiliClient,
     chinese: crate::chinese_video::ChineseResolver,
+    qishui: crate::qishui::QishuiResolver,
     cache: Mutex<HashMap<String, Cached>>,
     slots: Semaphore,
     pub ffmpeg: Option<PathBuf>,
@@ -172,6 +173,7 @@ impl MediaResolver {
                 ClientConfig::default().with_request_timeout(Duration::from_secs(15)),
             ),
             chinese: crate::chinese_video::ChineseResolver::new()?,
+            qishui: crate::qishui::QishuiResolver::new(),
             cache: Mutex::new(HashMap::new()),
             slots: Semaphore::new(2),
             ffmpeg,
@@ -189,14 +191,19 @@ impl MediaResolver {
     ) -> Result<MediaPreview> {
         let url = crate::filename::parse_url(raw)?;
         let platform = platform(url.as_str()).context(
-            "暂不支持这个视频平台，请使用 YouTube、B 站、抖音、小红书、视频号等单个视频链接",
+            "暂不支持这个媒体平台，请使用 YouTube、B 站、抖音、小红书、汽水音乐等单个作品链接",
         )?;
         let _permit = self
             .slots
             .try_acquire()
-            .context("已有两个视频正在解析，请稍后再试")?;
+            .context("已有两个音视频链接正在解析，请稍后再试")?;
         let work = async {
-            if matches!(platform, "Douyin" | "Xiaohongshu" | "WeChat Channels") {
+            if platform == "Qishui Music" {
+                let track = self.qishui.resolve(&url).await.map_err(|error| {
+                    anyhow::anyhow!("汽水音乐解析失败：{}", safe_error(&format!("{error:#}")))
+                })?;
+                Ok(normalize_qishui(track))
+            } else if matches!(platform, "Douyin" | "Xiaohongshu" | "WeChat Channels") {
                 let video = self
                     .chinese
                     .resolve(&url, platform, platform_cookie)
@@ -260,7 +267,7 @@ impl MediaResolver {
         };
         let resolved = tokio::time::timeout(Duration::from_secs(50), work)
             .await
-            .context("视频解析超时，请检查网络后重试")??;
+            .context("音视频解析超时，请检查网络后重试")??;
         self.cache_resolved(platform, resolved)
     }
 
@@ -340,7 +347,7 @@ impl MediaResolver {
         let entry = cache
             .get(id)
             .filter(|e| e.expires_at > crate::service::now_ms())
-            .context("解析结果已过期，请重新解析视频")?;
+            .context("解析结果已过期，请重新解析链接")?;
         let plan = entry
             .plans
             .iter()
@@ -356,7 +363,7 @@ impl MediaResolver {
     }
 
     pub async fn validate_download(&self, plan: &MediaPlan) -> Result<()> {
-        if plan.platform == "YouTube" {
+        if matches!(plan.platform.as_str(), "YouTube" | "Qishui Music") {
             for stream in &plan.streams {
                 self.probe.check(stream).await.map_err(|error| {
                     anyhow::anyhow!(
@@ -372,6 +379,9 @@ impl MediaResolver {
 
 pub fn platform(raw: &str) -> Option<&'static str> {
     let url = crate::filename::parse_url(raw).ok()?;
+    if crate::qishui::is_track_page(&url) {
+        return Some("Qishui Music");
+    }
     let host = url.host_str()?.to_ascii_lowercase();
     let matches = |domain: &str| host == domain || host.ends_with(&format!(".{domain}"));
     if matches("bilibili.com") || matches("b23.tv") || matches("bilibili.tv") {
@@ -603,6 +613,48 @@ fn normalize_native(
         duration: video.duration_seconds,
         plans,
     })
+}
+
+fn normalize_qishui(track: crate::qishui::QishuiTrack) -> Resolved {
+    let kind = if track.preview {
+        "网页试听片段"
+    } else {
+        "网页音频"
+    };
+    let label = track.bitrate_kbps.map_or_else(
+        || format!("{kind} · {}", track.extension.to_uppercase()),
+        |rate| {
+            format!(
+                "{kind} · {} · 约 {rate} kbps",
+                track.extension.to_uppercase()
+            )
+        },
+    );
+    let plan = MediaPlan {
+        source_url: format!(
+            "https://music.douyin.com/qishui/share/track?track_id={}",
+            track.id
+        ),
+        source_id: track.id,
+        platform: "Qishui Music".into(),
+        title: track.title.clone(),
+        format_id: "qishui-audio".into(),
+        label,
+        extension: track.extension.into(),
+        assembly: Assembly::Direct,
+        streams: vec![MediaStream {
+            url: track.media_url,
+            headers: track.headers,
+            size: track.size,
+            decrypt_key: None,
+        }],
+        extracted_at: crate::service::now_ms(),
+    };
+    Resolved {
+        title: track.title,
+        duration: track.duration_seconds,
+        plans: vec![(0, true, plan)],
+    }
 }
 
 fn bili_stream(spec: &MediaRequestSpec) -> MediaStream {
@@ -914,10 +966,41 @@ mod tests {
     }
 
     #[test]
+    fn qishui_audio_is_selected_with_a_music_filename_and_no_sharer_id() {
+        let resolver = MediaResolver::new().unwrap();
+        let resolved = normalize_qishui(crate::qishui::QishuiTrack {
+            id: "7687463141597169715".into(),
+            title: "测试歌手 - 测试曲目".into(),
+            duration_seconds: Some(153),
+            media_url: "https://v26-luna.douyinvod.com/audio?br=126&mime_type=audio_mp4".into(),
+            extension: "m4a",
+            bitrate_kbps: Some(126),
+            size: Some(2533293),
+            headers: vec![("Referer".into(), "https://music.douyin.com/".into())],
+            preview: false,
+        });
+        let preview = resolver.cache_resolved("Qishui Music", resolved).unwrap();
+        assert_eq!(preview.formats.len(), 1);
+        assert_eq!(preview.formats[0].filename, "测试歌手 - 测试曲目.m4a");
+        assert!(preview.formats[0].audio_only);
+        let plan = resolver
+            .select(&preview.id, &preview.formats[0].id)
+            .unwrap();
+        assert_eq!(plan.assembly, Assembly::Direct);
+        assert_eq!(plan.extension, "m4a");
+        assert!(!plan.source_url.contains("sec_sharer_id"));
+        assert!(plan.validate().is_ok());
+    }
+
+    #[test]
     fn routing_names_and_headers_reject_unsafe_inputs() {
         assert_eq!(platform("https://youtu.be/abcdefghijk"), Some("YouTube"));
         assert_eq!(platform("https://b23.tv/abc"), Some("Bilibili"));
         assert_eq!(platform("https://v.douyin.com/example"), Some("Douyin"));
+        assert_eq!(
+            platform("https://music.douyin.com/qishui/share/track?track_id=7687463141597169715"),
+            Some("Qishui Music")
+        );
         assert_eq!(
             platform("https://xhslink.cn/o/example"),
             Some("Xiaohongshu")

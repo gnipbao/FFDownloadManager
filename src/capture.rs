@@ -514,7 +514,7 @@ impl CaptureService {
         Ok(plan)
     }
 }
-fn browser_binary() -> Option<PathBuf> {
+pub(crate) fn browser_binary() -> Option<PathBuf> {
     #[cfg(target_os = "macos")]
     let candidates: Vec<PathBuf> = vec![
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome".into(),

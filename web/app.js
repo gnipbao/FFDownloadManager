@@ -134,7 +134,7 @@ function actionButton(task) {
   else if (task.state === 'paused') { action = 'resume'; name = 'play'; label = '继续下载'; }
   else if (task.state === 'error') {
     const reparse = task.media && /\b(?:403|410)\b|媒体地址已失效/.test(task.error || '');
-    action = reparse ? 'reparse' : 'resume'; name = 'retry'; label = reparse ? '重新解析视频' : '重试下载';
+    action = reparse ? 'reparse' : 'resume'; name = 'retry'; label = reparse ? '重新解析链接' : '重试下载';
   }
   else if (task.state === 'completed') {
     if (!snapshot.can_reveal) return `<a class="icon-button active-action" href="/api/tasks/${encodeURIComponent(task.id)}/file" download="${escape(task.filename)}" title="保存副本" aria-label="保存副本">${icon('download')}</a>`;
@@ -262,16 +262,19 @@ function suggestName() {
   }
   $('#form-error').hidden = true;
   $('#parse-video').disabled = false;
-  $('#parse-video').textContent = '解析视频';
+  const audioLink = mediaSite === '汽水音乐';
+  $('#parse-video').textContent = audioLink ? '解析音频' : '解析视频';
+  $('#media-panel').setAttribute('aria-label', audioLink ? '音频解析结果' : '视频解析结果');
+  $('#media-panel .media-eyebrow').textContent = audioLink ? '音频信息' : '视频信息';
   updateSubmitButton();
   const field = $('#download-filename');
   if (!filenameEdited) field.value = '';
   field.placeholder = '粘贴链接后自动识别文件名和后缀';
   $('#filename-hint').textContent = '后缀会根据下载文件自动补全。';
   if (mediaSite) {
-    $('#media-source-label').textContent = `${mediaSite} 视频链接`;
-    field.placeholder = '解析后自动填写视频名称';
-    $('#filename-hint').textContent = '解析视频后选择清晰度和文件格式。';
+    $('#media-source-label').textContent = `${mediaSite} ${audioLink ? '音乐' : '视频'}链接`;
+    field.placeholder = audioLink ? '解析后自动填写歌曲名称' : '解析后自动填写视频名称';
+    $('#filename-hint').textContent = audioLink ? '自动读取网页播放音频并识别文件格式。' : '解析视频后选择清晰度和文件格式。';
     return;
   }
   const raw = $('#download-url').value.trim();
@@ -288,6 +291,7 @@ function videoPlatform(raw) {
   try {
     const url = new URL(videoUrl(raw));
     if (!['http:', 'https:'].includes(url.protocol)) return null;
+    if (url.protocol === 'https:' && url.hostname === 'music.douyin.com' && url.pathname === '/qishui/share/track') return '汽水音乐';
     const sites = {'bilibili.com':'Bilibili', 'b23.tv':'Bilibili', 'bilibili.tv':'Bilibili', 'youtube.com':'YouTube', 'youtu.be':'YouTube', 'youtube-nocookie.com':'YouTube', 'douyin.com':'抖音', 'iesdouyin.com':'抖音', 'xiaohongshu.com':'小红书', 'xhslink.com':'小红书', 'xhslink.cn':'小红书', 'weixin.qq.com':'视频号', 'channels.weixin.qq.com':'视频号', 'tiktok.com':'TikTok', 'instagram.com':'Instagram', 'x.com':'X', 'twitter.com':'X', 'reddit.com':'Reddit', 'redd.it':'Reddit'};
     return Object.entries(sites).find(([host]) => url.hostname === host || url.hostname.endsWith(`.${host}`))?.[1] || null;
   } catch { return null; }
@@ -302,7 +306,8 @@ function updateSubmitButton() {
   const busy = mediaRequest?.version === filenameVersion;
   const unavailable = mediaPreview && !mediaPreview.formats.some(f => !f.needs_merge || mediaPreview.ffmpeg_available);
   $('#submit-download').disabled = submitting || busy || unavailable;
-  $('#submit-download').innerHTML = busy ? '正在解析视频…' : mediaSite && !mediaPreview ? `${icon('search')}解析视频` : `${icon('download')}开始下载`;
+  const noun = mediaSite === '汽水音乐' ? '音频' : '视频';
+  $('#submit-download').innerHTML = busy ? `正在解析${noun}…` : mediaSite && !mediaPreview ? `${icon('search')}解析${noun}` : `${icon('download')}开始下载`;
 }
 
 function applyMediaFormat() {
@@ -324,7 +329,7 @@ function applyMediaFormat() {
       : mediaPreview.formats.some(f => f.id === 'xhs-original')
         ? '网页播放版可能含平台水印，建议选择原始文件'
         : '未取得可用原始文件，当前版本可能含平台水印'
-    : null;
+    : mediaPreview.platform === 'Qishui Music' ? '网页播放音频直接保存，不转码' : null;
   $('#media-format-info').textContent = [format.total_bytes ? bytes(format.total_bytes) : '大小以下载时为准', format.needs_merge ? '下载完成后自动合并音视频' : format.audio_only ? '保存音频文件' : '包含完整音视频', sourceInfo].filter(Boolean).join(' · ');
 }
 
@@ -485,7 +490,7 @@ function renderDetail() {
   $('#detail-content').innerHTML = `<h2 id="detail-title" class="detail-name">${escape(task.filename)}</h2><p class="detail-status">${stateLabels[task.state]}${task.demo ? ' · 本地体验文件' : ''}</p><dl class="detail-list">
     ${pair('文件大小', `${bytes(task.completed_bytes)} / ${bytes(task.total_bytes)}`)}
     ${pair('下载来源', displayUrl(task))}
-    ${task.media ? pair('视频格式', `${task.media.platform} · ${task.media.label}`) : ''}
+    ${task.media ? pair('下载格式', `${task.media.platform} · ${task.media.label}`) : ''}
     ${pair('保存位置', `${snapshot.download_directory}/${task.filename}`)}
     ${pair('分段设置', `${task.connections} 路（当前活跃 ${task.active_connections} 路）`)}
     ${pair('添加时间', new Date(task.created_at).toLocaleString('zh-CN', {hour12:false}))}

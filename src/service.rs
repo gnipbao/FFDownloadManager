@@ -260,7 +260,7 @@ impl DownloadService {
         let url = parse_url(&request.url)?;
         ensure!(
             crate::media::platform(url.as_str()).is_none(),
-            "这是视频页面链接，请先解析视频并选择清晰度"
+            "这是音视频页面链接，请先解析并选择下载格式"
         );
         ensure!((1..=16).contains(&request.connections), "连接数须为 1–16");
         let expected_sha256 = request.sha256.filter(|s| !s.is_empty());
@@ -323,7 +323,7 @@ impl DownloadService {
         validate_filename(&filename)?;
         ensure!(
             crate::filename::extension(&filename).as_deref() == Some(plan.extension.as_str()),
-            "文件后缀必须与所选视频格式一致：.{}",
+            "文件后缀必须与所选下载格式一致：.{}",
             plan.extension
         );
         let hash = request.sha256.filter(|s| !s.is_empty());

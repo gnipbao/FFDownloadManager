@@ -5,6 +5,7 @@ use futures_util::{SinkExt, StreamExt};
 use serde::Serialize;
 use serde_json::{json, Value};
 use std::{
+    collections::VecDeque,
     path::Path,
     process::Stdio,
     sync::{Arc, Mutex},
@@ -16,6 +17,102 @@ use tokio::{
     task::JoinHandle,
 };
 use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, WebSocketStream};
+
+/// A short-lived browser for a platform resolver. Unlike a capture session this
+/// uses ordinary HTTPS and has no proxy, certificate exception or saved profile.
+pub(crate) struct HeadlessPage {
+    cdp: Cdp,
+    child: Option<Child>,
+    profile: Option<tempfile::TempDir>,
+}
+
+impl HeadlessPage {
+    pub async fn launch() -> Result<Self> {
+        let binary = crate::capture::browser_binary()
+            .context("解析汽水音乐需要安装 Google Chrome 或 Microsoft Edge")?;
+        let profile = tempfile::Builder::new().prefix("ffdm-media-").tempdir()?;
+        let mut child = Command::new(binary)
+            .args(page_browser_args(profile.path()))
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .kill_on_drop(true)
+            .spawn()
+            .context("无法启动媒体解析浏览器")?;
+        let port_file = profile.path().join("DevToolsActivePort");
+        let result = tokio::select! {
+            result = connect(&port_file) => result,
+            _ = child.wait() => Err(anyhow::anyhow!("媒体解析浏览器启动失败")),
+        };
+        match result {
+            Ok(cdp) => Ok(Self {
+                cdp,
+                child: Some(child),
+                profile: Some(profile),
+            }),
+            Err(error) => {
+                let _ = child.kill().await;
+                Err(error)
+            }
+        }
+    }
+
+    pub async fn call(&mut self, method: &str, params: Value) -> Result<Value> {
+        self.cdp.call(method, params).await
+    }
+
+    pub fn take_events(&mut self) -> Vec<Value> {
+        self.cdp.events.drain(..).collect()
+    }
+
+    pub async fn close(mut self) {
+        let _ = tokio::time::timeout(
+            Duration::from_secs(2),
+            self.cdp.call("Browser.close", json!({})),
+        )
+        .await;
+        if let Some(mut child) = self.child.take() {
+            if tokio::time::timeout(Duration::from_secs(2), child.wait())
+                .await
+                .is_err()
+            {
+                let _ = child.kill().await;
+            }
+        }
+        self.profile.take();
+    }
+}
+
+impl Drop for HeadlessPage {
+    fn drop(&mut self) {
+        if let Some(mut child) = self.child.take() {
+            let _ = child.start_kill();
+            let profile = self.profile.take();
+            if let Ok(runtime) = tokio::runtime::Handle::try_current() {
+                runtime.spawn(async move {
+                    let _ = child.wait().await;
+                    drop(profile);
+                });
+            }
+        }
+    }
+}
+
+fn page_browser_args(profile: &Path) -> Vec<String> {
+    vec![
+        format!("--user-data-dir={}", profile.display()),
+        "--remote-debugging-address=127.0.0.1".into(),
+        "--remote-debugging-port=0".into(),
+        "--headless=new".into(),
+        "--autoplay-policy=no-user-gesture-required".into(),
+        "--mute-audio".into(),
+        "--no-first-run".into(),
+        "--no-default-browser-check".into(),
+        "--disable-background-networking".into(),
+        "--window-size=1440,1000".into(),
+        "about:blank".into(),
+    ]
+}
 
 #[derive(Clone, Serialize)]
 pub struct BrowserStatus {
@@ -171,6 +268,7 @@ async fn run(
 struct Cdp {
     socket: WebSocketStream<MaybeTlsStream<tokio::net::TcpStream>>,
     next_id: u64,
+    events: VecDeque<Value>,
 }
 
 impl Cdp {
@@ -199,6 +297,15 @@ impl Cdp {
                 if response["id"].as_u64() == Some(id) {
                     ensure!(response.get("error").is_none(), "浏览器未能执行媒体检测");
                     return Ok(response["result"].clone());
+                }
+                if matches!(
+                    response["method"].as_str(),
+                    Some("Network.requestWillBeSent" | "Network.responseReceived")
+                ) {
+                    if self.events.len() >= 512 {
+                        self.events.pop_front();
+                    }
+                    self.events.push_back(response);
                 }
             }
             anyhow::bail!("捕获浏览器已关闭")
@@ -243,7 +350,11 @@ async fn connect(port_file: &Path) -> Result<Cdp> {
                                 "浏览器控制地址不是本机地址"
                             );
                             let (socket, _) = connect_async(endpoint).await?;
-                            return Ok(Cdp { socket, next_id: 0 });
+                            return Ok(Cdp {
+                                socket,
+                                next_id: 0,
+                                events: VecDeque::new(),
+                            });
                         }
                     }
                 }
@@ -274,6 +385,44 @@ async fn inspect(cdp: &mut Cdp, visible: bool) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn retains_network_events_interleaved_with_command_replies() {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            let (stream, _) = listener.accept().await.unwrap();
+            let mut socket = tokio_tungstenite::accept_async(stream).await.unwrap();
+            let request = socket.next().await.unwrap().unwrap();
+            let request: Value = serde_json::from_str(request.to_text().unwrap()).unwrap();
+            for response in [
+                json!({"method":"Network.requestWillBeSent","params":{"requestId":"audio"}}),
+                json!({"method":"Page.loadEventFired","params":{}}),
+                json!({"method":"Network.responseReceived","params":{"requestId":"audio"}}),
+                json!({"id":request["id"],"result":{"ok":true}}),
+            ] {
+                socket
+                    .send(Message::Text(response.to_string().into()))
+                    .await
+                    .unwrap();
+            }
+        });
+        let (socket, _) = connect_async(format!("ws://{address}")).await.unwrap();
+        let mut cdp = Cdp {
+            socket,
+            next_id: 0,
+            events: VecDeque::new(),
+        };
+        assert_eq!(
+            cdp.call("Runtime.evaluate", json!({})).await.unwrap(),
+            json!({"ok":true})
+        );
+        assert_eq!(cdp.events.len(), 2);
+        assert_eq!(cdp.events[0]["method"], "Network.requestWillBeSent");
+        assert_eq!(cdp.events[1]["method"], "Network.responseReceived");
+        server.await.unwrap();
+    }
+
     #[test]
     fn background_is_default_and_interactive_profile_stays_isolated() {
         let args = browser_args(

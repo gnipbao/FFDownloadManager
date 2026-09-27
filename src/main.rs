@@ -30,7 +30,7 @@ enum Command {
     },
     /// Inspect a URL using the same Rust HTTP/TLS stack; no payload download.
     Probe { url: String },
-    /// Parse a supported video page into available download formats.
+    /// Parse a supported media page into available download formats.
     Extract { url: String },
     /// Download a URL; Ctrl-C checkpoints the session for `resume`.
     Download {

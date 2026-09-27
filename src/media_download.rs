@@ -60,6 +60,8 @@ pub async fn run(
     }
     let engine = if plan.platform == "Rust Capture" {
         "Rust capture / gosh-dl"
+    } else if plan.platform == "Qishui Music" {
+        "Rust browser media parser / gosh-dl"
     } else if matches!(
         plan.platform.as_str(),
         "Douyin" | "Xiaohongshu" | "WeChat Channels"
