@@ -55,6 +55,7 @@ async fn redirected_header_name_is_used_for_the_published_file() {
         .create(
             NewTask {
                 url,
+                direct: false,
                 filename: Some("我的报告".into()),
                 connections: 1,
                 sha256: None,

@@ -18,3 +18,4 @@
 
 .capture-browser-status{color:#627783;font-size:12px;line-height:1.6;margin:10px 0 22px;padding:12px 14px;background:#f4f8f7;border-radius:8px}
 #capture-wechat-assets{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.6;color:var(--muted)}
+.new-dialog .dialog-actions{position:sticky;bottom:0;background:#fff;padding-top:14px;padding-bottom:8px;z-index:1}

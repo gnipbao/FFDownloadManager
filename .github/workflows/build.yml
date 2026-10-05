@@ -25,6 +25,7 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - run: npm ci
+      - run: npm run test:web
       - name: Prepare bundled FFmpeg for desktop tests
         run: sh scripts/build-ffmpeg-macos.sh
       - run: cargo fmt --all -- --check
@@ -51,6 +52,7 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - run: npm run test:web
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: '1.98.1'

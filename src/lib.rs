@@ -9,6 +9,7 @@ mod capture_wechat;
 mod chinese_video;
 pub mod download;
 pub mod filename;
+mod link;
 pub mod media;
 pub mod media_download;
 mod qishui;

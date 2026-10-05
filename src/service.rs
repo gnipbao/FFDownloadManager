@@ -58,6 +58,9 @@ impl Task {
 #[derive(Deserialize)]
 pub struct NewTask {
     pub url: String,
+    /// Explicit file mode bypasses only automatic media-page classification.
+    #[serde(default)]
+    pub direct: bool,
     #[serde(default)]
     pub filename: Option<String>,
     #[serde(default = "default_connections")]
@@ -259,7 +262,7 @@ impl DownloadService {
     pub async fn create(self: &Arc<Self>, request: NewTask, demo: bool) -> Result<Task> {
         let url = parse_url(&request.url)?;
         ensure!(
-            crate::media::platform(url.as_str()).is_none(),
+            request.direct || crate::media::platform(url.as_str()).is_none(),
             "这是音视频页面链接，请先解析并选择下载格式"
         );
         ensure!((1..=16).contains(&request.connections), "连接数须为 1–16");
@@ -513,10 +516,7 @@ impl DownloadService {
                 Err(error) => {
                     task.state = "error".into();
                     // Signed query strings must not leak into UI errors or logs.
-                    let message = crate::media::safe_error(
-                        &format!("{error:#}").replace(&task.url, "[下载地址]"),
-                    );
-                    task.error = Some(message);
+                    task.error = Some(download_error(&error, &task.url));
                 }
             }
         }
@@ -639,6 +639,44 @@ impl DownloadService {
             tokio::time::sleep(Duration::from_millis(100)).await;
         }
         self.persist(&self.inner.lock().unwrap())
+    }
+}
+
+fn download_error(error: &anyhow::Error, url: &str) -> String {
+    let message = crate::media::safe_error(&format!("{error:#}").replace(url, "[下载地址]"));
+    let status =
+        error
+            .chain()
+            .find_map(|cause| match cause.downcast_ref::<gosh_dl::EngineError>() {
+                Some(gosh_dl::EngineError::Network {
+                    kind: gosh_dl::NetworkErrorKind::HttpStatus(code),
+                    ..
+                }) => Some(*code),
+                _ => cause
+                    .downcast_ref::<reqwest::Error>()
+                    .and_then(|error| error.status())
+                    .map(|status| status.as_u16()),
+            });
+    // Worker events and restored task errors contain the engine's serialized
+    // message rather than its typed error. Match only HTTP status descriptions,
+    // never arbitrary numbers from a URL, filename or byte count.
+    static HTTP_STATUS: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| {
+        regex::Regex::new(r"(?i)(?:HTTP (?:error|status):?\s*|HEAD request returned:\s*)(\d{3})\b")
+            .unwrap()
+    });
+    let status = status.or_else(|| {
+        HTTP_STATUS
+            .captures(&message)?
+            .get(1)?
+            .as_str()
+            .parse::<u16>()
+            .ok()
+    });
+    match status {
+        Some(401) => "下载源要求登录授权（HTTP 401）。浏览器登录状态不会自动共享，请使用带访问授权的直链，或在已登录浏览器中下载。".into(),
+        Some(403) => "下载源拒绝访问（HTTP 403）。请确认访问权限，或在原网站重新获取有效下载链接。".into(),
+        Some(code @ (404 | 410)) => format!("文件不存在或链接已失效（HTTP {code}），请重新获取下载链接。"),
+        _ => message,
     }
 }
 

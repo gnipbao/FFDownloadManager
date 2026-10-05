@@ -46,6 +46,7 @@ async fn live_controls_persist_resume_and_preserve_completed_files() {
         .create(
             NewTask {
                 url: server.url.clone(),
+                direct: false,
                 filename: Some("resume.bin".into()),
                 connections: 4,
                 sha256: Some(hash.clone()),
@@ -116,6 +117,7 @@ async fn queue_is_bounded_and_rejects_path_traversal() {
             .create(
                 NewTask {
                     url: server.url.clone(),
+                    direct: false,
                     filename: Some(filename.into()),
                     connections: 4,
                     sha256: None,
@@ -130,6 +132,7 @@ async fn queue_is_bounded_and_rejects_path_traversal() {
             .create(
                 NewTask {
                     url: server.url.clone(),
+                    direct: false,
                     filename: Some("file.bin".into()),
                     connections: 1,
                     sha256: None,

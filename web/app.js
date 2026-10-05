@@ -249,7 +249,7 @@ function suggestName() {
   filenameRequest = null;
   mediaPreview = null;
   mediaRequest = null;
-  mediaSite = videoPlatform($('#download-url').value.trim());
+  mediaSite = mediaPlatform($('#download-url').value, $('#download-mode').value);
   $('#media-panel').hidden = true;
   $('#media-source').hidden = !mediaSite;
   $('#platform-auth').hidden = !['视频号', '小红书'].includes(mediaSite);
@@ -263,7 +263,7 @@ function suggestName() {
   $('#form-error').hidden = true;
   $('#parse-video').disabled = false;
   const audioLink = mediaSite === '汽水音乐';
-  $('#parse-video').textContent = audioLink ? '解析音频' : '解析视频';
+  $('#parse-video').textContent = audioLink ? '解析音频' : mediaSite === '音视频' ? '解析音视频' : '解析视频';
   $('#media-panel').setAttribute('aria-label', audioLink ? '音频解析结果' : '视频解析结果');
   $('#media-panel .media-eyebrow').textContent = audioLink ? '音频信息' : '视频信息';
   updateSubmitButton();
@@ -272,12 +272,12 @@ function suggestName() {
   field.placeholder = '粘贴链接后自动识别文件名和后缀';
   $('#filename-hint').textContent = '后缀会根据下载文件自动补全。';
   if (mediaSite) {
-    $('#media-source-label').textContent = `${mediaSite} ${audioLink ? '音乐' : '视频'}链接`;
+    $('#media-source-label').textContent = mediaSite === '音视频' ? '音视频页面链接' : `${mediaSite} ${audioLink ? '音乐' : '视频'}链接`;
     field.placeholder = audioLink ? '解析后自动填写歌曲名称' : '解析后自动填写视频名称';
     $('#filename-hint').textContent = audioLink ? '自动读取网页播放音频并识别文件格式。' : '解析视频后选择清晰度和文件格式。';
     return;
   }
-  const raw = $('#download-url').value.trim();
+  const raw = videoUrl($('#download-url').value);
   try {
     const url = new URL(raw);
     if (!['http:', 'https:'].includes(url.protocol)) return;
@@ -290,23 +290,75 @@ function suggestName() {
 function videoPlatform(raw) {
   try {
     const url = new URL(videoUrl(raw));
-    if (!['http:', 'https:'].includes(url.protocol)) return null;
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null;
+    const host = url.hostname;
+    const path = url.pathname;
+    const main = (...domains) => domains.some(domain => [domain, `www.${domain}`, `m.${domain}`].includes(host));
+    const short = /^\/[a-zA-Z0-9_-]+\/?$/;
     if (url.protocol === 'https:' && url.hostname === 'music.douyin.com' && url.pathname === '/qishui/share/track') return '汽水音乐';
-    const sites = {'bilibili.com':'Bilibili', 'b23.tv':'Bilibili', 'bilibili.tv':'Bilibili', 'youtube.com':'YouTube', 'youtu.be':'YouTube', 'youtube-nocookie.com':'YouTube', 'douyin.com':'抖音', 'iesdouyin.com':'抖音', 'xiaohongshu.com':'小红书', 'xhslink.com':'小红书', 'xhslink.cn':'小红书', 'weixin.qq.com':'视频号', 'channels.weixin.qq.com':'视频号', 'tiktok.com':'TikTok', 'instagram.com':'Instagram', 'x.com':'X', 'twitter.com':'X', 'reddit.com':'Reddit', 'redd.it':'Reddit'};
-    return Object.entries(sites).find(([host]) => url.hostname === host || url.hostname.endsWith(`.${host}`))?.[1] || null;
+    if ((main('youtube.com') || host === 'music.youtube.com') && (path === '/watch' && url.searchParams.getAll('v').some(Boolean) || /^\/(?:shorts|embed|live)\/[\w-]+\/?$/.test(path))
+      || ['youtu.be', 'www.youtu.be'].includes(host) && short.test(path)
+      || ['youtube-nocookie.com', 'www.youtube-nocookie.com'].includes(host) && /^\/embed\/[\w-]+\/?$/.test(path)) return 'YouTube';
+    if (main('bilibili.com') && /^\/(?:video|bangumi\/play)\/[\w-]+\/?$/.test(path)
+      || ['b23.tv', 'www.b23.tv'].includes(host) && short.test(path)
+      || ['bilibili.tv', 'www.bilibili.tv'].includes(host) && /^\/(?:[a-z]{2}\/)?video\/[\w-]+\/?$/.test(path)) return 'Bilibili';
+    if (main('douyin.com') && (/^\/video\/\d+\/?$/.test(path) || url.searchParams.getAll('modal_id').some(id => /^\d+$/.test(id)))
+      || ['iesdouyin.com', 'www.iesdouyin.com'].includes(host) && /^\/share\/video\/\d+\/?$/.test(path)
+      || host === 'v.douyin.com' && short.test(path)) return '抖音';
+    if (main('xiaohongshu.com') && /^\/(?:explore|discovery\/item)\/[\w-]+\/?$/.test(path)
+      || ['xhslink.com', 'www.xhslink.com', 'xhslink.cn', 'www.xhslink.cn'].includes(host) && /^\/(?:[ao]\/)?[\w-]+\/?$/.test(path)) return '小红书';
+    if (host === 'weixin.qq.com' && /^\/sph\/[\w-]+\/?$/.test(path)
+      || host === 'channels.weixin.qq.com' && path.startsWith('/finder-preview/pages/')) return '视频号';
+    if (main('tiktok.com') && (/^\/@[^/]+\/video\/\d+\/?$/.test(path) || /^\/t\/[\w-]+\/?$/.test(path))
+      || ['vm.tiktok.com', 'vt.tiktok.com'].includes(host) && short.test(path)) return 'TikTok';
+    if (main('instagram.com') && /^\/(?:p|reel|reels|tv)\/[\w-]+\/?$/.test(path)) return 'Instagram';
+    if ((main('x.com', 'twitter.com') || ['mobile.x.com', 'mobile.twitter.com'].includes(host))
+      && /^\/(?:[^/]+\/status|i\/web\/status|i\/status)\/\d+(?:\/(?:video|photo)\/\d+)?\/?$/.test(path)) return 'X';
+    if ((main('reddit.com') || ['old.reddit.com', 'new.reddit.com'].includes(host)) && /^\/(?:r\/[^/]+\/)?comments\/[\w-]+(?:\/|$)/.test(path)
+      || ['redd.it', 'www.redd.it'].includes(host) && short.test(path)) return 'Reddit';
+    return null;
   } catch { return null; }
 }
 
 function videoUrl(raw) {
-  const match = raw.match(/https?:\/\/[^\s<>"']+/i);
-  return (match?.[0] || raw.trim()).replace(/[，。；;！!）)]+$/, '');
+  const text = raw.trim();
+  // A complete URL may legitimately end in parentheses, a semicolon or a signature.
+  if (/^https?:\/\/[^\s<>]+$/i.test(text)) return text;
+  const match = text.match(/https?:\/\/[^\s<>"']+/i);
+  let url = (match?.[0] || text).replace(/[，。；！]+$/, '');
+  for (const [open, close] of [['(', ')'], ['（', '）'], ['[', ']'], ['【', '】']]) {
+    while (url.endsWith(close) && url.split(close).length > url.split(open).length) url = url.slice(0, -1);
+  }
+  return url;
+}
+
+function mediaPlatform(raw, mode) {
+  if (mode === 'direct') return null;
+  const detected = videoPlatform(raw);
+  if (detected || mode !== 'media') return detected;
+  try {
+    const url = new URL(videoUrl(raw));
+    const sites = {
+      Bilibili: ['bilibili.com', 'www.bilibili.com', 'm.bilibili.com', 'b23.tv', 'www.b23.tv', 'bilibili.tv', 'www.bilibili.tv'],
+      YouTube: ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be', 'www.youtu.be', 'youtube-nocookie.com', 'www.youtube-nocookie.com'],
+      抖音: ['douyin.com', 'www.douyin.com', 'm.douyin.com', 'v.douyin.com', 'iesdouyin.com', 'www.iesdouyin.com'],
+      小红书: ['xiaohongshu.com', 'www.xiaohongshu.com', 'm.xiaohongshu.com', 'xhslink.com', 'www.xhslink.com', 'xhslink.cn', 'www.xhslink.cn'],
+      视频号: ['weixin.qq.com', 'channels.weixin.qq.com'],
+      TikTok: ['tiktok.com', 'www.tiktok.com', 'm.tiktok.com', 'vm.tiktok.com', 'vt.tiktok.com'],
+      Instagram: ['instagram.com', 'www.instagram.com', 'm.instagram.com'],
+      X: ['x.com', 'www.x.com', 'm.x.com', 'mobile.x.com', 'twitter.com', 'www.twitter.com', 'm.twitter.com', 'mobile.twitter.com'],
+      Reddit: ['reddit.com', 'www.reddit.com', 'm.reddit.com', 'old.reddit.com', 'new.reddit.com', 'redd.it', 'www.redd.it'],
+    };
+    if (['http:', 'https:'].includes(url.protocol) && !url.username && !url.password) return Object.entries(sites).find(([, hosts]) => hosts.includes(url.hostname))?.[0] || '音视频';
+  } catch { /* The parser reports invalid URLs when explicitly requested. */ }
+  return '音视频';
 }
 
 function updateSubmitButton() {
   const busy = mediaRequest?.version === filenameVersion;
   const unavailable = mediaPreview && !mediaPreview.formats.some(f => !f.needs_merge || mediaPreview.ffmpeg_available);
   $('#submit-download').disabled = submitting || busy || unavailable;
-  const noun = mediaSite === '汽水音乐' ? '音频' : '视频';
+  const noun = mediaSite === '汽水音乐' ? '音频' : mediaSite === '音视频' ? '音视频' : '视频';
   $('#submit-download').innerHTML = busy ? `正在解析${noun}…` : mediaSite && !mediaPreview ? `${icon('search')}解析${noun}` : `${icon('download')}开始下载`;
 }
 
@@ -390,6 +442,7 @@ document.querySelectorAll('dialog').forEach((dialog) => dialog.addEventListener(
   }
 }));
 $('#download-url').addEventListener('input', suggestName);
+$('#download-mode').addEventListener('change', suggestName);
 $('#download-filename').addEventListener('input', () => { filenameEdited = true; });
 $('#download-filename').addEventListener('blur', completeFilenameInput);
 $('#new-dialog').addEventListener('close', () => { clearTimeout(filenameTimer); filenameVersion++; $('#platform-cookie').value = ''; });
@@ -404,7 +457,7 @@ $('#new-form').addEventListener('submit', async (event) => {
   try {
     if (!connected) throw new Error('本地服务尚未连接，请确认 FFDownload 服务正在运行。');
     clearTimeout(filenameTimer);
-    const url = $('#download-url').value.trim();
+    const url = videoUrl($('#download-url').value);
     const version = filenameVersion;
     if (!mediaSite && !filenameSuggestion) {
       button.textContent = '正在识别文件…';
@@ -418,6 +471,7 @@ $('#new-form').addEventListener('submit', async (event) => {
       filename: $('#download-filename').value.trim() || null,
       connections: Number($('#download-connections').value),
       sha256: $('#download-sha').value.trim() || null,
+      direct: $('#download-mode').value === 'direct',
     };
     const task = mediaSite
       ? await api.createMedia({...input, preview_id:mediaPreview.id, format_id:$('#media-format').value})

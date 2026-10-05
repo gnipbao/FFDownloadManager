@@ -302,6 +302,7 @@ async fn demo(State(state): State<WebState>) -> ApiResult<crate::service::Task> 
             .create(
                 NewTask {
                     url: format!("{}/sample/file.bin", state.origin),
+                    direct: false,
                     filename: Some("FFDownload-体验文件.bin".into()),
                     connections: 4,
                     sha256: Some(state.demo_hash),

@@ -190,7 +190,7 @@ impl MediaResolver {
         platform_cookie: Option<&str>,
     ) -> Result<MediaPreview> {
         let url = crate::filename::parse_url(raw)?;
-        let platform = platform(url.as_str()).context(
+        let platform = crate::link::parser_platform(&url).context(
             "暂不支持这个媒体平台，请使用 YouTube、B 站、抖音、小红书、汽水音乐等单个作品链接",
         )?;
         let _permit = self
@@ -378,35 +378,7 @@ impl MediaResolver {
 }
 
 pub fn platform(raw: &str) -> Option<&'static str> {
-    let url = crate::filename::parse_url(raw).ok()?;
-    if crate::qishui::is_track_page(&url) {
-        return Some("Qishui Music");
-    }
-    let host = url.host_str()?.to_ascii_lowercase();
-    let matches = |domain: &str| host == domain || host.ends_with(&format!(".{domain}"));
-    if matches("bilibili.com") || matches("b23.tv") || matches("bilibili.tv") {
-        Some("Bilibili")
-    } else if matches("youtube.com") || matches("youtu.be") || matches("youtube-nocookie.com") {
-        Some("YouTube")
-    } else if matches("douyin.com") || matches("iesdouyin.com") {
-        Some("Douyin")
-    } else if matches("xiaohongshu.com") || matches("xhslink.com") || matches("xhslink.cn") {
-        Some("Xiaohongshu")
-    } else if matches("weixin.qq.com") && url.path().starts_with("/sph/")
-        || matches("channels.weixin.qq.com") && url.path().starts_with("/finder-preview/pages/")
-    {
-        Some("WeChat Channels")
-    } else if matches("tiktok.com") {
-        Some("TikTok")
-    } else if matches("instagram.com") {
-        Some("Instagram")
-    } else if matches("x.com") || matches("twitter.com") {
-        Some("X")
-    } else if matches("reddit.com") || matches("redd.it") {
-        Some("Reddit")
-    } else {
-        None
-    }
+    crate::link::platform(raw)
 }
 
 fn is_manifest(url: &reqwest::Url, mime: Option<&str>) -> bool {
