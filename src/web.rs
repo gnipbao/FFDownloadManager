@@ -301,6 +301,7 @@ async fn demo(State(state): State<WebState>) -> ApiResult<crate::service::Task> 
             .service
             .create(
                 NewTask {
+                    cookie: None,
                     url: format!("{}/sample/file.bin", state.origin),
                     direct: false,
                     filename: Some("FFDownload-体验文件.bin".into()),
@@ -329,8 +330,20 @@ async fn pause_all(State(state): State<WebState>) -> ApiResult<serde_json::Value
 async fn resume(
     State(state): State<WebState>,
     Path(id): Path<String>,
+    body: axum::body::Bytes,
 ) -> ApiResult<serde_json::Value> {
-    state.service.resume(&id)?;
+    #[derive(Deserialize, Default)]
+    struct AuthorizationRequest {
+        cookie: Option<String>,
+    }
+    let request: AuthorizationRequest = if body.is_empty() {
+        AuthorizationRequest::default()
+    } else {
+        serde_json::from_slice(&body).map_err(|_| anyhow::anyhow!("授权请求格式错误"))?
+    };
+    state
+        .service
+        .resume_with_cookie(&id, request.cookie.as_deref())?;
     Ok(done())
 }
 async fn remove(

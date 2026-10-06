@@ -60,8 +60,11 @@ function downloadForm({url, mode = 'auto', preview = null}) {
   const field = selector => {
     if (!fields.has(selector)) fields.set(selector, {
       value:'', open:true, textContent:'', hidden:false,
-      addEventListener(_event, callback) { context.submit = callback; },
-      close() { this.open = false; },
+      listeners:new Map(),
+      addEventListener(event, callback) { this.listeners.set(event, callback); if (selector === '#new-form' && event === 'submit') context.submit = callback; },
+      close() { this.open = false; this.listeners.get('close')?.(); },
+      showModal() { this.open = true; },
+      focus() {},
       setAttribute() {},
     });
     return fields.get(selector);
@@ -84,7 +87,7 @@ function downloadForm({url, mode = 'auto', preview = null}) {
       createMedia:async input => { calls.push(['createMedia', input]); return {filename:'video.mp4'}; },
     },
   });
-  vm.runInContext(source.slice(source.indexOf("$('#new-form').addEventListener('submit'"), source.indexOf('\nfunction setFilter(')), context);
+  vm.runInContext(source.slice(source.indexOf("$('#new-dialog').addEventListener('close'"), source.indexOf('\nfunction setFilter(')), context);
   return {context, calls, field};
 }
 
@@ -100,6 +103,7 @@ test('form submits arbitrary files to the file API without changing their URLs',
     assert.equal(calls[0][0], 'create');
     assert.equal(calls[0][1].url, url);
     assert.equal(calls[0][1].direct, direct);
+    assert.equal('cookie' in calls[0][1], false);
   }
 });
 
@@ -113,6 +117,7 @@ test('form parses media first and then creates a task from the selected format',
   assert.equal(selected.calls[0][0], 'createMedia');
   assert.equal(selected.calls[0][1].preview_id, 'preview-1');
   assert.equal(selected.calls[0][1].format_id, 'format-1');
+  assert.equal('cookie' in selected.calls[0][1], false);
 });
 
 test('switching to file mode clears stale media previews before filename discovery', () => {
@@ -120,10 +125,143 @@ test('switching to file mode clears stale media previews before filename discove
   Object.assign(context, {filenameEdited:false, filenameRequest:null, mediaRequest:null, setTimeout() { return 1; }});
   vm.runInContext(source.slice(source.indexOf('function suggestName('), source.indexOf('function videoPlatform(')), context);
   field('#download-mode').value = 'direct';
+  field('#download-cookie').value = 'session=test-only';
+  field('#platform-cookie').value = 'platform=test-only';
   context.suggestName();
   assert.equal(context.mediaSite, null);
   assert.equal(context.mediaPreview, null);
   assert.equal(field('#media-source').hidden, true);
   assert.equal(field('#media-panel').hidden, true);
   assert.equal(context.filenameTimer, 1);
+  assert.equal(field('#download-cookie').value, '');
+  assert.equal(field('#platform-cookie').value, '');
+});
+
+test('file authorization only reaches the selected HTTPS file request and is cleared after success', async () => {
+  const file = downloadForm({url:'https://files.example.org/private.zip'});
+  file.context.filenameSuggestion = null;
+  file.field('#download-cookie').value = 'session=test-only';
+  await file.context.submit({preventDefault() {}});
+  assert.equal(file.calls.length, 1, 'authorized requests skip the anonymous filename lookup');
+  assert.equal(file.calls[0][0], 'create');
+  assert.equal(file.calls[0][1].cookie, 'session=test-only');
+  assert.equal(file.field('#download-cookie').value, '');
+
+  const media = downloadForm({url:'https://x.com/user/status/1234567890', preview:{id:'preview-1'}});
+  media.field('#download-cookie').value = 'session=test-only';
+  await media.context.submit({preventDefault() {}});
+  assert.equal(media.calls[0][0], 'createMedia');
+  assert.equal('cookie' in media.calls[0][1], false);
+});
+
+test('HTTP authorization is rejected locally; authorized API failures never echo Cookie values', async () => {
+  const http = downloadForm({url:'http://files.example.org/private.zip'});
+  http.field('#download-cookie').value = 'session=test-only';
+  await http.context.submit({preventDefault() {}});
+  assert.equal(http.calls.length, 0);
+  assert.match(http.field('#form-error').textContent, /HTTPS/);
+
+  const https = downloadForm({url:'https://files.example.org/private.zip'});
+  https.field('#download-cookie').value = 'session=test-only';
+  https.context.api.create = async () => { throw new Error('server echoed session=test-only'); };
+  await https.context.submit({preventDefault() {}});
+  assert.equal(https.field('#form-error').textContent.includes('test-only'), false);
+  assert.match(https.field('#form-error').textContent, /授权下载未能启动/);
+});
+
+test('closing new-download or changing the URL removes both authorization inputs', () => {
+  const form = downloadForm({url:'https://files.example.org/private.zip'});
+  form.field('#download-cookie').value = 'session=test-only';
+  form.field('#platform-cookie').value = 'platform=test-only';
+  form.field('#new-dialog').close();
+  assert.equal(form.field('#download-cookie').value, '');
+  assert.equal(form.field('#platform-cookie').value, '');
+
+  Object.assign(form.context, {filenameEdited:false, filenameRequest:null, mediaRequest:null, setTimeout() { return 1; }});
+  vm.runInContext(source.slice(source.indexOf('function suggestName('), source.indexOf('function videoPlatform(')), form.context);
+  form.field('#download-cookie').value = 'session=test-only';
+  form.field('#download-url').value = 'https://other.example.org/private.zip';
+  form.context.suggestName();
+  assert.equal(form.field('#download-cookie').value, '');
+  assert.match(form.field('#download-cookie-origin').textContent, /other\.example\.org/);
+});
+
+function authorizationForm() {
+  const form = downloadForm({url:'https://files.example.org/private.zip'});
+  Object.assign(form.context, {
+    authorizationTarget:null, authorizationVersion:0, authorizing:false,
+    pending:new Set(), render() {}, snapshot:{tasks:[{id:'task-1', url:'https://files.example.org/private.zip'}]},
+  });
+  form.context.api.resume = async (id, body) => { form.calls.push(['resume', id, body]); };
+  vm.runInContext(source.slice(source.indexOf('function openAuthorizationDialog('), source.indexOf('async function runAction(')), form.context);
+  form.context.openAuthorizationDialog('task-1');
+  return form;
+}
+
+test('authorization dialog resumes the existing task and clears its password field on success or close', async () => {
+  const form = authorizationForm();
+  assert.equal(form.field('#authorization-origin').textContent, 'https://files.example.org');
+  form.field('#authorization-cookie').value = 'session=test-only';
+  await form.field('#authorization-form').listeners.get('submit')({preventDefault() {}});
+  assert.equal(form.calls[0][0], 'resume');
+  assert.equal(form.calls[0][1], 'task-1');
+  assert.equal(form.calls[0][2].cookie, 'session=test-only');
+  assert.equal(form.field('#authorization-cookie').value, '');
+  assert.equal(form.context.authorizationTarget, null);
+
+  form.context.openAuthorizationDialog('task-1');
+  form.field('#authorization-cookie').value = 'session=test-only';
+  form.field('#authorization-dialog').close();
+  assert.equal(form.field('#authorization-cookie').value, '');
+  assert.equal(form.context.authorizationTarget, null);
+});
+
+test('authorization dialog refuses to forward a Cookie if the task URL changed', async () => {
+  const form = authorizationForm();
+  form.field('#authorization-cookie').value = 'session=test-only';
+  form.context.snapshot.tasks[0].url = 'https://other.example.org/private.zip';
+  await form.field('#authorization-form').listeners.get('submit')({preventDefault() {}});
+  assert.equal(form.calls.length, 0);
+  assert.match(form.field('#authorization-error').textContent, /链接已改变/);
+});
+
+test('existing in-memory authorization can resume directly; missing authorization and 401 offer the dialog', () => {
+  const context = vm.createContext({});
+  vm.runInContext(source.slice(source.indexOf('function authorizationNeeded('), source.indexOf('function actionButton(')), context);
+  assert.equal(context.authorizationNeeded({state:'paused', authorization_required:true, authorization_needed:false}), false);
+  assert.equal(context.authorizationNeeded({state:'paused', authorization_required:true, authorization_needed:true}), true);
+  assert.equal(context.authorizationNeeded({state:'error', error:'HTTP 401', authorization_needed:false}), true);
+  assert.equal(context.authorizationNeeded({state:'error', error:'HTTP 401', media:{platform:'X'}}), false);
+});
+
+test('expired authorization can be replaced after 403 without changing anonymous or media retry actions', () => {
+  const context = vm.createContext({pending:new Set(), connected:true, icon:() => '', escape:value => String(value)});
+  vm.runInContext(source.slice(source.indexOf('function authorizationNeeded('), source.indexOf('function row(')), context);
+  const task = {id:'task-1', state:'error', filename:'private.zip', error:'HTTP 403', authorization_needed:false};
+  assert.match(context.actionButton({...task, authorization_required:true}), /data-action="authorize"/);
+  assert.match(context.actionButton({...task, authorization_required:false}), /data-action="resume"/);
+  assert.match(context.actionButton({...task, authorization_required:true, media:{platform:'X'}}), /data-action="reparse"/);
+});
+
+test('resume adapters preserve the old body-free call and pass only explicit authorization', async () => {
+  const apiSource = fs.readFileSync(path.join(__dirname, '../web/api.js'), 'utf8').replace(/^export /gm, '');
+  const requests = [];
+  const web = vm.createContext({window:{}, AbortSignal, fetch:async (url, options) => {
+    requests.push({url, options});
+    return {ok:true, json:async () => ({})};
+  }});
+  vm.runInContext(`${apiSource}\nglobalThis.testApi = api;`, web);
+  await web.testApi.resume('task-1');
+  await web.testApi.resume('task-1', {cookie:'session=test-only'});
+  assert.equal(requests[0].options.body, undefined);
+  assert.deepEqual(JSON.parse(requests[1].options.body), {cookie:'session=test-only'});
+
+  const calls = [];
+  const desktop = vm.createContext({window:{__TAURI__:{core:{invoke:async (command, args) => calls.push({command,args})}}}});
+  vm.runInContext(`${apiSource}\nglobalThis.testApi = api;`, desktop);
+  await desktop.testApi.resume('task-1');
+  await desktop.testApi.resume('task-1', {cookie:'session=test-only'});
+  assert.equal(calls[0].command, 'desktop_resume');
+  assert.equal('cookie' in calls[0].args, false);
+  assert.equal(calls[1].args.cookie, 'session=test-only');
 });

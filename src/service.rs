@@ -1,5 +1,8 @@
 //! Persistent task management, independent of HTTP and desktop transports.
-use crate::download::{download_with_control, DownloadControl, DownloadRequest, DownloadSnapshot};
+use crate::download::{
+    download_with_authorization, download_with_control, DownloadControl, DownloadRequest,
+    DownloadSnapshot, FileAuthorization,
+};
 use crate::filename::{
     complete_name, is_windows_reserved_name, parse_url, FilenameInfo, FilenameResolver,
 };
@@ -42,6 +45,11 @@ pub struct Task {
     #[serde(default)]
     pub average_mbps: Option<f64>,
     pub demo: bool,
+    #[serde(default)]
+    pub authorization_required: bool,
+    /// Display-only: computed from the current process's private authorization map.
+    #[serde(default, skip_deserializing)]
+    pub authorization_needed: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub media: Option<MediaPlan>,
 }
@@ -58,6 +66,8 @@ impl Task {
 #[derive(Deserialize)]
 pub struct NewTask {
     pub url: String,
+    #[serde(default)]
+    pub cookie: Option<String>,
     /// Explicit file mode bypasses only automatic media-page classification.
     #[serde(default)]
     pub direct: bool,
@@ -101,7 +111,13 @@ struct Active {
 struct Inner {
     tasks: Vec<Task>,
     active: HashMap<String, Active>,
+    authorizations: HashMap<String, FileAuthorization>,
     stopping: bool,
+}
+
+enum TaskSource {
+    File(Option<FileAuthorization>),
+    Media(Box<MediaPlan>),
 }
 
 pub struct DownloadService {
@@ -201,9 +217,15 @@ impl DownloadService {
                 // Restart is intentionally quiet; the user chooses when to resume.
                 task.state = "paused".into();
             }
-            if task.state == "completed" && !directory.join(&task.filename).is_file() {
-                task.state = "error".into();
-                task.error = Some("下载文件已被移动或删除".into());
+            // Older builds relabeled completed files removed outside the app as
+            // failed downloads. Restore their historical status; snapshot hides
+            // missing outputs without discarding genuine unfinished tasks.
+            if task.state == "error"
+                && task.completed_at.is_some()
+                && task.error.as_deref() == Some("下载文件已被移动或删除")
+            {
+                task.state = "completed".into();
+                task.error = None;
             }
         }
         let service = Arc::new(Self {
@@ -214,6 +236,7 @@ impl DownloadService {
             inner: Mutex::new(Inner {
                 tasks,
                 active: HashMap::new(),
+                authorizations: HashMap::new(),
                 stopping: false,
             }),
             _lock: lock,
@@ -240,8 +263,26 @@ impl DownloadService {
 
     pub fn snapshot(&self) -> Snapshot {
         let inner = self.inner.lock().unwrap();
-        let mut tasks = inner.tasks.clone();
+        let mut tasks: Vec<_> = inner
+            .tasks
+            .iter()
+            .filter(|task| {
+                if task.state != "completed" {
+                    return true;
+                }
+                // Keep historical metadata so a temporarily unavailable disk or
+                // a restored file can reappear. Only the displayed list changes.
+                match std::fs::symlink_metadata(self.directory.join(&task.filename)) {
+                    Ok(metadata) => metadata.is_file() && !metadata.file_type().is_symlink(),
+                    Err(error) => error.kind() != std::io::ErrorKind::NotFound,
+                }
+            })
+            .cloned()
+            .collect();
         for task in &mut tasks {
+            task.authorization_needed = task.authorization_required
+                && task.state != "completed"
+                && !inner.authorizations.contains_key(&task.id);
             if let Some(active) = inner.active.get(&task.id) {
                 apply_progress(task, &active.progress.borrow());
             }
@@ -261,6 +302,7 @@ impl DownloadService {
 
     pub async fn create(self: &Arc<Self>, request: NewTask, demo: bool) -> Result<Task> {
         let url = parse_url(&request.url)?;
+        let authorization = FileAuthorization::new(url.as_str(), request.cookie.as_deref())?;
         ensure!(
             request.direct || crate::media::platform(url.as_str()).is_none(),
             "这是音视频页面链接，请先解析并选择下载格式"
@@ -281,7 +323,14 @@ impl DownloadService {
         {
             validate_filename(name)?;
         }
-        let info = self.suggest_filename(url.as_str()).await?;
+        let info = match &authorization {
+            Some(auth) => {
+                self.filenames
+                    .resolve_authorized(url.as_str(), auth)
+                    .await?
+            }
+            None => self.suggest_filename(url.as_str()).await?,
+        };
         let filename = complete_name(request.filename.as_deref(), &info);
         validate_filename(&filename)?;
         self.enqueue(
@@ -289,7 +338,7 @@ impl DownloadService {
             filename,
             request.connections,
             expected_sha256,
-            None,
+            TaskSource::File(authorization),
             demo,
         )
     }
@@ -342,7 +391,7 @@ impl DownloadService {
             filename,
             request.connections,
             hash,
-            Some(plan),
+            TaskSource::Media(Box::new(plan)),
             false,
         )
     }
@@ -358,7 +407,7 @@ impl DownloadService {
             filename,
             connections,
             None,
-            Some(plan),
+            TaskSource::Media(Box::new(plan)),
             false,
         )
     }
@@ -369,12 +418,16 @@ impl DownloadService {
         filename: String,
         connections: usize,
         expected_sha256: Option<String>,
-        media: Option<MediaPlan>,
+        source: TaskSource,
         demo: bool,
     ) -> Result<Task> {
         let mut inner = self.inner.lock().unwrap();
         ensure!(!inner.stopping, "服务正在退出，请稍后重试");
         let filename = self.available_filename(&inner, &filename)?;
+        let (media, authorization) = match source {
+            TaskSource::File(authorization) => (None, authorization),
+            TaskSource::Media(plan) => (Some(*plan), None),
+        };
         let task = Task {
             id: DownloadId::new().to_string(),
             filename,
@@ -394,12 +447,17 @@ impl DownloadService {
             last_run_seconds: None,
             average_mbps: None,
             demo,
+            authorization_required: authorization.is_some(),
+            authorization_needed: false,
             media,
         };
         inner.tasks.push(task.clone());
         if let Err(e) = self.persist(&inner) {
             inner.tasks.pop();
             return Err(e);
+        }
+        if let Some(authorization) = authorization {
+            inner.authorizations.insert(task.id.clone(), authorization);
         }
         drop(inner);
         self.schedule();
@@ -448,6 +506,7 @@ impl DownloadService {
             task.state = "connecting".into();
             task.error = None;
             let task = task.clone();
+            let authorization = inner.authorizations.get(&task.id).cloned();
             let (pause, pause_rx) = watch::channel(false);
             let (progress_tx, progress) = watch::channel(DownloadSnapshot::default());
             inner
@@ -482,7 +541,14 @@ impl DownloadService {
                         interactive: false,
                     };
                     // Catch task panics so a slot cannot remain permanently occupied.
-                    tokio::spawn(download_with_control(request, Some(control)))
+                    tokio::spawn(async move {
+                        match authorization {
+                            Some(auth) => {
+                                download_with_authorization(request, Some(control), auth).await
+                            }
+                            None => download_with_control(request, Some(control)).await,
+                        }
+                    })
                 };
                 let result = handle.await.map_err(anyhow::Error::from).and_then(|r| r);
                 service.finish(&task.id, result);
@@ -519,6 +585,13 @@ impl DownloadService {
                     task.error = Some(download_error(&error, &task.url));
                 }
             }
+        }
+        if inner
+            .tasks
+            .iter()
+            .any(|task| task.id == id && task.state == "completed")
+        {
+            inner.authorizations.remove(id);
         }
         if let Err(error) = self.persist(&inner) {
             eprintln!("无法保存任务列表：{error}");
@@ -561,14 +634,19 @@ impl DownloadService {
     }
 
     pub fn resume(self: &Arc<Self>, id: &str) -> Result<()> {
+        self.resume_with_cookie(id, None)
+    }
+
+    pub fn resume_with_cookie(self: &Arc<Self>, id: &str, cookie: Option<&str>) -> Result<()> {
         let mut inner = self.inner.lock().unwrap();
         ensure!(!inner.stopping, "服务正在退出");
         ensure!(!inner.active.contains_key(id), "任务仍在运行或保存中");
-        let task = inner
+        let index = inner
             .tasks
-            .iter_mut()
-            .find(|t| t.id == id)
+            .iter()
+            .position(|t| t.id == id)
             .context("任务不存在")?;
+        let task = &inner.tasks[index];
         ensure!(
             matches!(task.state.as_str(), "paused" | "error"),
             "当前状态无法继续下载"
@@ -577,9 +655,29 @@ impl DownloadService {
             !self.directory.join(&task.filename).exists(),
             "目标文件已存在，请在 Finder 中检查"
         );
+        let authorization = FileAuthorization::new(&task.url, cookie)?;
+        ensure!(
+            authorization.is_none() || task.media.is_none(),
+            "音视频任务请重新解析，不能使用文件下载授权"
+        );
+        ensure!(
+            !task.authorization_required
+                || authorization.is_some()
+                || inner.authorizations.contains_key(id),
+            "此任务需要网站登录授权，请重新填写 Cookie 后继续下载"
+        );
+        let previous = task.clone();
+        let task = &mut inner.tasks[index];
+        task.authorization_required |= authorization.is_some();
         task.state = "queued".into();
         task.error = None;
-        self.persist(&inner)?;
+        if let Err(error) = self.persist(&inner) {
+            inner.tasks[index] = previous;
+            return Err(error);
+        }
+        if let Some(authorization) = authorization {
+            inner.authorizations.insert(id.to_owned(), authorization);
+        }
         drop(inner);
         self.schedule();
         Ok(())
@@ -602,6 +700,7 @@ impl DownloadService {
             inner.tasks.insert(index, removed);
             return Err(e);
         }
+        inner.authorizations.remove(id);
         Ok(())
     }
 
@@ -638,7 +737,9 @@ impl DownloadService {
             }
             tokio::time::sleep(Duration::from_millis(100)).await;
         }
-        self.persist(&self.inner.lock().unwrap())
+        let mut inner = self.inner.lock().unwrap();
+        inner.authorizations.clear();
+        self.persist(&inner)
     }
 }
 
@@ -673,7 +774,7 @@ fn download_error(error: &anyhow::Error, url: &str) -> String {
             .ok()
     });
     match status {
-        Some(401) => "下载源要求登录授权（HTTP 401）。浏览器登录状态不会自动共享，请使用带访问授权的直链，或在已登录浏览器中下载。".into(),
+        Some(401) => "下载源要求登录授权（HTTP 401）。请点击“授权后重试”，填写已登录浏览器中该下载请求的 Cookie。".into(),
         Some(403) => "下载源拒绝访问（HTTP 403）。请确认访问权限，或在原网站重新获取有效下载链接。".into(),
         Some(code @ (404 | 410)) => format!("文件不存在或链接已失效（HTTP {code}），请重新获取下载链接。"),
         _ => message,
@@ -692,4 +793,81 @@ struct SavedTasks {
     schema: u32,
     directory: PathBuf,
     tasks: Vec<Task>,
+}
+
+#[cfg(test)]
+mod authorization_tests {
+    use super::*;
+
+    fn paused_task() -> Task {
+        serde_json::from_value(serde_json::json!({
+            "id":"authorized-file", "filename":"private.zip", "url":"https://files.example/private.zip",
+            "connections":4, "state":"error", "created_at":1, "completed_at":null,
+            "total_bytes":null, "completed_bytes":0, "speed_bytes":0, "active_connections":0,
+            "eta_seconds":null, "sha256":null, "expected_sha256":null,
+            "error":"HTTP 401", "demo":false
+        })).unwrap()
+    }
+
+    fn keep_queue_idle(service: &DownloadService) {
+        // Occupy worker slots without spawning network requests. This isolates
+        // task persistence and authorization lifetime from source availability.
+        let mut inner = service.inner.lock().unwrap();
+        for index in 0..MAX_ACTIVE {
+            let (pause, _) = watch::channel(false);
+            let (_, progress) = watch::channel(DownloadSnapshot::default());
+            inner
+                .active
+                .insert(format!("reserved-{index}"), Active { pause, progress });
+        }
+    }
+
+    #[test]
+    fn authorization_stays_private_reuses_in_process_and_is_required_after_restart() {
+        let dir = tempfile::tempdir().unwrap();
+        let state = dir.path().join("state");
+        let downloads = dir.path().join("downloads");
+        let service = DownloadService::open_with_ffmpeg(&downloads, &state, None).unwrap();
+        service.inner.lock().unwrap().tasks.push(paused_task());
+        keep_queue_idle(&service);
+        let cookie = "auth_token=service-secret-sentinel";
+        service
+            .resume_with_cookie("authorized-file", Some(cookie))
+            .unwrap();
+        let snapshot = service.snapshot();
+        assert!(snapshot.tasks[0].authorization_required);
+        assert!(!snapshot.tasks[0].authorization_needed);
+        assert!(!serde_json::to_string(&snapshot)
+            .unwrap()
+            .contains("service-secret-sentinel"));
+        assert!(!std::fs::read_to_string(state.join("tasks.json"))
+            .unwrap()
+            .contains("service-secret-sentinel"));
+
+        service.pause("authorized-file").unwrap();
+        service.resume("authorized-file").unwrap();
+        assert!(!service.snapshot().tasks[0].authorization_needed);
+        service.pause("authorized-file").unwrap();
+        drop(service);
+
+        let restored = DownloadService::open_with_ffmpeg(&downloads, &state, None).unwrap();
+        assert!(restored.snapshot().tasks[0].authorization_needed);
+        assert!(restored
+            .resume("authorized-file")
+            .unwrap_err()
+            .to_string()
+            .contains("Cookie"));
+        assert_eq!(restored.snapshot().tasks[0].state, "paused");
+        keep_queue_idle(&restored);
+        restored
+            .resume_with_cookie("authorized-file", Some("auth_token=replacement-secret"))
+            .unwrap();
+        assert!(!restored.snapshot().tasks[0].authorization_needed);
+        restored.pause("authorized-file").unwrap();
+        restored.remove("authorized-file").unwrap();
+        assert!(restored.inner.lock().unwrap().authorizations.is_empty());
+        assert!(!std::fs::read_to_string(state.join("tasks.json"))
+            .unwrap()
+            .contains("replacement-secret"));
+    }
 }

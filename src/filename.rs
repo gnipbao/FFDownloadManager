@@ -88,6 +88,51 @@ impl FilenameResolver {
         cache.insert(url.into(), (Instant::now(), info.clone()));
         Ok(info)
     }
+
+    /// Probe only this task's exact HTTPS origin with its in-memory Cookie.
+    /// Authorized responses never enter the shared URL-only filename cache.
+    pub async fn resolve_authorized(
+        &self,
+        raw: &str,
+        authorization: &crate::download::FileAuthorization,
+    ) -> Result<FilenameInfo> {
+        let url = authorization.validate_url(raw)?;
+        let client = authorization.client(Duration::from_secs(4))?;
+        let mut info = infer(&url, &url, None, None);
+        let head = authorization
+            .request(client.head(url.clone()))
+            .header(header::ACCEPT_ENCODING, "identity")
+            .send()
+            .await;
+        if let Ok(response) = head {
+            ensure!(
+                !response.status().is_redirection(),
+                "授权下载不跟随重定向，请使用文件的最终 HTTPS 下载地址"
+            );
+            if response.status().is_success() {
+                info = response_info(&url, &response);
+                if info.source != "url" || info.extension.is_some() {
+                    return Ok(info);
+                }
+            }
+        }
+        if let Ok(response) = authorization
+            .request(client.get(url.clone()))
+            .header(header::ACCEPT_ENCODING, "identity")
+            .header(header::RANGE, "bytes=0-0")
+            .send()
+            .await
+        {
+            ensure!(
+                !response.status().is_redirection(),
+                "授权下载不跟随重定向，请使用文件的最终 HTTPS 下载地址"
+            );
+            if response.status().is_success() {
+                info = response_info(&url, &response);
+            }
+        }
+        Ok(info)
+    }
 }
 
 fn response_info(original: &Url, response: &reqwest::Response) -> FilenameInfo {

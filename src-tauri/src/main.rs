@@ -211,8 +211,15 @@ fn desktop_pause(state: State<'_, DesktopState>, id: String) -> Reply<()> {
 }
 
 #[tauri::command]
-async fn desktop_resume(state: State<'_, DesktopState>, id: String) -> Reply<()> {
-    state.service.resume(&id).map_err(error)
+async fn desktop_resume(
+    state: State<'_, DesktopState>,
+    id: String,
+    cookie: Option<String>,
+) -> Reply<()> {
+    state
+        .service
+        .resume_with_cookie(&id, cookie.as_deref())
+        .map_err(error)
 }
 
 #[tauri::command]

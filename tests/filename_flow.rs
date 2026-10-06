@@ -54,6 +54,7 @@ async fn redirected_header_name_is_used_for_the_published_file() {
     let task = service
         .create(
             NewTask {
+                cookie: None,
                 url,
                 direct: false,
                 filename: Some("我的报告".into()),

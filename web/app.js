@@ -48,6 +48,9 @@ let mediaPreview = null;
 let mediaRequest = null;
 let mediaSite = null;
 let submitting = false;
+let authorizationTarget = null;
+let authorizationVersion = 0;
+let authorizing = false;
 
 function bytes(n) {
   if (n === null || n === undefined) return '待获取';
@@ -128,13 +131,17 @@ function renderOverview() {
   }
   chart();
 }
+function authorizationNeeded(task) {
+  return !task.media && (task.authorization_needed || task.state === 'error'
+    && (/\b401\b/.test(task.error || '') || task.authorization_required && /\b403\b/.test(task.error || '')));
+}
 function actionButton(task) {
   let action, name, label;
   if (['queued','connecting','downloading','merging'].includes(task.state)) { action = 'pause'; name = 'pause'; label = '暂停下载'; }
-  else if (task.state === 'paused') { action = 'resume'; name = 'play'; label = '继续下载'; }
+  else if (task.state === 'paused') { action = authorizationNeeded(task) ? 'authorize' : 'resume'; name = 'play'; label = action === 'authorize' ? '授权后继续' : '继续下载'; }
   else if (task.state === 'error') {
     const reparse = task.media && /\b(?:403|410)\b|媒体地址已失效/.test(task.error || '');
-    action = reparse ? 'reparse' : 'resume'; name = 'retry'; label = reparse ? '重新解析链接' : '重试下载';
+    action = authorizationNeeded(task) ? 'authorize' : reparse ? 'reparse' : 'resume'; name = 'retry'; label = action === 'authorize' ? '授权后重试' : reparse ? '重新解析链接' : '重试下载';
   }
   else if (task.state === 'completed') {
     if (!snapshot.can_reveal) return `<a class="icon-button active-action" href="/api/tasks/${encodeURIComponent(task.id)}/file" download="${escape(task.filename)}" title="保存副本" aria-label="保存副本">${icon('download')}</a>`;
@@ -198,7 +205,9 @@ async function refresh() {
 async function poll() { await refresh(); setTimeout(poll, 1000); }
 
 function newDialog(url = '') {
+  if ($('#authorization-dialog').open) $('#authorization-dialog').close();
   $('#new-form').reset();
+  $('#download-authorization').open = false;
   filenameEdited = false;
   $('#form-error').hidden = true;
   $('#download-url').value = url;
@@ -244,12 +253,16 @@ async function resolveFilename(url, version) {
 }
 function suggestName() {
   clearTimeout(filenameTimer);
+  $('#download-cookie').value = '';
+  $('#platform-cookie').value = '';
   const version = ++filenameVersion;
   filenameSuggestion = null;
   filenameRequest = null;
   mediaPreview = null;
   mediaRequest = null;
   mediaSite = mediaPlatform($('#download-url').value, $('#download-mode').value);
+  $('#download-authorization').hidden = !!mediaSite;
+  $('#download-cookie-origin').textContent = 'Cookie 仅发送到当前链接的 HTTPS 源站。';
   $('#media-panel').hidden = true;
   $('#media-source').hidden = !mediaSite;
   $('#platform-auth').hidden = !['视频号', '小红书'].includes(mediaSite);
@@ -281,6 +294,9 @@ function suggestName() {
   try {
     const url = new URL(raw);
     if (!['http:', 'https:'].includes(url.protocol)) return;
+    $('#download-cookie-origin').textContent = url.protocol === 'https:'
+      ? `Cookie 仅发送到 ${url.origin}。`
+      : '网站登录授权仅支持 HTTPS 链接，HTTP 下载不能附带 Cookie。';
     field.placeholder = decodeURIComponent(url.pathname.split('/').at(-1)) || '正在识别文件名…';
     $('#filename-hint').textContent = '正在识别文件名和格式…';
     filenameTimer = setTimeout(() => resolveFilename(raw, version), 450);
@@ -352,6 +368,16 @@ function mediaPlatform(raw, mode) {
     if (['http:', 'https:'].includes(url.protocol) && !url.username && !url.password) return Object.entries(sites).find(([, hosts]) => hosts.includes(url.hostname))?.[0] || '音视频';
   } catch { /* The parser reports invalid URLs when explicitly requested. */ }
   return '音视频';
+}
+
+function cookieForDownload(raw, value) {
+  const cookie = value.trim();
+  if (!cookie) return undefined;
+  let url;
+  try { url = new URL(raw); } catch { throw new Error('请先填写有效的 HTTPS 文件直链，再添加网站授权。'); }
+  if (url.protocol !== 'https:' || url.username || url.password) throw new Error('网站登录授权仅支持 HTTPS 文件直链，请勿通过 HTTP 发送 Cookie。');
+  if (/[\r\n]/.test(cookie)) throw new Error('请只粘贴 Request Headers 中 Cookie 字段的单行值，不要复制整段请求头。');
+  return cookie;
 }
 
 function updateSubmitButton() {
@@ -445,7 +471,7 @@ $('#download-url').addEventListener('input', suggestName);
 $('#download-mode').addEventListener('change', suggestName);
 $('#download-filename').addEventListener('input', () => { filenameEdited = true; });
 $('#download-filename').addEventListener('blur', completeFilenameInput);
-$('#new-dialog').addEventListener('close', () => { clearTimeout(filenameTimer); filenameVersion++; $('#platform-cookie').value = ''; });
+$('#new-dialog').addEventListener('close', () => { clearTimeout(filenameTimer); filenameVersion++; $('#platform-cookie').value = ''; $('#download-cookie').value = ''; });
 $('#new-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   if (submitting) return;
@@ -454,12 +480,14 @@ $('#new-form').addEventListener('submit', async (event) => {
   const button = $('#submit-download');
   button.disabled = true;
   $('#form-error').hidden = true;
+  let authorizationSent = false;
   try {
     if (!connected) throw new Error('本地服务尚未连接，请确认 FFDownload 服务正在运行。');
     clearTimeout(filenameTimer);
     const url = videoUrl($('#download-url').value);
+    const cookie = mediaSite ? undefined : cookieForDownload(url, $('#download-cookie').value);
     const version = filenameVersion;
-    if (!mediaSite && !filenameSuggestion) {
+    if (!mediaSite && !filenameSuggestion && !cookie) {
       button.textContent = '正在识别文件…';
       await resolveFilename(url, version);
     }
@@ -473,16 +501,20 @@ $('#new-form').addEventListener('submit', async (event) => {
       sha256: $('#download-sha').value.trim() || null,
       direct: $('#download-mode').value === 'direct',
     };
+    authorizationSent = !!cookie;
     const task = mediaSite
       ? await api.createMedia({...input, preview_id:mediaPreview.id, format_id:$('#media-format').value})
-      : await api.create(input);
+      : await api.create(cookie ? {...input, cookie} : input);
+    $('#download-cookie').value = '';
     $('#new-dialog').close();
     setFilter('all');
     $('#search').value = '';
     toast(`已添加 · ${task.filename}`);
     await refresh();
   } catch (error) {
-    $('#form-error').textContent = error.message;
+    $('#form-error').textContent = authorizationSent
+      ? '授权下载未能启动。请确认 Cookie 来自此文件的实际下载请求且尚未过期，然后重试。'
+      : error.message;
     $('#form-error').hidden = false;
   } finally { submitting = false; updateSubmitButton(); }
 });
@@ -501,8 +533,72 @@ $('#navigation').addEventListener('click', (event) => {
 $('#search').addEventListener('input', renderTasks);
 $('#sort').addEventListener('change', renderTasks);
 
+function openAuthorizationDialog(id) {
+  const task = snapshot.tasks.find(t => t.id === id);
+  if (!task || task.media || pending.has(id)) return;
+  let url;
+  try { url = new URL(task.url); } catch { toast('任务链接无效，请重新添加下载。', true); return; }
+  if (url.protocol !== 'https:' || url.username || url.password) {
+    toast('网站登录授权仅支持 HTTPS 文件直链，请重新获取 HTTPS 下载链接。', true);
+    return;
+  }
+  if ($('#detail-dialog').open) $('#detail-dialog').close();
+  authorizationTarget = {id:task.id, url:task.url};
+  authorizationVersion++;
+  $('#authorization-cookie').value = '';
+  $('#authorization-error').hidden = true;
+  $('#authorization-origin').textContent = url.origin;
+  $('#submit-authorization').disabled = authorizing;
+  $('#authorization-dialog').showModal();
+  $('#authorization-cookie').focus();
+}
+$('#authorization-dialog').addEventListener('close', () => {
+  authorizationTarget = null;
+  authorizationVersion++;
+  $('#authorization-cookie').value = '';
+  $('#authorization-error').hidden = true;
+});
+$('#authorization-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (authorizing || !authorizationTarget) return;
+  const target = authorizationTarget;
+  const version = authorizationVersion;
+  let sent = false;
+  authorizing = true;
+  $('#submit-authorization').disabled = true;
+  $('#authorization-error').hidden = true;
+  try {
+    if (!connected) throw new Error('本地服务未连接，请稍后重试。');
+    const task = snapshot.tasks.find(t => t.id === target.id);
+    if (!task || task.media || task.url !== target.url) throw new Error('任务链接已改变，请关闭后重新打开授权窗口。');
+    const cookie = cookieForDownload(target.url, $('#authorization-cookie').value);
+    if (!cookie) throw new Error('请填写下载请求的 Cookie。');
+    pending.add(target.id); render();
+    sent = true;
+    await api.resume(target.id, {cookie});
+    if (version === authorizationVersion) {
+      $('#authorization-cookie').value = '';
+      $('#authorization-dialog').close();
+    }
+    toast('已补充授权，任务已加入下载队列');
+    await refresh();
+  } catch (error) {
+    if (version === authorizationVersion && $('#authorization-dialog').open) {
+      $('#authorization-error').textContent = sent
+        ? '授权后仍无法下载。请确认 Cookie 来自此文件的实际下载请求且尚未过期，然后重试。'
+        : error.message;
+      $('#authorization-error').hidden = false;
+    }
+  } finally {
+    authorizing = false;
+    $('#submit-authorization').disabled = false;
+    pending.delete(target.id); render();
+  }
+});
+
 async function runAction(action, id) {
   if (action === 'detail') { selectedId = id; renderDetail(); $('#detail-dialog').showModal(); return; }
+  if (action === 'authorize') { openAuthorizationDialog(id); return; }
   if (action === 'reparse') {
     const task = snapshot.tasks.find(t => t.id === id);
     if (!task) return;

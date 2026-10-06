@@ -14,6 +14,9 @@ use std::{
 };
 use tokio::sync::watch;
 
+mod auth;
+pub use auth::FileAuthorization;
+
 /// Transport-independent controls shared by the CLI, local web service, and a
 /// future desktop host. Pausing waits for the engine to checkpoint its workers.
 pub struct DownloadControl {
@@ -101,6 +104,8 @@ struct Job {
     output: PathBuf,
     connections: usize,
     expected_sha256: Option<String>,
+    #[serde(default)]
+    auth_required: bool,
 }
 
 struct Paths {
@@ -139,13 +144,57 @@ fn exists(path: &Path) -> Result<bool> {
     }
 }
 
-fn save_job(path: &Path, job: &Job) -> Result<()> {
+fn save_job(path: &Path, job: &Job, replace: bool) -> Result<()> {
     let mut temp =
         tempfile::NamedTempFile::new_in(path.parent().context("missing state directory")?)?;
     serde_json::to_writer_pretty(&mut temp, job)?;
     temp.write_all(b"\n")?;
     temp.as_file().sync_all()?;
-    temp.persist_noclobber(path).map_err(|e| e.error)?;
+    if replace {
+        temp.persist(path).map_err(|e| e.error)?;
+    } else {
+        temp.persist_noclobber(path).map_err(|e| e.error)?;
+    }
+    Ok(())
+}
+
+/// Prepare an explicit retry while its output lock excludes all other writers.
+/// The engine only resumes Paused jobs. Keep valid ranges and their identity,
+/// but never combine unverified bytes with a potentially replaced resource.
+async fn prepare_resume(
+    storage: &dyn gosh_dl::Storage,
+    id: DownloadId,
+    paths: &Paths,
+) -> Result<()> {
+    let mut status = storage
+        .load_download(id)
+        .await?
+        .context("saved task was not restored by the engine")?;
+    if status.state == DownloadState::Completed {
+        return Ok(());
+    }
+    let segments = storage.load_segments(id).await?;
+    let engine_part = paths.part.with_extension("part.part");
+    let has_bytes = status.progress.completed_size > 0
+        || segments.iter().any(|segment| segment.downloaded > 0)
+        || std::fs::metadata(&engine_part).is_ok_and(|file| file.len() > 0);
+    let missing_identity =
+        status.metadata.etag.is_none() && status.metadata.last_modified.is_none();
+    if has_bytes && missing_identity {
+        // A very fast failed transfer may precede gosh-dl's first progress
+        // callback, leaving ranges but no persisted validator. Removing bytes
+        // before their checkpoint also keeps an interrupted reset safe.
+        if exists(&engine_part)? {
+            std::fs::remove_file(&engine_part)
+                .context("could not restart unverified partial file")?;
+        }
+        storage.delete_segments(id).await?;
+        status.progress.completed_size = 0;
+    }
+    if matches!(status.state, DownloadState::Error { .. }) {
+        status.state = DownloadState::Paused;
+    }
+    storage.save_download(&status).await?;
     Ok(())
 }
 
@@ -282,8 +331,34 @@ pub fn validate_headers(headers: &[(String, String)]) -> Result<()> {
 /// gosh-dl persists these options with its checkpoint for subsequent resumes.
 pub async fn download_with_headers(
     request: DownloadRequest,
+    control: Option<DownloadControl>,
+    headers: Vec<(String, String)>,
+) -> Result<DownloadReport> {
+    download_inner(request, control, headers, None).await
+}
+
+/// Download a user's authorized file without putting its Cookie into a job,
+/// SQLite database or resume checkpoint. A fresh credential can resume old ranges.
+pub async fn download_with_authorization(
+    request: DownloadRequest,
+    control: Option<DownloadControl>,
+    authorization: FileAuthorization,
+) -> Result<DownloadReport> {
+    let result = download_inner(
+        request,
+        control,
+        authorization.headers(),
+        Some(&authorization),
+    )
+    .await;
+    result.map_err(|error| authorization.safe_error(&error))
+}
+
+async fn download_inner(
+    request: DownloadRequest,
     mut control: Option<DownloadControl>,
     mut headers: Vec<(String, String)>,
+    authorization: Option<&FileAuthorization>,
 ) -> Result<DownloadReport> {
     validate_headers(&headers)?;
     headers.retain(|(name, _)| !name.eq_ignore_ascii_case("accept-encoding"));
@@ -310,13 +385,17 @@ pub async fn download_with_headers(
         .open(paths.state.join("session.lock"))?;
     lock.try_lock_exclusive()
         .context("another process is using this download")?;
-    let saved: Option<Job> = if request.resume {
+    let mut saved: Option<Job> = if request.resume {
         let job: Job = serde_json::from_reader(
             File::open(&paths.job).context("no saved session for this output")?,
         )?;
         ensure!(
             job.schema == 1 && job.output == paths.output,
             "saved session does not match this output"
+        );
+        ensure!(
+            !job.auth_required || authorization.is_some(),
+            "此下载需要重新提供本次 Cookie 授权后继续"
         );
         validate_hash(&job.expected_sha256)?;
         Some(job)
@@ -339,6 +418,21 @@ pub async fn download_with_headers(
         matches!(parsed.scheme(), "http" | "https"),
         "only HTTP and HTTPS are supported"
     );
+    if let Some(auth) = authorization {
+        auth.validate_url(&url)?;
+        if let Some(input) = request.url.as_deref() {
+            auth.validate_url(input)?;
+        }
+        if saved.is_some() {
+            auth.verify_resume_authorization(&url).await?;
+        }
+        if let Some(job) = &mut saved {
+            if !job.auth_required {
+                job.auth_required = true;
+                save_job(&paths.job, job, true)?;
+            }
+        }
+    }
     let connections = saved
         .as_ref()
         .map_or(request.connections, |j| j.connections);
@@ -346,7 +440,7 @@ pub async fn download_with_headers(
         .as_ref()
         .and_then(|j| j.expected_sha256.clone())
         .or(request.expected_sha256.clone());
-    let config = EngineConfig {
+    let mut config = EngineConfig {
         download_dir: paths.parent.clone(),
         max_concurrent_downloads: 1,
         max_connections_per_download: connections,
@@ -361,7 +455,35 @@ pub async fn download_with_headers(
         },
         ..Default::default()
     };
-    let engine = DownloadEngine::new(config).await?;
+    let engine = if let Some(auth) = authorization {
+        // Never allow a copied Cookie to cross an origin boundary. Even same-
+        // origin redirects require the caller to supply the final file address.
+        config.http.max_redirects = 0;
+        #[cfg(test)]
+        {
+            config.http.accept_invalid_certs = auth.accepts_local_test_certificate();
+        }
+        let database = config.database_path.take().unwrap();
+        let storage = std::sync::Arc::new(auth::AuthorizedStorage::new(
+            std::sync::Arc::new(gosh_dl::SqliteStorage::new(database).await?),
+            auth.clone(),
+        ));
+        if let Some(job) = &saved {
+            prepare_resume(storage.as_ref(), job.id, &paths).await?;
+        }
+        DownloadEngine::with_storage(config, storage).await?
+    } else if let Some(job) = &saved {
+        // The output lock above excludes other engines for this job. A
+        // failed HTTP attempt is explicitly retryable by the user, but
+        // gosh-dl's resume() only accepts Paused. Change that state alone;
+        // keep its ID, headers, validators and range checkpoints intact.
+        let database = config.database_path.take().unwrap();
+        let storage = std::sync::Arc::new(gosh_dl::SqliteStorage::new(database).await?);
+        prepare_resume(storage.as_ref(), job.id, &paths).await?;
+        DownloadEngine::with_storage(config, storage).await?
+    } else {
+        DownloadEngine::new(config).await?
+    };
     let mut events = engine.subscribe();
     let id = if let Some(job) = saved {
         job.id
@@ -392,7 +514,9 @@ pub async fn download_with_headers(
                     output: paths.output.clone(),
                     connections,
                     expected_sha256: expected_hash.clone(),
+                    auth_required: authorization.is_some(),
                 },
+                false,
             )?;
             Ok::<_, anyhow::Error>(id)
         }
@@ -484,7 +608,10 @@ pub async fn download_with_headers(
         // destination. Interrupted publication leaves a complete final file.
         std::fs::hard_link(&part, &output)
             .context("could not publish completed output without overwriting")?;
-        std::fs::remove_file(&part)?;
+        // Publication has succeeded and the destination is complete. Failure
+        // to remove its temporary hard link must not turn it into a failed job
+        // that can never retry because the final file already exists.
+        let _ = std::fs::remove_file(&part);
         Ok(Some(hash))
     })
     .await??;

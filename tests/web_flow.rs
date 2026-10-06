@@ -45,6 +45,7 @@ async fn live_controls_persist_resume_and_preserve_completed_files() {
     let task = service
         .create(
             NewTask {
+                cookie: None,
                 url: server.url.clone(),
                 direct: false,
                 filename: Some("resume.bin".into()),
@@ -116,6 +117,7 @@ async fn queue_is_bounded_and_rejects_path_traversal() {
         assert!(service
             .create(
                 NewTask {
+                    cookie: None,
                     url: server.url.clone(),
                     direct: false,
                     filename: Some(filename.into()),
@@ -131,6 +133,7 @@ async fn queue_is_bounded_and_rejects_path_traversal() {
         service
             .create(
                 NewTask {
+                    cookie: None,
                     url: server.url.clone(),
                     direct: false,
                     filename: Some("file.bin".into()),
