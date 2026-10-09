@@ -265,13 +265,17 @@ function suggestName() {
   $('#download-cookie-origin').textContent = 'Cookie 仅发送到当前链接的 HTTPS 源站。';
   $('#media-panel').hidden = true;
   $('#media-source').hidden = !mediaSite;
-  $('#platform-auth').hidden = !['视频号', '小红书'].includes(mediaSite);
+  $('#platform-auth').hidden = !['视频号', '小红书', 'YouTube'].includes(mediaSite);
+  $('#youtube-cookie-help').hidden = mediaSite !== 'YouTube';
   if (mediaSite === '视频号') {
     $('#platform-cookie-label').textContent = '元宝登录 Cookie（普通视频号分享链接需要）';
     $('#platform-cookie-hint').textContent = '若链接已包含 token 和 eid，可留空。仅用于本次向元宝请求播放页，不保存。';
   } else if (mediaSite === '小红书') {
     $('#platform-cookie-label').textContent = '小红书网页 Cookie（页面要求登录时填写）';
     $('#platform-cookie-hint').textContent = '仅用于本次向小红书请求笔记页，不保存。请使用刚复制的完整分享链接。';
+  } else if (mediaSite === 'YouTube') {
+    $('#platform-cookie-label').textContent = 'YouTube 网页 Cookie（可选，提示登录或验证时填写）';
+    $('#platform-cookie-hint').textContent = '仅用于本次向 YouTube 解析，不保存、不发送给视频 CDN。请在浏览器中先确认此视频可播放；无需填写账号密码。';
   }
   $('#form-error').hidden = true;
   $('#parse-video').disabled = false;
@@ -425,7 +429,8 @@ async function parseVideo() {
   const promise = (async () => {
     try {
       if (!connected) throw new Error('本地服务尚未连接，请稍后重试。');
-      const cookie = ['视频号', '小红书'].includes(mediaSite) ? $('#platform-cookie').value.trim() || null : null;
+      const cookie = ['视频号', '小红书', 'YouTube'].includes(mediaSite) ? $('#platform-cookie').value.trim() || null : null;
+      $('#platform-cookie').value = '';
       const result = await api.resolveMedia(url, cookie);
       if (version !== filenameVersion || !$('#new-dialog').open) return;
       mediaPreview = result;

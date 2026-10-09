@@ -186,6 +186,47 @@ test('closing new-download or changing the URL removes both authorization inputs
   assert.match(form.field('#download-cookie-origin').textContent, /other\.example\.org/);
 });
 
+test('YouTube exposes one-request authorization and removes it when the platform changes', () => {
+  const form = downloadForm({url:'https://www.youtube.com/watch?v=abcdefghijk'});
+  Object.assign(form.context, {filenameEdited:false, filenameRequest:null, mediaRequest:null, setTimeout() { return 1; }});
+  vm.runInContext(source.slice(source.indexOf('function suggestName('), source.indexOf('function videoPlatform(')), form.context);
+  form.context.suggestName();
+  assert.equal(form.field('#platform-auth').hidden, false);
+  assert.equal(form.field('#youtube-cookie-help').hidden, false);
+  assert.match(form.field('#platform-cookie-label').textContent, /YouTube/);
+  form.field('#platform-cookie').value = 'SAPISID=test-session-secret';
+  form.field('#download-url').value = 'https://files.example.org/file.zip';
+  form.context.suggestName();
+  assert.equal(form.field('#platform-cookie').value, '');
+  assert.equal(form.field('#platform-auth').hidden, true);
+  assert.equal(form.field('#youtube-cookie-help').hidden, true);
+});
+
+test('YouTube Cookie is only passed to this extraction and cleared on success and failure', async () => {
+  for (const failure of [false, true]) {
+    const form = downloadForm({url:'https://www.youtube.com/watch?v=abcdefghijk'});
+    Object.assign(form.context, {mediaRequest:null, escape:value => value, applyMediaFormat() {}});
+    form.field('#platform-cookie').value = 'SAPISID=test-session-secret';
+    form.context.api.resolveMedia = async (url, cookie) => {
+      form.calls.push(['resolveMedia', url, cookie]);
+      assert.equal(form.field('#platform-cookie').value, '');
+      if (failure) throw new Error('YouTube 仍要求验证当前访问会话');
+      return {id:'authorized-preview', title:'Authorized video', platform:'YouTube', formats:[{id:'format-1', label:'720p', needs_merge:false}], ffmpeg_available:true};
+    };
+    vm.runInContext(source.slice(source.indexOf('async function parseVideo('), source.indexOf("$('#parse-video').addEventListener")), form.context);
+    await form.context.parseVideo();
+    assert.equal(form.calls[0][2], 'SAPISID=test-session-secret');
+    assert.equal(form.field('#platform-cookie').value, '');
+    if (failure) {
+      assert.match(form.field('#form-error').textContent, /验证/);
+    } else {
+      await form.context.submit({preventDefault() {}});
+      assert.equal(form.calls[1][0], 'createMedia');
+      assert.equal('cookie' in form.calls[1][1], false);
+    }
+  }
+});
+
 function authorizationForm() {
   const form = downloadForm({url:'https://files.example.org/private.zip'});
   Object.assign(form.context, {

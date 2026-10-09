@@ -1,6 +1,6 @@
 [package]
 name = "ffdownload-manager"
-version = "0.3.6"
+version = "0.3.7"
 edition = "2021"
 rust-version = "1.95"
 description = "A Rust HTTP download MVP with reproducible benchmarks"
@@ -43,6 +43,7 @@ reqwest = { version = "0.13", default-features = false, features = ["rustls", "s
 reqwest_media = { package = "reqwest", version = "0.12", default-features = false, features = ["native-tls", "system-proxy"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+sha1 = "0.10"
 sha2 = "0.10"
 tempfile = "3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "time", "net", "fs", "process"] }

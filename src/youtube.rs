@@ -10,6 +10,9 @@ use std::{
 };
 use ytdown::{Extractor, ExtractorContext, HttpClient, HttpRequest, HttpResponse, MediaInfo};
 
+mod auth;
+use auth::YoutubeSession;
+
 // ytdown 0.8.0 still starts with Android VR, whose media URLs are now rejected.
 // Use the current non-JS player profile in that slot while keeping ytdown's
 // parsing, deciphering, and remaining client fallbacks. Reference:
@@ -51,6 +54,51 @@ fn update_player_client(request: &mut HttpRequest, body: &mut Value) {
         request.headers.push((name.into(), value.into()));
     }
     request.body = Some(serde_json::to_vec(body).expect("JSON value is serializable"));
+}
+
+fn update_authorized_client(request: &mut HttpRequest, body: &mut Value) {
+    // Mobile/VR clients do not support browser Cookie authentication. Keep the
+    // existing extractor/deciphering, but use clients that accept user sessions.
+    let tv = matches!(
+        body["context"]["client"]["clientName"].as_str(),
+        Some("ANDROID_VR" | "TVHTML5")
+    );
+    let (name, id, version, ua) = if tv {
+        ("TVHTML5", "7", "7.20260707.07.00", auth::TV_UA)
+    } else {
+        ("WEB", "1", "2.20260708.00.00", auth::WEB_UA)
+    };
+    let mut client = serde_json::json!({"clientName":name,"clientVersion":version,"userAgent":ua,"hl":"en","gl":"US"});
+    for field in ["visitorData", "hl", "gl"] {
+        if let Some(value) = body["context"]["client"].get(field) {
+            client[field] = value.clone();
+        }
+    }
+    body["context"]["client"] = client;
+    for (name, value) in [
+        ("User-Agent", ua),
+        ("X-YouTube-Client-Name", id),
+        ("X-YouTube-Client-Version", version),
+    ] {
+        request
+            .headers
+            .retain(|(key, _)| !key.eq_ignore_ascii_case(name));
+        request.headers.push((name.into(), value.into()));
+    }
+    request.body = Some(serde_json::to_vec(body).expect("JSON value is serializable"));
+}
+
+fn has_readable_hd_with_audio(body: &Value) -> bool {
+    let formats: Vec<_> = ["formats", "adaptiveFormats"]
+        .into_iter()
+        .filter_map(|key| body["streamingData"][key].as_array())
+        .flatten()
+        .filter(|f| f["url"].is_string())
+        .collect();
+    formats
+        .iter()
+        .any(|f| f["height"].as_u64().is_some_and(|h| h >= 720))
+        && formats.iter().any(|f| f["audioQuality"].is_string())
 }
 
 #[derive(Clone)]
@@ -177,6 +225,7 @@ struct CheckedTransport {
     inner: Arc<dyn HttpClient>,
     probe: MediaProbe,
     best: Mutex<Option<(u64, HttpResponse)>>,
+    authorization: Option<YoutubeSession>,
 }
 
 impl CheckedTransport {
@@ -203,22 +252,64 @@ impl HttpClient for CheckedTransport {
             .as_deref()
             .and_then(|v| serde_json::from_slice(v).ok())
             .unwrap_or_default();
+        // Determine the final extractor slot before replacing a client identity.
+        let last_client = player && request_body["context"]["client"]["clientName"] == "ANDROID";
         if player {
-            update_player_client(&mut request, &mut request_body);
+            if self.authorization.is_some() {
+                update_authorized_client(&mut request, &mut request_body);
+            } else {
+                update_player_client(&mut request, &mut request_body);
+            }
+        } else if self.authorization.is_some() && request_body["context"]["client"].is_object() {
+            update_authorized_client(&mut request, &mut request_body);
+        }
+        if player {
+            if let Some(visitor) = request_body["context"]["client"]["visitorData"].as_str() {
+                request
+                    .headers
+                    .retain(|(key, _)| !key.eq_ignore_ascii_case("X-Goog-Visitor-Id"));
+                request
+                    .headers
+                    .push(("X-Goog-Visitor-Id".into(), visitor.into()));
+            }
+        }
+        if let Some(session) = &self.authorization {
+            session.apply(&mut request);
         }
         // ANDROID is the final client in ytdown 0.8.0. Preserve working lower-quality
         // responses while later clients are checked for a better readable format.
-        let last_client = player && request_body["context"]["client"]["clientName"] == "ANDROID";
         let mut response = match self.inner.execute(request).await {
             Ok(response) => response,
             Err(error) => {
+                let error = if let Some(session) = &self.authorization {
+                    ytdown::Error::Network {
+                        stage: "youtube-session",
+                        message: session.redact(&error.to_string()),
+                    }
+                } else {
+                    error
+                };
                 return if last_client {
                     self.fallback().ok_or(error)
                 } else {
                     Err(error)
-                }
+                };
             }
         };
+        if self.authorization.is_some() && !response.is_success() {
+            if last_client {
+                if let Some(response) = self.fallback() {
+                    return Ok(response);
+                }
+            }
+            return Err(ytdown::Error::Network {
+                stage: "youtube-session",
+                message: format!(
+                    "YouTube 授权请求被拒绝（HTTP {}）；授权请求不跟随重定向",
+                    response.status
+                ),
+            });
+        }
         if !player || !response.is_success() {
             return Ok(if last_client {
                 self.fallback().unwrap_or(response)
@@ -232,6 +323,23 @@ impl HttpClient for CheckedTransport {
         if body["playabilityStatus"]["status"] != "OK"
             || body["videoDetails"]["isLiveContent"] == true
         {
+            if body["playabilityStatus"]["status"] != "OK" {
+                // Some rejected clients return a partial videoDetails object.
+                // Remove it so ytdown can classify the actual playability error
+                // instead of failing JSON deserialization on a missing title.
+                if let Some(object) = body.as_object_mut() {
+                    object.remove("videoDetails");
+                }
+                if let Some(session) = &self.authorization {
+                    if let Some(reason) = body["playabilityStatus"]["reason"].as_str() {
+                        body["playabilityStatus"]["reason"] = session.redact(reason).into();
+                    }
+                    if let Some(message) = body["error"]["message"].as_str() {
+                        body["error"]["message"] = session.redact(message).into();
+                    }
+                }
+                response.body = serde_json::to_vec(&body).expect("JSON value is serializable");
+            }
             return Ok(if last_client {
                 self.fallback().unwrap_or(response)
             } else {
@@ -301,7 +409,7 @@ impl HttpClient for CheckedTransport {
         if last_client {
             return Ok(self.better_response(best_height, response));
         }
-        if rejected > 0 {
+        if rejected > 0 && !has_readable_hd_with_audio(&body) {
             self.better_response(best_height, response);
             return Err(ytdown::Error::Extraction {
                 stage: "media-readability",
@@ -325,6 +433,7 @@ impl YoutubeResolver {
             inner: Arc::new(ytdown::ReqwestClient::new(client)),
             probe,
             best: Mutex::new(None),
+            authorization: None,
         });
         Self {
             extractor: ytdown::extractor::youtube::YoutubeExtractor::new(),
@@ -347,6 +456,41 @@ impl YoutubeResolver {
         let result = self.extractor.extract(&self.context, url).await;
         self.transport.best.lock().unwrap().take();
         result
+    }
+
+    pub async fn resolve_with_cookie(
+        &self,
+        url: &reqwest::Url,
+        cookie: Option<&str>,
+    ) -> Result<MediaInfo> {
+        let Some(cookie) = cookie.filter(|value| !value.trim().is_empty()) else {
+            return self.resolve(url).await.map_err(Into::into);
+        };
+        let session = YoutubeSession::new(cookie)?;
+        let _guard = self.resolve_lock.lock().await;
+        // No shared cookie jar, default Cookie header or redirects. In particular
+        // a YouTube API redirect cannot forward this credential to another host.
+        let client = reqwest_media::Client::builder()
+            .use_native_tls()
+            .https_only(true)
+            .redirect(reqwest_media::redirect::Policy::none())
+            .connect_timeout(Duration::from_secs(8))
+            .timeout(Duration::from_secs(15))
+            .user_agent(auth::WEB_UA)
+            .build()?;
+        let transport = Arc::new(CheckedTransport {
+            inner: Arc::new(ytdown::ReqwestClient::new(client)),
+            probe: self.transport.probe.clone(),
+            best: Mutex::new(None),
+            authorization: Some(session),
+        });
+        let context = ExtractorContext::new(transport);
+        // The context, checked responses and authorization all drop on completion
+        // or cancellation. Only normalized media URLs leave this request.
+        self.extractor
+            .extract(&context, url)
+            .await
+            .map_err(Into::into)
     }
 }
 
@@ -371,6 +515,8 @@ mod tests {
         let base = format!("http://{}", request.headers()["host"].to_str().unwrap());
         let path = request.uri().path().to_owned();
         if path.starts_with("/cdn/") {
+            assert!(!request.headers().contains_key("cookie"));
+            assert!(!request.headers().contains_key("authorization"));
             let range = request.headers().get("range").and_then(|v| v.to_str().ok());
             if let Some(range) = range {
                 if path == "/cdn/preview-only" && range != "bytes=0-0" {
@@ -413,7 +559,8 @@ mod tests {
                 "videoDetails":{"videoId":"abcdefghijk","title":"HD regression","lengthSeconds":"3","isLiveContent":false},
                 "streamingData":{"adaptiveFormats":[
                     {"itag":400,"url":format!("{base}/cdn/complete"),"mimeType":"video/mp4; codecs=\"av01.0.12M.08\"","width":2560,"height":1440,"contentLength":"16"},
-                    {"itag":140,"url":format!("{base}/cdn/complete"),"mimeType":"audio/mp4; codecs=\"mp4a.40.2\"","audioQuality":"AUDIO_QUALITY_MEDIUM","contentLength":"16"}
+                    {"itag":140,"url":format!("{base}/cdn/complete"),"mimeType":"audio/mp4; codecs=\"mp4a.40.2\"","audioQuality":"AUDIO_QUALITY_MEDIUM","contentLength":"16"},
+                    {"itag":401,"url":format!("{base}/cdn/preview-only"),"mimeType":"video/mp4; codecs=\"av01.0.12M.08\"","width":3840,"height":2160,"contentLength":"16"}
                 ]}
             })).into_response();
         }
@@ -525,6 +672,115 @@ mod tests {
             .iter()
             .any(|f| f.itag == Some(140) && f.audio.is_some()));
         assert_eq!(*clients.lock().unwrap(), ["VISIONOS"]);
+        assert!(!video.formats.iter().any(|f| f.itag == Some(401)), "an unreadable extra format must not discard working HD or force another login-gated client");
+        server.abort();
+    }
+
+    struct SessionApi {
+        cdn: String,
+        clients: Mutex<Vec<String>>,
+    }
+
+    #[async_trait::async_trait]
+    impl HttpClient for SessionApi {
+        async fn execute(&self, request: HttpRequest) -> ytdown::Result<HttpResponse> {
+            let path = reqwest::Url::parse(&request.url).unwrap().path().to_owned();
+            let value = if path == "/youtubei/v1/visitor_id" {
+                json!({"responseContext":{"visitorData":"test-visitor"}})
+            } else if path == "/youtubei/v1/player" {
+                let body: Value = serde_json::from_slice(request.body.as_ref().unwrap()).unwrap();
+                let client = body["context"]["client"]["clientName"].as_str().unwrap();
+                self.clients.lock().unwrap().push(client.into());
+                if request
+                    .headers
+                    .iter()
+                    .any(|(k, v)| k == "Cookie" && v.contains("test-session-secret"))
+                {
+                    assert!(matches!(client, "TVHTML5" | "WEB"));
+                    assert!(request
+                        .headers
+                        .iter()
+                        .any(|(k, v)| k == "Authorization" && v.starts_with("SAPISIDHASH ")));
+                    assert_eq!(body["context"]["client"]["visitorData"], "test-visitor");
+                    assert!(body["context"]["client"].get("androidSdkVersion").is_none());
+                    json!({"playabilityStatus":{"status":"OK"},
+                        "videoDetails":{"videoId":"abcdefghijk","title":"Authorized video","lengthSeconds":"3"},
+                        "streamingData":{"formats":[{"itag":18,"url":format!("{}/cdn/complete", self.cdn),
+                            "mimeType":"video/mp4; codecs=\"avc1.42001E, mp4a.40.2\"","width":1280,"height":720,
+                            "audioQuality":"AUDIO_QUALITY_MEDIUM","contentLength":"16"}]}})
+                } else {
+                    // A missing title must not hide the real login requirement.
+                    json!({"playabilityStatus":{"status":"LOGIN_REQUIRED","reason":"Sign in to confirm you're not a bot"},
+                        "videoDetails":{"videoId":"abcdefghijk"}})
+                }
+            } else {
+                assert!(!request
+                    .headers
+                    .iter()
+                    .any(|(k, _)| k.eq_ignore_ascii_case("cookie")
+                        || k.eq_ignore_ascii_case("authorization")));
+                return Ok(HttpResponse {
+                    status: 404,
+                    body: vec![],
+                    headers: vec![],
+                    final_url: None,
+                });
+            };
+            Ok(HttpResponse {
+                status: 200,
+                body: serde_json::to_vec(&value).unwrap(),
+                headers: vec![],
+                final_url: None,
+            })
+        }
+    }
+
+    #[tokio::test]
+    async fn authenticated_extraction_uses_session_clients_and_keeps_credentials_out_of_media() {
+        let (base, _, server) = start(false).await;
+        let api = Arc::new(SessionApi {
+            cdn: base,
+            clients: Mutex::new(vec![]),
+        });
+        let extractor = ytdown::extractor::youtube::YoutubeExtractor::new();
+        let url = reqwest::Url::parse("https://www.youtube.com/watch?v=abcdefghijk").unwrap();
+        for authenticated in [false, true, false] {
+            let transport = Arc::new(CheckedTransport {
+                inner: api.clone(),
+                probe: MediaProbe::new().unwrap(),
+                best: Mutex::new(None),
+                authorization: authenticated.then(|| {
+                    YoutubeSession::new("SAPISID=test-session-secret; LOGIN_INFO=test-login-secret")
+                        .unwrap()
+                }),
+            });
+            let weak = Arc::downgrade(&transport);
+            let context = ExtractorContext::new(transport);
+            let result = extractor.extract(&context, &url).await;
+            if authenticated {
+                let MediaInfo::Single(video) = result.unwrap() else {
+                    panic!("single video expected")
+                };
+                assert_eq!(video.formats.len(), 1);
+                let description = format!("{video:?}");
+                assert!(!description.contains("test-session-secret"));
+                assert!(!description.contains("test-login-secret"));
+                assert_eq!(api.clients.lock().unwrap().last().unwrap(), "TVHTML5");
+            } else {
+                assert!(matches!(
+                    result,
+                    Err(ytdown::Error::Unavailable {
+                        reason: ytdown::error::UnavailableReason::BotCheck,
+                        ..
+                    })
+                ));
+            }
+            drop(context);
+            assert!(
+                weak.upgrade().is_none(),
+                "no session or checked response survives extraction"
+            );
+        }
         server.abort();
     }
 

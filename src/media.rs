@@ -225,11 +225,16 @@ impl MediaResolver {
                 normalize_bilibili(url.as_str(), plan)
             } else {
                 let info = if platform == "YouTube" {
-                    self.youtube.resolve(&url).await
+                    self.youtube
+                        .resolve_with_cookie(&url, platform_cookie)
+                        .await
+                        .map_err(youtube_error)?
                 } else {
-                    self.other_platforms.resolve(url.as_str()).await
-                }
-                .map_err(ytdown_error)?;
+                    self.other_platforms
+                        .resolve(url.as_str())
+                        .await
+                        .map_err(ytdown_error)?
+                };
                 match info {
                     MediaInfo::Single(info) => {
                         ensure!(!info.is_live, "当前版本暂不支持直播录制");
@@ -868,6 +873,20 @@ pub fn safe_error(message: &str) -> String {
     out.chars().take(500).collect()
 }
 
+fn youtube_error(error: anyhow::Error) -> anyhow::Error {
+    use ytdown::{error::UnavailableReason, Error};
+    match error.downcast::<Error>() {
+        Ok(Error::Unavailable { reason: UnavailableReason::BotCheck, .. }) => anyhow::anyhow!(
+            "YouTube 要求验证当前访问会话。请在同一网络的浏览器中打开此视频，完成平台登录或验证后，将该页面请求的 Cookie 填入上方「YouTube 网页 Cookie」并重新解析。浏览器登录状态不会自动共享；若仍被拒绝，请检查 Cookie 是否过期以及浏览器与客户端的网络/代理是否一致。"
+        ),
+        Ok(Error::Unavailable { reason: UnavailableReason::AgeRestricted, .. }) => anyhow::anyhow!(
+            "YouTube 要求登录或年龄验证。请先在浏览器中用有访问权限的账号确认此视频可以播放，再填写上方「YouTube 网页 Cookie」并重新解析。"
+        ),
+        Ok(error) => ytdown_error(error),
+        Err(error) => error,
+    }
+}
+
 fn ytdown_error(error: ytdown::Error) -> anyhow::Error {
     use ytdown::{error::UnavailableReason, Error};
     let message = match &error {
@@ -897,6 +916,22 @@ mod tests {
     use super::*;
     use axum::{extract::Request, response::IntoResponse, Json, Router};
     use serde_json::json;
+
+    #[test]
+    fn youtube_login_errors_offer_the_authorization_path_without_echoing_server_data() {
+        let error = youtube_error(
+            ytdown::Error::Unavailable {
+                reason: ytdown::error::UnavailableReason::BotCheck,
+                message: "Sign in to confirm you're not a bot: private-response-marker".into(),
+            }
+            .into(),
+        )
+        .to_string();
+        assert!(error.contains("YouTube 网页 Cookie"));
+        assert!(error.contains("网络/代理"));
+        assert!(!error.contains("private-response-marker"));
+        assert!(!error.contains("当前版本支持无需登录的公开视频"));
+    }
 
     #[test]
     fn xiaohongshu_original_is_selected_before_higher_resolution_playback() {

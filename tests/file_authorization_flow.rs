@@ -107,6 +107,15 @@ fn assert_files_contain_no_secret(path: &Path) {
         if entry.file_type().unwrap().is_dir() {
             assert_files_contain_no_secret(&entry.path());
         } else {
+            // Windows enforces the service's exclusive byte-range lock even
+            // for reads. These lock files contain no application data.
+            if matches!(
+                entry.file_name().to_str(),
+                Some("manager.lock" | "session.lock")
+            ) {
+                assert_eq!(entry.metadata().unwrap().len(), 0);
+                continue;
+            }
             let bytes = std::fs::read(entry.path()).unwrap();
             assert_no_secret(&String::from_utf8_lossy(&bytes));
         }

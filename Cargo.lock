@@ -1689,7 +1689,7 @@ dependencies = [
 
 [[package]]
 name = "ffdownload-desktop"
-version = "0.3.6"
+version = "0.3.7"
 dependencies = [
  "anyhow",
  "ffdownload-manager",
@@ -1706,7 +1706,7 @@ dependencies = [
 
 [[package]]
 name = "ffdownload-manager"
-version = "0.3.6"
+version = "0.3.7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1730,6 +1730,7 @@ dependencies = [
  "reqwest 0.13.5",
  "serde",
  "serde_json",
+ "sha1 0.10.7",
  "sha2",
  "tempfile",
  "time",
