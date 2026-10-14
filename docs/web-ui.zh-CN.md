@@ -51,7 +51,7 @@ web/index.html + style.css + app.js   界面、交互与真实进度呈现
            src/web.rs                Axum 本地 HTTP 宿主
                │
          src/service.rs              持久任务列表、队列、并发与操作
-               ├── src/media.rs      ytdown / bbdown-core → 统一媒体计划
+               ├── crates/ffdm-resolver/src/media.rs      ytdown / bbdown-core → 统一媒体计划
                ├── src/media_download.rs  轨道下载、恢复、本地 FFmpeg 合并
                │
          src/download.rs             现有引擎适配、保存进度与最终文件发布

@@ -1688,6 +1688,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "ffdm-resolver"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "base64 0.22.1",
+ "bbdown-core",
+ "bytes",
+ "futures-util",
+ "getrandom 0.3.4",
+ "httpdate",
+ "percent-encoding",
+ "regex",
+ "reqwest 0.12.28",
+ "reqwest 0.13.5",
+ "serde",
+ "serde_json",
+ "sha1 0.10.7",
+ "sha2",
+ "tempfile",
+ "tokio",
+ "tokio-tungstenite",
+ "ytdown",
+]
+
+[[package]]
 name = "ffdownload-desktop"
 version = "0.3.7"
 dependencies = [
@@ -1712,11 +1739,11 @@ dependencies = [
  "async-trait",
  "axum",
  "base64 0.22.1",
- "bbdown-core",
  "boa_engine",
  "brotli",
  "bytes",
  "clap",
+ "ffdm-resolver",
  "flate2",
  "fs2",
  "futures-util",
@@ -1726,11 +1753,9 @@ dependencies = [
  "percent-encoding",
  "rcgen",
  "regex",
- "reqwest 0.12.28",
  "reqwest 0.13.5",
  "serde",
  "serde_json",
- "sha1 0.10.7",
  "sha2",
  "tempfile",
  "time",
@@ -1738,7 +1763,6 @@ dependencies = [
  "tokio-rustls",
  "tokio-tungstenite",
  "tracing-subscriber",
- "ytdown",
 ]
 
 [[package]]

@@ -1,6 +1,6 @@
 //! Resolve the current track from actual browser playback traffic, not the
 //! platform's separate in-app download endpoint or its commercial download flags.
-use crate::capture_browser::HeadlessPage;
+use crate::browser::HeadlessPage;
 use anyhow::{bail, ensure, Context, Result};
 use reqwest_media::Url;
 use serde_json::{json, Value};

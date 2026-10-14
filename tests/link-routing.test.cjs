@@ -6,10 +6,10 @@ const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../web/app.js'), 'utf8');
 const routing = source.slice(source.indexOf('function videoPlatform('), source.indexOf('function updateSubmitButton('));
-const sharedCases = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/link-routing.json'), 'utf8'));
-const labels = {'Qishui Music':'汽水音乐', Douyin:'抖音', Xiaohongshu:'小红书', 'WeChat Channels':'视频号'};
+const sharedCases = JSON.parse(fs.readFileSync(path.join(__dirname, '../crates/ffdm-resolver/tests/fixtures/link-routing.json'), 'utf8'));
+const labels = {'Qishui Music':'汽水音乐', Douyin:'抖音', Xiaohongshu:'小红书', 'WeChat Channels':'视频号', Kuaishou:'快手', Weibo:'微博', CCTV:'央视网', Ixigua:'西瓜视频', PearVideo:'梨视频', WikimediaCommons:'Wikimedia Commons', Sohu:'搜狐视频', Haokan:'好看视频', HuyaVideo:'虎牙点播', NetEaseNews:'网易新闻'};
 function parser() {
-  const context = vm.createContext({URL});
+  const context = vm.createContext({URL, atob, TextEncoder});
   vm.runInContext(routing, context, {filename:'web/app.js'});
   return context;
 }
@@ -47,10 +47,12 @@ test('manual file mode overrides known video pages; explicit parser mode does no
   assert.equal(mediaPlatform('https://ton.x.com/archive-example.zip', 'auto'), null);
   assert.equal(mediaPlatform('https://x.com/user/status/1234567890', 'auto'), 'X');
   assert.equal(mediaPlatform('https://www.xiaohongshu.com/unknown-page', 'media'), '小红书');
-  assert.equal(mediaPlatform('https://ton.x.com/archive-example.zip', 'media'), '音视频');
-  assert.equal(mediaPlatform('https://media.example.org/watch/abc', 'media'), '音视频');
-  assert.equal(mediaPlatform('https://music.douyin.com/unknown-page', 'media'), '音视频');
-  assert.equal(mediaPlatform('http://music.douyin.com/qishui/share/track?track_id=1234567890123456789', 'media'), '音视频');
+  assert.equal(mediaPlatform('https://ton.x.com/archive-example.zip', 'media'), '网页资源');
+  assert.equal(mediaPlatform('https://media.example.org/watch/abc', 'media'), '网页资源');
+  assert.equal(mediaPlatform('https://music.douyin.com/unknown-page', 'media'), '网页资源');
+  assert.equal(mediaPlatform('http://music.douyin.com/qishui/share/track?track_id=1234567890123456789', 'media'), '网页资源');
+  assert.equal(mediaPlatform('https://embed-ssl.ted.com/talks/ken_robinson_says_schools_kill_creativity', 'media'), 'TED');
+  assert.equal(mediaPlatform('https://commons.wikimedia.org/wiki/file:Sample_video.webm', 'media'), 'Wikimedia Commons');
 });
 
 function downloadForm({url, mode = 'auto', preview = null}) {

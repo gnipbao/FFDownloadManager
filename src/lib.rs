@@ -6,15 +6,15 @@ mod capture_ca;
 mod capture_system;
 mod capture_transport;
 mod capture_wechat;
-mod chinese_video;
 pub mod download;
 pub mod filename;
-mod link;
+pub mod hls;
 pub mod media;
 pub mod media_download;
-mod qishui;
 pub mod service;
 pub mod test_server;
 pub mod web;
 mod wechat_crypto;
-mod youtube;
+
+/// Reusable Rust resource extraction library.
+pub use ffdm_resolver as resolver;

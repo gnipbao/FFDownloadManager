@@ -1,6 +1,6 @@
 //! Maintain YouTube client compatibility and verify media before offering formats.
 use crate::media::MediaStream;
-use anyhow::{ensure, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use futures_util::{stream, StreamExt};
 use serde_json::Value;
 use std::{
@@ -104,6 +104,7 @@ fn has_readable_hd_with_audio(body: &Value) -> bool {
 #[derive(Clone)]
 pub(crate) struct MediaProbe {
     client: reqwest::Client,
+    local_client: reqwest::Client,
     passed: Arc<Mutex<HashMap<String, Instant>>>,
 }
 
@@ -111,6 +112,12 @@ impl MediaProbe {
     pub fn new() -> Result<Self> {
         Ok(Self {
             client: reqwest::Client::builder()
+                .user_agent("gosh-dl/0.6.3")
+                .connect_timeout(Duration::from_secs(4))
+                .timeout(Duration::from_secs(6))
+                .build()?,
+            local_client: reqwest::Client::builder()
+                .no_proxy()
                 .user_agent("gosh-dl/0.6.3")
                 .connect_timeout(Duration::from_secs(4))
                 .timeout(Duration::from_secs(6))
@@ -130,10 +137,24 @@ impl MediaProbe {
         {
             return Ok(());
         }
-        crate::filename::parse_url(&media.url)?;
-        crate::download::validate_headers(&media.headers)?;
+        let url = crate::validation::parse_url(&media.url)?;
+        crate::validation::validate_headers(&media.headers)?;
+        // Share the source's request budget with downloads, including any
+        // Retry-After cooldown recorded by another probe or running job.
+        let _source_permit = crate::source_policy::acquire(&media.url).await?;
+        let client = if url.host_str().is_some_and(|host| {
+            host == "localhost"
+                || host
+                    .trim_matches(['[', ']'])
+                    .parse::<std::net::IpAddr>()
+                    .is_ok_and(|ip| ip.is_loopback())
+        }) {
+            &self.local_client
+        } else {
+            &self.client
+        };
         let request = || {
-            let mut request = self.client.get(&media.url);
+            let mut request = client.get(&media.url);
             for (name, value) in &media.headers {
                 if !name.eq_ignore_ascii_case("accept-encoding") {
                     request = request.header(name.as_str(), value);
@@ -150,11 +171,13 @@ impl MediaProbe {
                 .send()
                 .await
                 .context("媒体可读性检查请求失败")?;
+            check_source_rate_limit(&media.url, &response)?;
             ensure!(
                 response.status().is_success(),
                 "媒体服务器拒绝读取（HTTP {}）",
                 response.status().as_u16()
             );
+            ensure_media_response(response.headers())?;
             if response.status() == reqwest::StatusCode::PARTIAL_CONTENT {
                 let range = response
                     .headers()
@@ -198,11 +221,13 @@ impl MediaProbe {
         }
         // The engine falls back to a plain GET if HEAD is rejected. Verify that path too.
         let response = request().send().await?;
+        check_source_rate_limit(&media.url, &response)?;
         ensure!(
             response.status() == reqwest::StatusCode::OK,
             "媒体服务器拒绝完整下载（HTTP {}）",
             response.status().as_u16()
         );
+        ensure_media_response(response.headers())?;
         ensure!(
             media
                 .size
@@ -219,6 +244,38 @@ impl MediaProbe {
         passed.insert(key, Instant::now());
         Ok(())
     }
+}
+
+fn check_source_rate_limit(url: &str, response: &reqwest::Response) -> Result<()> {
+    if response.status() == reqwest::StatusCode::TOO_MANY_REQUESTS
+        && crate::source_policy::limits(url).is_some()
+    {
+        let _ = crate::source_policy::record_retry_after(
+            url,
+            response
+                .headers()
+                .get(reqwest::header::RETRY_AFTER)
+                .and_then(|value| value.to_str().ok()),
+        );
+        bail!("Wikimedia 限制了请求（HTTP 429），请等待服务器冷却后重新解析");
+    }
+    Ok(())
+}
+
+fn ensure_media_response(headers: &reqwest::header::HeaderMap) -> Result<()> {
+    let content_type = headers
+        .get(reqwest::header::CONTENT_TYPE)
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    ensure!(
+        !content_type.starts_with("text/")
+            && !content_type.contains("json")
+            && !content_type.contains("xml")
+            && !content_type.contains("mpegurl"),
+        "媒体地址返回了网页、错误响应或播放清单，请重新解析可用格式"
+    );
+    Ok(())
 }
 
 struct CheckedTransport {

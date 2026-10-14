@@ -350,12 +350,8 @@ impl ChineseResolver {
             .context("视频号播放页缺少 eid")?;
         let mut endpoint =
             Url::parse("https://channels.weixin.qq.com/finder-preview/api/feed/get_feed_info")?;
-        let nonce: String = gosh_dl::DownloadId::new()
-            .to_string()
-            .chars()
-            .take(8)
-            .collect();
-        let rid = format!("{:x}-{nonce}", crate::service::now_ms() / 1000);
+        let nonce: String = crate::utils::unique_id()?.chars().take(8).collect();
+        let rid = format!("{:x}-{nonce}", crate::utils::now_ms() / 1000);
         endpoint
             .query_pairs_mut()
             .append_pair("_rid", &rid)

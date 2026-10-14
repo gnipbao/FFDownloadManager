@@ -10,6 +10,7 @@ use anyhow::{bail, ensure, Context, Result};
 use fs2::FileExt;
 use std::{
     fs::{File, OpenOptions},
+    io::{Read, Write},
     path::{Path, PathBuf},
     process::Stdio,
     time::{Duration, Instant},
@@ -25,6 +26,10 @@ pub async fn run(
     ffmpeg: Option<PathBuf>,
 ) -> Result<DownloadReport> {
     plan.validate()?;
+    let connections = plan.streams.iter().fold(connections, |limit, stream| {
+        ffdm_resolver::source_policy::limits(&stream.url)
+            .map_or(limit, |policy| limit.min(policy.max_connections))
+    });
     let started = Instant::now();
     ensure!(!output.try_exists()?, "目标文件已存在，不能覆盖");
     let parent = output.parent().context("缺少下载目录")?;
@@ -58,17 +63,10 @@ pub async fn run(
         file.as_file().sync_all()?;
         file.persist_noclobber(&identity).map_err(|e| e.error)?;
     }
-    let engine = if plan.platform == "Rust Capture" {
-        "Rust capture / gosh-dl"
-    } else if plan.platform == "Qishui Music" {
-        "Rust browser media parser / gosh-dl"
-    } else if matches!(
-        plan.platform.as_str(),
-        "Douyin" | "Xiaohongshu" | "WeChat Channels"
-    ) {
-        "native platform parser / gosh-dl"
+    let engine = if plan.assembly == Assembly::Hls {
+        "ffdm-resolver / Rust HLS / gosh-dl"
     } else {
-        "ytdown + bbdown-core / gosh-dl"
+        "ffdm-resolver / gosh-dl"
     };
     let report = |outcome: &str, bytes: u64, hash: Option<String>| DownloadReport {
         engine: engine.into(),
@@ -86,6 +84,7 @@ pub async fn run(
     };
     let mut paths = Vec::new();
     let mut completed = 0;
+    let mut hls_container = None;
     // The downloader has already hashed this exact, newly completed track.
     // A direct file needs no second full-file read before publication.
     let mut verified_direct_hash = None;
@@ -107,6 +106,9 @@ pub async fn run(
                 stream.size.is_none_or(|size| size == metadata.len()),
                 "已下载的媒体轨道大小发生变化"
             );
+            if plan.assembly == Assembly::Hls {
+                validate_hls_track(&track, &work, index, &mut hls_container)?;
+            }
             completed += metadata.len();
             paths.push(track);
             continue;
@@ -165,6 +167,9 @@ pub async fn run(
         if result.outcome == "paused" {
             return Ok(report("paused", completed, None));
         }
+        if plan.assembly == Assembly::Hls {
+            validate_hls_track(&track, &work, index, &mut hls_container)?;
+        }
         if plan.assembly == Assembly::Direct && stream.decrypt_key.is_none() {
             verified_direct_hash = result.sha256;
         }
@@ -191,7 +196,47 @@ pub async fn run(
             .tempfile_in(&work)?;
         let mut cmd = tokio::process::Command::new(binary);
         cmd.args(["-hide_banner", "-loglevel", "error", "-nostdin", "-y"]);
-        if plan.assembly == Assembly::Merge {
+        let hls_input;
+        if plan.assembly == Assembly::Hls {
+            let inputs = paths.clone();
+            let directory = work.clone();
+            let pause = control.pause.clone();
+            hls_input =
+                tokio::task::spawn_blocking(move || join_hls_segments(&inputs, &directory, &pause))
+                    .await??;
+            let Some(input) = hls_input.as_ref() else {
+                return Ok(report("paused", completed, None));
+            };
+            // MPEG-TS and fMP4 are both byte streams. fMP4 requires its init
+            // followed by moof/mdat fragments, not independent concat inputs.
+            let container = hls_input_demuxer(input.path())?;
+            cmd.args(["-protocol_whitelist", "file,pipe", "-f", container, "-i"])
+                .arg(input.path());
+            if plan.extension == "m4a" {
+                // Public audio HLS has no video stream. Keep its audio without
+                // encoding, using the same completed, validated local pieces.
+                cmd.args([
+                    "-map",
+                    "0:a:0",
+                    "-vn",
+                    "-c",
+                    "copy",
+                    "-movflags",
+                    "+faststart",
+                ]);
+            } else {
+                cmd.args([
+                    "-map",
+                    "0:v:0",
+                    "-map",
+                    "0:a:0?",
+                    "-c",
+                    "copy",
+                    "-movflags",
+                    "+faststart",
+                ]);
+            }
+        } else if plan.assembly == Assembly::Merge {
             for path in &paths {
                 cmd.args(["-protocol_whitelist", "file,pipe", "-i"])
                     .arg(path);
@@ -277,6 +322,140 @@ pub async fn run(
     Ok(report("completed", size, Some(hash)))
 }
 
+fn join_hls_segments(
+    inputs: &[PathBuf],
+    directory: &Path,
+    pause: &watch::Receiver<bool>,
+) -> Result<Option<tempfile::NamedTempFile>> {
+    let mut joined = tempfile::Builder::new()
+        .prefix("hls-input-")
+        .suffix(".media")
+        .tempfile_in(directory)?;
+    let mut buffer = vec![0_u8; 256 * 1024];
+    for path in inputs {
+        let metadata = std::fs::symlink_metadata(path)?;
+        ensure!(
+            metadata.is_file() && !metadata.file_type().is_symlink(),
+            "HLS 分段文件已被替换"
+        );
+        let mut source = File::open(path)?;
+        loop {
+            if *pause.borrow() {
+                return Ok(None);
+            }
+            let read = source.read(&mut buffer)?;
+            if read == 0 {
+                break;
+            }
+            joined.write_all(&buffer[..read])?;
+        }
+    }
+    joined.as_file().sync_all()?;
+    Ok(Some(joined))
+}
+
+fn hls_input_demuxer(path: &Path) -> Result<&'static str> {
+    match hls_piece_format(path)? {
+        HlsPieceFormat::MpegTs => Ok("mpegts"),
+        HlsPieceFormat::Mp4Init => Ok("mov"),
+        HlsPieceFormat::Aac => Ok("aac"),
+        HlsPieceFormat::Mp4Fragment => bail!("HLS fMP4 缺少初始化段"),
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum HlsPieceFormat {
+    MpegTs,
+    Mp4Init,
+    Mp4Fragment,
+    Aac,
+}
+
+fn hls_piece_format(path: &Path) -> Result<HlsPieceFormat> {
+    let mut header = [0_u8; 384];
+    let mut file = File::open(path)?;
+    let file_size = file.metadata()?.len();
+    let length = file.read(&mut header)?;
+    // Force the expected binary demuxer instead of allowing arbitrary file
+    // autodetection (for example a concat script in an untrusted segment).
+    if length >= 189 && file_size.is_multiple_of(188) && header[0] == 0x47 && header[188] == 0x47 {
+        return Ok(HlsPieceFormat::MpegTs);
+    }
+    if length >= 8
+        && matches!(
+            &header[4..8],
+            b"ftyp" | b"moov" | b"styp" | b"sidx" | b"moof"
+        )
+    {
+        let first_box_size = u32::from_be_bytes(header[..4].try_into().unwrap()) as u64;
+        ensure!(
+            first_box_size == 0 || (first_box_size >= 8 && first_box_size <= file_size),
+            "HLS fMP4 分段首 box 不完整"
+        );
+        if matches!(&header[4..8], b"ftyp" | b"moov") {
+            return Ok(HlsPieceFormat::Mp4Init);
+        }
+        if matches!(&header[4..8], b"styp" | b"sidx" | b"moof") {
+            return Ok(HlsPieceFormat::Mp4Fragment);
+        }
+    }
+    if length >= 7 && header[0] == 0xff && header[1] & 0xf6 == 0xf0 {
+        return Ok(HlsPieceFormat::Aac);
+    }
+    bail!("HLS 分段格式不是 MPEG-TS、fMP4 或 AAC；原始分段已保留")
+}
+
+fn validate_hls_track(
+    path: &Path,
+    directory: &Path,
+    index: usize,
+    container: &mut Option<HlsPieceFormat>,
+) -> Result<()> {
+    let validated: Result<()> = (|| {
+        let kind = hls_piece_format(path)?;
+        if let Some(previous) = container {
+            ensure!(
+                if *previous == HlsPieceFormat::Mp4Init {
+                    kind == HlsPieceFormat::Mp4Fragment
+                } else {
+                    kind == *previous
+                },
+                "HLS 分段容器改变或出现重复初始化段"
+            );
+        } else {
+            ensure!(kind != HlsPieceFormat::Mp4Fragment, "HLS fMP4 缺少初始化段");
+            *container = Some(kind);
+        }
+        Ok(())
+    })();
+    if let Err(error) = validated {
+        let name = path
+            .file_name()
+            .context("缺少 HLS 分段文件名")?
+            .to_string_lossy();
+        let rejected = tempfile::Builder::new()
+            .prefix("rejected-hls-")
+            .tempdir_in(directory)?
+            .keep();
+        let state = directory.join(format!("{name}.ffdm-state"));
+        // Move the checkpoint first. If interrupted, the invalid canonical
+        // track still exists and will be checked again before reuse; it cannot
+        // leave a completed checkpoint with a missing canonical output.
+        if state.try_exists()? {
+            std::fs::rename(&state, rejected.join("state"))
+                .context("无法隔离无效 HLS 分段的下载记录，原始记录已保留")?;
+        }
+        std::fs::rename(path, rejected.join("segment.bin"))
+            .context("无法隔离无效 HLS 分段，原始分段已保留")?;
+        bail!(
+            "HLS 第 {} 个分段无效：{}。有效分段进度已保留，无效响应已隔离，重试将重新下载此段",
+            index + 1,
+            safe_error(&format!("{error:#}"))
+        );
+    }
+    Ok(())
+}
+
 async fn wait_for_pause(pause: &mut watch::Receiver<bool>) {
     loop {
         if *pause.borrow_and_update() || pause.changed().await.is_err() {
@@ -308,4 +487,26 @@ fn publish(
     std::fs::hard_link(source, output)
         .context("无法保存最终视频，目标文件可能已存在；原始轨道已保留")?;
     Ok((size, hash))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hls_binary_inputs_cannot_be_autodetected_as_local_file_scripts() {
+        let directory = tempfile::tempdir().unwrap();
+        let input = directory.path().join("input.media");
+        std::fs::write(&input, "ffconcat version 1.0\nfile '/private/data'\n").unwrap();
+        assert!(hls_input_demuxer(&input).is_err());
+        let mut ts = vec![0_u8; 376];
+        ts[0] = 0x47;
+        ts[188] = 0x47;
+        std::fs::write(&input, ts).unwrap();
+        assert_eq!(hls_input_demuxer(&input).unwrap(), "mpegts");
+        std::fs::write(&input, b"\0\0\0\x0cftypiso6").unwrap();
+        assert_eq!(hls_input_demuxer(&input).unwrap(), "mov");
+        std::fs::write(&input, [0xff, 0xf1, 0, 0, 0, 0, 0]).unwrap();
+        assert_eq!(hls_input_demuxer(&input).unwrap(), "aac");
+    }
 }

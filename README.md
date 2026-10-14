@@ -47,6 +47,12 @@ cargo build --release --locked
 ./target/release/ffdm serve --port 17890
 ```
 
+## 可复用的解析模块
+
+源码中的 [ffdm-resolver](crates/ffdm-resolver/README.md) 将平台解析、通用网页媒体识别和格式选择提炼为独立 Rust crate，统一输出下载计划，供 CLI、Web 服务或桌面应用接入。宿主负责下载队列、暂停续传及文件保存，也可注册自己的 Rust 平台适配器。
+
+源码中的解析模块持续增加平台和通用网页、HLS 支持。完整的 [支持平台与下载清单](docs/supported-platforms.zh-CN.md) 列出能力、公开样例和实际验证结果；接口与示例见模块文档，本地验证步骤见 [资源解析说明](docs/resource-resolver.zh-CN.md)。仓库能力与已发布安装包可能不同，安装包以 Release 说明为准。
+
 ## 使用声明
 
 本项目的视频链接解析功能仅供技术学习与研究。项目仓库不提供或托管第三方视频；“仅供学习研究”不意味着获得下载、复制或传播这些内容的授权。使用前请确认内容及获取方式均已获得适当授权，并遵守适用法律、版权要求和平台规则，例如 [YouTube 服务条款](https://www.youtube.com/t/terms) 与 [哔哩哔哩用户使用协议](https://www.bilibili.com/blackboard/protocal/licence.html)。请勿用于侵权或绕过平台访问限制；使用者应对自身行为负责。

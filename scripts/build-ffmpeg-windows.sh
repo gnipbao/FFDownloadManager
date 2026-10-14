@@ -7,7 +7,7 @@ FFDM_SHA256=6136812ea6d4e68bdba27e33c2a94382711cdf4f8602ffef056ff792bd6f9818
 FFDM_CACHE="$FFDM_ROOT/.tools/ffmpeg"
 FFDM_ARCHIVE="$FFDM_CACHE/ffmpeg-$FFDM_VERSION.tar.xz"
 FFDM_SOURCE="$FFDM_CACHE/ffmpeg-$FFDM_VERSION"
-FFDM_BUILD="$FFDM_CACHE/build-$FFDM_VERSION-windows-x64"
+FFDM_BUILD="$FFDM_CACHE/build-$FFDM_VERSION-windows-x64-hls-v2"
 FFDM_RESOURCES="$FFDM_ROOT/src-tauri/resources"
 test "${MSYSTEM:-}" = UCRT64 || { echo 'Run in MSYS2 UCRT64.' >&2; exit 1; }
 mkdir -p "$FFDM_CACHE" "$FFDM_BUILD" "$FFDM_RESOURCES/third-party"
@@ -27,9 +27,10 @@ if [ ! -f ffmpeg.exe ]; then
     --disable-network --disable-doc --disable-debug --disable-shared --enable-static \
     --disable-programs --enable-ffmpeg --disable-avdevice --enable-small \
     --enable-protocol=file,pipe \
-    --enable-demuxer=mov,matroska,flv,concat,aac,mp3,ogg \
+    --enable-demuxer=mov,matroska,flv,concat,aac,mp3,ogg,mpegts \
     --enable-muxer=mp4,ipod,matroska,webm,flv,mp3,ogg \
     --enable-parser=aac,h264,hevc,av1,vp9,opus \
+    --enable-decoder=aac \
     --enable-bsf=aac_adtstoasc,extract_extradata,h264_mp4toannexb,hevc_mp4toannexb,av1_frame_split,vp9_superframe \
     --extra-ldflags=-static > configure.log 2>&1 || {
       tail -n 80 configure.log >&2

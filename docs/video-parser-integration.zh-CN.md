@@ -4,8 +4,8 @@
 
 ## 实现
 
-- `src/media.rs`：`ytdown 0.8.0`、`bbdown-core 0.5.0` 适配器、平台路由、格式归一化、音视频配对、文件名和短期解析缓存。
-- `src/youtube.rs`：将 ytdown 首选的旧 Android VR 播放器请求适配为 VISIONOS，保持客户端请求头、设备信息和会话一致；检查格式可读性，保留其他客户端回退与较高可读清晰度。
+- `crates/ffdm-resolver/src/media.rs`：`ytdown 0.8.0`、`bbdown-core 0.5.0` 适配器、平台路由、格式归一化、音视频配对、文件名和短期解析缓存。
+- `crates/ffdm-resolver/src/youtube.rs`：将 ytdown 首选的旧 Android VR 播放器请求适配为 VISIONOS，保持客户端请求头、设备信息和会话一致；检查格式可读性，保留其他客户端回退与较高可读清晰度。
 - `src/media_download.rs`：使用现有 Rust / gosh-dl 下载每个完整媒体轨道，再调用本地 FFmpeg 流复制合并。FFmpeg 仅允许本地文件协议，不接收平台 URL。
 - `src/service.rs`：视频任务和普通下载共用队列、持久化、暂停、继续及状态展示。已有任务记录保持兼容。
 - `src/web.rs` 与 `web/`：粘贴视频页面 → 解析 → 选择清晰度或仅音频 → 下载。API 只返回选择标识和展示信息，签名媒体地址及请求头留在服务器状态中。
@@ -63,7 +63,7 @@ YouTube 从 Web UI 完成解析与任务创建，B 站从本地 API 完成任务
 
 ## 抖音、小红书、视频号增量（2026-09-23）
 
-`src/chinese_video.rs` 为三个平台提供纯 Rust 解析适配器，结果仍进入同一个媒体计划和 `gosh-dl` 下载队列。抖音优先查询移动端 Feed 的准确作品 ID，返回多档 MP4，分享页 SSR 作为回退。小红书同时识别 `xhslink.com`、`xhslink.cn` 短链和完整笔记链接，读取移动分享页的初始数据；若站点要求登录，可临时填写小红书网页 Cookie。竖屏分辨率按短边展示，例如 720×1280 显示为 720p。
+`crates/ffdm-resolver/src/chinese_video.rs` 为三个平台提供纯 Rust 解析适配器，结果仍进入同一个媒体计划和 `gosh-dl` 下载队列。抖音优先查询移动端 Feed 的准确作品 ID，返回多档 MP4，分享页 SSR 作为回退。小红书同时识别 `xhslink.com`、`xhslink.cn` 短链和完整笔记链接，读取移动分享页的初始数据；若站点要求登录，可临时填写小红书网页 Cookie。竖屏分辨率按短边展示，例如 720×1280 显示为 720p。
 
 视频号普通 `weixin.qq.com/sph/...` 分享链接需要用户自己的元宝登录 Cookie，先获取含 `token`、`eid` 的播放页，再请求视频号作品详情；已有播放页链接可跳过元宝。若返回 `decodeKey`，`src/wechat_crypto.rs` 在本地用 Rust 解密前 128 KiB，校验 MP4 文件头后才发布成品。原始分段数据保持不变，失败时可检查或重试。Cookie 不写入任务或解析缓存，不会发送给媒体 CDN。所实现的数据通道参考 [抖音解析实现说明](https://github.com/ucmao/media-parser/blob/main/docs/parsers/douyin.md)、[小红书公开视频提取说明](https://github.com/Backtthefuture/video-transcript/blob/main/FALLBACK.md) 和 [视频号开源实现](https://github.com/oliver-zch/wx-video-channel-download)；ISAAC64 算法按其 [MIT 许可 Go 实现](https://github.com/oliver-zch/wx-video-channel-download/blob/main/pkg/decrypt/decrypt.go)移植。
 

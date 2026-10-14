@@ -1,0 +1,148 @@
+{
+  "verified_on": "2026-10-14",
+  "environment": "macOS, local Web service with native Rust extraction and download, ffprobe validates finished files. Metadata-only and range-only checks are not counted as completed.",
+  "samples": [
+    {
+      "platform": "Audius",
+      "source_page": "https://audius.co/radiojuicy/tohaj-long-drive",
+      "status": "completed",
+      "selected": "音频 · MP3",
+      "bytes": 6027982,
+      "sha256": "47179a535136f668ffe244b74a445c34389a25ccbcbac19cf134c6e7ca4a4f67",
+      "duration": "150.672000",
+      "streams": [
+        {
+          "type": "audio",
+          "codec": "mp3",
+          "width": null,
+          "height": null
+        }
+      ],
+      "filename": "扩展4-Audius-验证.mp3"
+    },
+    {
+      "platform": "AudioBoom",
+      "source_page": "https://audioboom.com/posts/7364167-nhl-therink-trailer",
+      "status": "completed",
+      "selected": "音频 · MP3",
+      "bytes": 1970350,
+      "sha256": "3644eb89dd570413ddd27f91bdd92a2cda5339bfd70eb215b26d10b3e44a83b4",
+      "duration": "118.592000",
+      "streams": [
+        {
+          "type": "audio",
+          "codec": "mp3",
+          "attached_pic": false
+        },
+        {
+          "type": "video",
+          "codec": "mjpeg",
+          "attached_pic": true
+        }
+      ],
+      "filename": "扩展4-AudioBoom-验证.mp3"
+    },
+    {
+      "platform": "Odysee",
+      "source_page": "https://odysee.com/@Mantega:1/First-day-LBRY:1",
+      "status": "failed",
+      "error": "没有找到可下载的网页资源。媒体服务器拒绝读取（HTTP 429）"
+    },
+    {
+      "platform": "Rumble",
+      "source_page": "https://rumble.com/embed/vb0ofn",
+      "status": "completed",
+      "selected": "360p · MP4",
+      "bytes": 8231997,
+      "sha256": "64fa8eab5dc76301982039d6ac502929a1483f81ff508d869acf4605a725f21f",
+      "duration": "103.636867",
+      "streams": [
+        {
+          "type": "video",
+          "codec": "h264",
+          "width": 640,
+          "height": 360
+        },
+        {
+          "type": "audio",
+          "codec": "aac",
+          "width": null,
+          "height": null
+        }
+      ],
+      "filename": "扩展4-Rumble-验证.mp4"
+    },
+    {
+      "platform": "OK.ru",
+      "source_page": "https://ok.ru/videoembed/20079905452",
+      "status": "completed",
+      "selected": "144p · MP4",
+      "bytes": 1401621,
+      "sha256": "c3141d019cc5b43d4b25098fccd951d0cfaaf84683ae2b3a6c533cae05f4bcb1",
+      "duration": "100.960000",
+      "streams": [
+        {
+          "type": "video",
+          "codec": "h264",
+          "width": 256,
+          "height": 144
+        },
+        {
+          "type": "audio",
+          "codec": "aac",
+          "width": null,
+          "height": null
+        }
+      ],
+      "filename": "扩展4-OK-ru-验证.mp4"
+    },
+    {
+      "platform": "HuyaVideo",
+      "source_page": "https://www.huya.com/video/play/1002412640.html",
+      "status": "completed",
+      "selected": "360p · MP4",
+      "bytes": 823278,
+      "sha256": "492d5003c52e75b2d363e41ccae362fc0a21376134e012f332c042ef673da96c",
+      "duration": "14.210998",
+      "streams": [
+        {
+          "type": "video",
+          "codec": "h264",
+          "width": 576,
+          "height": 360
+        },
+        {
+          "type": "audio",
+          "codec": "aac",
+          "width": null,
+          "height": null
+        }
+      ],
+      "filename": "扩展4-HuyaVideo-验证.mp4"
+    },
+    {
+      "platform": "NetEaseNews",
+      "source_page": "https://www.163.com/v/video/VD868N253.html",
+      "status": "completed",
+      "selected": "HLS 原始画质",
+      "bytes": 4206066,
+      "sha256": "74f1cb0b549f743eff753eaa8b278e2baa7722636aeae5d771ecca5e2eaecadd",
+      "duration": "39.126000",
+      "streams": [
+        {
+          "type": "video",
+          "codec": "h264",
+          "width": 1080,
+          "height": 1920
+        },
+        {
+          "type": "audio",
+          "codec": "aac",
+          "width": null,
+          "height": null
+        }
+      ],
+      "filename": "扩展4-NetEaseNews-验证.mp4"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 //! Filename hints from response headers and URLs; never reads the file payload.
-use anyhow::{ensure, Context, Result};
+use anyhow::{ensure, Result};
 use percent_encoding::percent_decode_str;
 use reqwest::{header, Client, Url};
 use serde::Serialize;
@@ -22,16 +22,7 @@ pub struct FilenameResolver {
 }
 
 pub fn parse_url(raw: &str) -> Result<Url> {
-    let url = Url::parse(raw.trim()).context("请输入有效的 HTTP 或 HTTPS 链接")?;
-    ensure!(
-        matches!(url.scheme(), "http" | "https") && url.host().is_some(),
-        "仅支持 HTTP / HTTPS 下载链接"
-    );
-    ensure!(
-        url.username().is_empty() && url.password().is_none(),
-        "暂不支持链接内的用户名和密码"
-    );
-    Ok(url)
+    ffdm_resolver::validation::parse_url(raw)
 }
 
 impl FilenameResolver {
@@ -181,15 +172,7 @@ pub fn extension(name: &str) -> Option<String> {
 
 /// Windows device names are reserved even when followed by an extension.
 pub fn is_windows_reserved_name(name: &str) -> bool {
-    let stem = name.split('.').next().unwrap_or(name).trim_end_matches(' ');
-    let upper = stem.to_ascii_uppercase();
-    matches!(upper.as_str(), "CON" | "PRN" | "AUX" | "NUL")
-        || ["COM", "LPT"].iter().any(|prefix| {
-            upper.strip_prefix(prefix).is_some_and(|number| {
-                matches!(number, "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9")
-                    || matches!(number, "¹" | "²" | "³")
-            })
-        })
+    ffdm_resolver::validation::is_windows_reserved_name(name)
 }
 
 fn from_url(url: &Url) -> Option<String> {

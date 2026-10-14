@@ -8,7 +8,7 @@ FFDM_ARCH=$(uname -m)
 FFDM_CACHE="$FFDM_ROOT/.tools/ffmpeg"
 FFDM_ARCHIVE="$FFDM_CACHE/ffmpeg-$FFDM_VERSION.tar.xz"
 FFDM_SOURCE="$FFDM_CACHE/ffmpeg-$FFDM_VERSION"
-FFDM_BUILD="$FFDM_CACHE/build-$FFDM_VERSION-$FFDM_ARCH"
+FFDM_BUILD="$FFDM_CACHE/build-$FFDM_VERSION-$FFDM_ARCH-hls-v2"
 FFDM_RESOURCES="$FFDM_ROOT/src-tauri/resources"
 test "$(uname -s)" = Darwin || { echo 'This helper builds FFmpeg for macOS.' >&2; exit 1; }
 mkdir -p "$FFDM_CACHE" "$FFDM_BUILD" "$FFDM_RESOURCES/third-party"
@@ -28,9 +28,10 @@ if [ ! -f ffmpeg ]; then
     --disable-network --disable-doc --disable-debug --disable-shared --enable-static \
     --disable-programs --enable-ffmpeg --disable-avdevice --enable-small \
     --enable-protocol=file,pipe \
-    --enable-demuxer=mov,matroska,flv,concat,aac,mp3,ogg \
+    --enable-demuxer=mov,matroska,flv,concat,aac,mp3,ogg,mpegts \
     --enable-muxer=mp4,ipod,matroska,webm,flv,mp3,ogg \
     --enable-parser=aac,h264,hevc,av1,vp9,opus \
+    --enable-decoder=aac \
     --enable-bsf=aac_adtstoasc,extract_extradata,h264_mp4toannexb,hevc_mp4toannexb,av1_frame_split,vp9_superframe \
     --enable-zlib \
     --extra-cflags=-mmacosx-version-min=13.0 \

@@ -7,7 +7,7 @@ description = "A Rust HTTP download MVP with reproducible benchmarks"
 publish = false
 
 [workspace]
-members = ["src-tauri"]
+members = ["src-tauri", "crates/ffdm-resolver"]
 default-members = ["."]
 resolver = "2"
 
@@ -22,7 +22,7 @@ path = "src/main.rs"
 [dependencies]
 anyhow = "1"
 async-trait = "0.1"
-bbdown-core = "=0.5.0"
+ffdm-resolver = { path = "crates/ffdm-resolver" }
 axum = "0.8"
 bytes = "1"
 base64 = "0.22"
@@ -40,16 +40,13 @@ percent-encoding = "2"
 gosh-dl = { version = "=0.6.3", default-features = false, features = ["http", "storage"] }
 # Explicitly enable H2: gosh-dl disables reqwest's default features.
 reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream", "http2", "system-proxy"] }
-reqwest_media = { package = "reqwest", version = "0.12", default-features = false, features = ["native-tls", "system-proxy"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-sha1 = "0.10"
 sha2 = "0.10"
 tempfile = "3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "time", "net", "fs", "process"] }
 tokio-tungstenite = { version = "=0.30.0", default-features = false, features = ["connect"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-ytdown = { version = "=0.8.0", default-features = false, features = ["native-tls"] }
 
 [dev-dependencies]
 boa_engine = "0.20"

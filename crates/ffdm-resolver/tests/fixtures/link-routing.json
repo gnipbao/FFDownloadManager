@@ -1,0 +1,1078 @@
+[
+  {
+    "url": "https://ton.x.com/i/ton/data/archives/example/archive-example.zip",
+    "platform": null
+  },
+  {
+    "url": "https://ton.twitter.com/i/ton/data/archive-example.zip",
+    "platform": null
+  },
+  {
+    "url": "https://video.x.com/media/example.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://cdn.youtube.com/sample.zip",
+    "platform": null
+  },
+  {
+    "url": "https://www.youtube.com/archive.zip",
+    "platform": null
+  },
+  {
+    "url": "https://www.youtube.com/download?token=example",
+    "platform": null
+  },
+  {
+    "url": "https://download.example.org/file",
+    "platform": null
+  },
+  {
+    "url": "https://download.example.org/api?file=package.zip&token=example",
+    "platform": null
+  },
+  {
+    "url": "https://download.example.org/music.flac",
+    "platform": null
+  },
+  {
+    "url": "https://download.example.org/file(sample).zip",
+    "platform": null
+  },
+  {
+    "url": "https://download.example.org/file?token=example);",
+    "platform": null
+  },
+  {
+    "url": "https://x.com/user/status/1234567890",
+    "platform": "X"
+  },
+  {
+    "url": "https://www.x.com/user/status/1234567890/video/1",
+    "platform": "X"
+  },
+  {
+    "url": "https://mobile.twitter.com/user/status/1234567890/photo/1",
+    "platform": "X"
+  },
+  {
+    "url": "https://twitter.com/i/web/status/1234567890",
+    "platform": "X"
+  },
+  {
+    "url": "https://m.x.com/i/status/1234567890",
+    "platform": "X"
+  },
+  {
+    "url": "https://x.com/user/status/not-an-id",
+    "platform": null
+  },
+  {
+    "url": "https://x.com/user",
+    "platform": null
+  },
+  {
+    "url": "https://ton.x.com/user/status/1234567890",
+    "platform": null
+  },
+  {
+    "url": "https://youtube.com/watch?v=abcdefghijk",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://m.youtube.com/watch?v=abcdefghijk",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://music.youtube.com/watch?v=abcdefghijk",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://www.youtube.com/shorts/abcdefghijk",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://www.youtube.com/embed/abcdefghijk",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://www.youtube.com/live/abcdefghijk",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://youtu.be/abcdefghijk?t=10",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://www.youtube-nocookie.com/embed/abcdefghijk",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://youtube.com/watch?v=",
+    "platform": null
+  },
+  {
+    "url": "https://youtube.com/playlist?list=example",
+    "platform": null
+  },
+  {
+    "url": "https://youtube.com.evil.example/watch?v=abcdefghijk",
+    "platform": null
+  },
+  {
+    "url": "https://bilibili.com/video/BV1xx411c7mD/",
+    "platform": "Bilibili"
+  },
+  {
+    "url": "https://m.bilibili.com/video/av12345",
+    "platform": "Bilibili"
+  },
+  {
+    "url": "https://www.bilibili.com/bangumi/play/ep12345",
+    "platform": "Bilibili"
+  },
+  {
+    "url": "https://b23.tv/example",
+    "platform": "Bilibili"
+  },
+  {
+    "url": "https://www.bilibili.tv/en/video/12345",
+    "platform": "Bilibili"
+  },
+  {
+    "url": "https://bilibili.tv/video/12345",
+    "platform": "Bilibili"
+  },
+  {
+    "url": "https://download.bilibili.com/video/BV1xx411c7mD",
+    "platform": null
+  },
+  {
+    "url": "https://www.douyin.com/video/1234567890",
+    "platform": "Douyin"
+  },
+  {
+    "url": "https://www.douyin.com/jingxuan/search/example?modal_id=1234567890",
+    "platform": "Douyin"
+  },
+  {
+    "url": "https://m.douyin.com/?modal_id=1234567890",
+    "platform": "Douyin"
+  },
+  {
+    "url": "https://www.iesdouyin.com/share/video/1234567890/",
+    "platform": "Douyin"
+  },
+  {
+    "url": "https://v.douyin.com/abc123/",
+    "platform": "Douyin"
+  },
+  {
+    "url": "https://www.douyin.com/video/example.zip",
+    "platform": null
+  },
+  {
+    "url": "https://www.douyin.com/?modal_id=",
+    "platform": null
+  },
+  {
+    "url": "https://music.douyin.com/qishui/share/track?track_id=1234567890123456789",
+    "platform": "Qishui Music"
+  },
+  {
+    "url": "https://music.douyin.com/assets/player.zip",
+    "platform": null
+  },
+  {
+    "url": "http://music.douyin.com/qishui/share/track?track_id=1234567890123456789",
+    "platform": null
+  },
+  {
+    "url": "https://www.xiaohongshu.com/explore/abc123?xsec_token=example",
+    "platform": "Xiaohongshu"
+  },
+  {
+    "url": "https://xiaohongshu.com/discovery/item/abc123",
+    "platform": "Xiaohongshu"
+  },
+  {
+    "url": "https://m.xiaohongshu.com/explore/abc123",
+    "platform": "Xiaohongshu"
+  },
+  {
+    "url": "https://xhslink.com/abc123",
+    "platform": "Xiaohongshu"
+  },
+  {
+    "url": "https://xhslink.com/a/abc123",
+    "platform": "Xiaohongshu"
+  },
+  {
+    "url": "https://xhslink.cn/o/abc123",
+    "platform": "Xiaohongshu"
+  },
+  {
+    "url": "https://xiaohongshu.com/assets/music.m4a",
+    "platform": null
+  },
+  {
+    "url": "https://weixin.qq.com/sph/example",
+    "platform": "WeChat Channels"
+  },
+  {
+    "url": "https://channels.weixin.qq.com/finder-preview/pages/feed?eid=example",
+    "platform": "WeChat Channels"
+  },
+  {
+    "url": "https://weixin.qq.com/assets/example.zip",
+    "platform": null
+  },
+  {
+    "url": "https://mp.weixin.qq.com/s/example",
+    "platform": null
+  },
+  {
+    "url": "https://www.tiktok.com/@example/video/1234567890",
+    "platform": "TikTok"
+  },
+  {
+    "url": "https://www.tiktok.com/t/abc123/",
+    "platform": "TikTok"
+  },
+  {
+    "url": "https://vm.tiktok.com/abc123/",
+    "platform": "TikTok"
+  },
+  {
+    "url": "https://vt.tiktok.com/abc123/",
+    "platform": "TikTok"
+  },
+  {
+    "url": "https://www.tiktok.com/@example",
+    "platform": null
+  },
+  {
+    "url": "https://instagram.com/p/abc_123/",
+    "platform": "Instagram"
+  },
+  {
+    "url": "https://www.instagram.com/reel/abc-123/",
+    "platform": "Instagram"
+  },
+  {
+    "url": "https://m.instagram.com/reels/abc123/",
+    "platform": "Instagram"
+  },
+  {
+    "url": "https://instagram.com/tv/abc123",
+    "platform": "Instagram"
+  },
+  {
+    "url": "https://cdn.instagram.com/p/abc123",
+    "platform": null
+  },
+  {
+    "url": "https://www.reddit.com/r/example/comments/abc123/sample_title/",
+    "platform": "Reddit"
+  },
+  {
+    "url": "https://old.reddit.com/comments/abc123/",
+    "platform": "Reddit"
+  },
+  {
+    "url": "https://new.reddit.com/r/example/comments/abc123",
+    "platform": "Reddit"
+  },
+  {
+    "url": "https://redd.it/abc123",
+    "platform": "Reddit"
+  },
+  {
+    "url": "https://www.reddit.com/r/example/",
+    "platform": null
+  },
+  {
+    "url": "https://name:password@youtube.com/watch?v=abcdefghijk",
+    "platform": null
+  },
+  {
+    "url": "https://name@x.com/user/status/1234567890",
+    "platform": null
+  },
+  {
+    "url": "https://www.youtube.com//shorts/abcdefghijk",
+    "platform": null
+  },
+  {
+    "url": "https://youtu.be/abcdefghijk//",
+    "platform": null
+  },
+  {
+    "url": "https://www.youtube.com/watch/?v=abcdefghijk",
+    "platform": null
+  },
+  {
+    "url": "https://www.youtube.com/watch?v=&v=abcdefghijk",
+    "platform": "YouTube"
+  },
+  {
+    "url": "https://www.douyin.com/?modal_id=&modal_id=1234567890",
+    "platform": "Douyin"
+  },
+  {
+    "url": "https://www.bilibili.tv/eng/video/12345",
+    "platform": null
+  },
+  {
+    "url": "https://www.bilibili.tv/EN/video/12345",
+    "platform": null
+  },
+  {
+    "url": "https://www.bilibili.tv/en//video/12345",
+    "platform": null
+  },
+  {
+    "url": "ftp://youtube.com/watch?v=abcdefghijk",
+    "platform": null
+  },
+  {
+    "url": "not a link",
+    "platform": null
+  },
+  {
+    "url": "https://www.kuaishou.com/short-video/3x25msbsnncn8cs",
+    "platform": "Kuaishou"
+  },
+  {
+    "url": "https://v.kuaishou.com/abc123",
+    "platform": "Kuaishou"
+  },
+  {
+    "url": "https://v.m.chenzhongtech.com/fw/photo/3x25msbsnncn8cs",
+    "platform": "Kuaishou"
+  },
+  {
+    "url": "https://www.kuaishou.com/profile/user",
+    "platform": null
+  },
+  {
+    "url": "https://www.kuaishou.com/assets/video.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://kuaishou.com.evil.example/short-video/3x25msbsnncn8cs",
+    "platform": null
+  },
+  {
+    "url": "https://weibo.com/7827771738/N4xlMvjhI",
+    "platform": "Weibo"
+  },
+  {
+    "url": "https://m.weibo.cn/detail/4910815147462302",
+    "platform": "Weibo"
+  },
+  {
+    "url": "https://m.weibo.cn/status/FBqgOmDxO",
+    "platform": "Weibo"
+  },
+  {
+    "url": "https://weibo.com/tv/show/1034:4797699866951785",
+    "platform": "Weibo"
+  },
+  {
+    "url": "https://video.weibo.com/show?fid=1034:633c288cc043d0ca7808030f1157da64",
+    "platform": "Weibo"
+  },
+  {
+    "url": "https://weibo.com/u/7827771738",
+    "platform": null
+  },
+  {
+    "url": "https://weibo.com/tv/show/not-a-video",
+    "platform": null
+  },
+  {
+    "url": "https://weibo.com/assets/archive.zip",
+    "platform": null
+  },
+  {
+    "url": "https://www.acfun.cn/v/ac35457073",
+    "platform": "AcFun"
+  },
+  {
+    "url": "https://m.acfun.cn/v/ac35468952_2",
+    "platform": "AcFun"
+  },
+  {
+    "url": "https://www.acfun.cn/v/ac35468952_2_3",
+    "platform": null
+  },
+  {
+    "url": "https://www.acfun.cn/bangumi/aa5023171",
+    "platform": null
+  },
+  {
+    "url": "https://www.acfun.cn/assets/sample.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://vimeo.com/12345678",
+    "platform": "Vimeo"
+  },
+  {
+    "url": "https://player.vimeo.com/video/12345678?h=abc123",
+    "platform": "Vimeo"
+  },
+  {
+    "url": "https://vimeo.com/12345678/012345abcd",
+    "platform": "Vimeo"
+  },
+  {
+    "url": "https://vimeo.com/channels/staffpicks/12345678",
+    "platform": "Vimeo"
+  },
+  {
+    "url": "https://vimeo.com/groups/shortfilms/videos/12345678",
+    "platform": "Vimeo"
+  },
+  {
+    "url": "https://vimeo.com/ondemand/example",
+    "platform": null
+  },
+  {
+    "url": "https://vimeo.com/download/file.zip",
+    "platform": null
+  },
+  {
+    "url": "https://www.dailymotion.com/video/x5mbk1l",
+    "platform": "Dailymotion"
+  },
+  {
+    "url": "https://www.dailymotion.com/embed/video/x5mbk1l",
+    "platform": "Dailymotion"
+  },
+  {
+    "url": "https://dai.ly/x5mbk1l",
+    "platform": "Dailymotion"
+  },
+  {
+    "url": "https://www.dailymotion.com/playlist/example",
+    "platform": null
+  },
+  {
+    "url": "https://www.dailymotion.com/assets/sample.zip",
+    "platform": null
+  },
+  {
+    "url": "https://streamable.com/moo",
+    "platform": "Streamable"
+  },
+  {
+    "url": "https://streamable.com/e/dnd1",
+    "platform": "Streamable"
+  },
+  {
+    "url": "https://streamable.com/s/dnd1/title",
+    "platform": "Streamable"
+  },
+  {
+    "url": "https://streamable.com/assets/sample.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://imgur.com/A61SaA1",
+    "platform": "Imgur"
+  },
+  {
+    "url": "https://imgur.com/A61SaA1.gifv",
+    "platform": "Imgur"
+  },
+  {
+    "url": "https://imgur.com/example-title-A61SaA1",
+    "platform": "Imgur"
+  },
+  {
+    "url": "https://imgur.com/a/abc1234",
+    "platform": null
+  },
+  {
+    "url": "https://i.imgur.com/A61SaA1.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://i.imgur.com/A61SaA1.gifv",
+    "platform": "Imgur"
+  },
+  {
+    "url": "https://imgur.com.evil.example/A61SaA1",
+    "platform": null
+  },
+  {
+    "url": "https://cdn.example.org/VIDEO.M3U8?sig=abc",
+    "platform": "HLS"
+  },
+  {
+    "url": "https://cdn.example.org/download?file=video.m3u8",
+    "platform": null
+  },
+  {
+    "url": "https://cdn.example.org/report.pdf",
+    "platform": null
+  },
+  {
+    "url": "https://tv.cctv.com/2016/02/05/VIDEUS7apq3lKrHG9Dncm03B160205.shtml",
+    "platform": "CCTV"
+  },
+  {
+    "url": "https://news.cntv.cn/example.html",
+    "platform": "CCTV"
+  },
+  {
+    "url": "https://cctv.com.evil.example/clip.shtml",
+    "platform": null
+  },
+  {
+    "url": "https://vod.cctv.com/video.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://www.ixigua.com/7047333627111440904",
+    "platform": "Ixigua"
+  },
+  {
+    "url": "https://m.ixigua.com/video/7047333627111440904/",
+    "platform": "Ixigua"
+  },
+  {
+    "url": "https://www.ixigua.com/search/123",
+    "platform": null
+  },
+  {
+    "url": "https://www.pearvideo.com/video_1804394",
+    "platform": "PearVideo"
+  },
+  {
+    "url": "https://www.pearvideo.com/category_1",
+    "platform": null
+  },
+  {
+    "url": "https://archive.org/details/BigBuckBunny_328",
+    "platform": "Archive.org"
+  },
+  {
+    "url": "https://archive.org/details/item/track%20one.mp3",
+    "platform": "Archive.org"
+  },
+  {
+    "url": "https://archive.org/download/BigBuckBunny_328/sample.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://archive.org/search?query=video",
+    "platform": null
+  },
+  {
+    "url": "https://www.ted.com/talks/candace_parker_how_to_break_down_barriers_and_not_accept_limits",
+    "platform": "TED"
+  },
+  {
+    "url": "https://embed.ted.com/talks/lang/en/ken_robinson_says_schools_kill_creativity",
+    "platform": "TED"
+  },
+  {
+    "url": "https://embed-ssl.ted.com/talks/ken_robinson_says_schools_kill_creativity",
+    "platform": "TED"
+  },
+  {
+    "url": "https://www.ted.com/topics/science",
+    "platform": null
+  },
+  {
+    "url": "https://commons.wikimedia.org/wiki/File:Sample_video.webm",
+    "platform": "WikimediaCommons"
+  },
+  {
+    "url": "https://commons.wikimedia.org/w/index.php?title=File%3ASample_audio.ogg",
+    "platform": "WikimediaCommons"
+  },
+  {
+    "url": "https://commons.wikimedia.org/wiki/file:Sample_video.webm",
+    "platform": "WikimediaCommons"
+  },
+  {
+    "url": "https://commons.wikimedia.org/w/index.php?title=fIlE%3ASample_audio.ogg",
+    "platform": "WikimediaCommons"
+  },
+  {
+    "url": "https://commons.wikimedia.org/wiki/file:Sample_photo.jpg",
+    "platform": null
+  },
+  {
+    "url": "https://commons.wikimedia.org/wiki/File:Sample_photo.jpg",
+    "platform": null
+  },
+  {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Sample.webm",
+    "platform": null
+  },
+  {
+    "url": "https://bsky.app/profile/bsky.app/post/3l3vgf77uco2g",
+    "platform": "Bluesky"
+  },
+  {
+    "url": "https://bsky.app/profile/did:plc:abc123/post/3l3vgf77uco2g",
+    "platform": "Bluesky"
+  },
+  {
+    "url": "https://bsky.app/profile/bsky.app",
+    "platform": null
+  },
+  {
+    "url": "https://framatube.org/videos/watch/9c9de5e8-0a1e-484a-b099-e80766180a6d",
+    "platform": "PeerTube"
+  },
+  {
+    "url": "https://video.blender.org/w/abcdefABCDEF1234567890",
+    "platform": "PeerTube"
+  },
+  {
+    "url": "https://tilvids.com/videos/embed/9c9de5e8-0a1e-484a-b099-e80766180a6d",
+    "platform": "PeerTube"
+  },
+  {
+    "url": "https://private-instance.example/w/9c9de5e8-0a1e-484a-b099-e80766180a6d",
+    "platform": null
+  },
+  {
+    "url": "https://framatube.org/w/not-an-id",
+    "platform": null
+  },
+  {
+    "url": "https://framatube.org/static/video.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://medal.tv/games/valorant/clips/jTBFnLKdLy15K",
+    "platform": "Medal"
+  },
+  {
+    "url": "https://www.medal.tv/games/cod-cold-war/clips/2um24TWdty0NA?invite=public",
+    "platform": "Medal"
+  },
+  {
+    "url": "https://9gag.com/gag/ae5Ag7B",
+    "platform": "9GAG"
+  },
+  {
+    "url": "https://www.9gag.com/gag/ajgp66G/",
+    "platform": "9GAG"
+  },
+  {
+    "url": "https://maskofthedragon.tumblr.com/post/626907179849564160",
+    "platform": "Tumblr"
+  },
+  {
+    "url": "https://maskofthedragon.tumblr.com/video/626907179849564160/700/",
+    "platform": "Tumblr"
+  },
+  {
+    "url": "https://www.tumblr.com/maskofthedragon/626907179849564160/a-post-title",
+    "platform": "Tumblr"
+  },
+  {
+    "url": "https://www.tumblr.com/blog/view/maskofthedragon/626907179849564160",
+    "platform": "Tumblr"
+  },
+  {
+    "url": "https://mastodon.social/@Mastodon/116296397062584045",
+    "platform": "Mastodon"
+  },
+  {
+    "url": "https://mastodon.online/users/alice/statuses/123456",
+    "platform": "Mastodon"
+  },
+  {
+    "url": "https://mstdn.social/%40alice/123456",
+    "platform": "Mastodon"
+  },
+  {
+    "url": "https://mastodon.social/@alice@remote.example/12345",
+    "platform": "Mastodon"
+  },
+  {
+    "url": "https://tv.sohu.com/v/dXMvMjMyNzk5ODg5Lzc4NjkzNDY0LnNodG1s.html",
+    "platform": "Sohu"
+  },
+  {
+    "url": "https://my.tv.sohu.com/us/232799889/78693464.shtml",
+    "platform": "Sohu"
+  },
+  {
+    "url": "https://tv.sohu.com/20150304/n409016578.shtml",
+    "platform": "Sohu"
+  },
+  {
+    "url": "https://haokan.baidu.com/v?vid=18435139826687843612",
+    "platform": "Haokan"
+  },
+  {
+    "url": "https://haokan.baidu.com/v/?vid=12345&tab=video",
+    "platform": "Haokan"
+  },
+  {
+    "url": "https://youtube-dl.bandcamp.com/track/youtube-dl-test-song",
+    "platform": "Bandcamp"
+  },
+  {
+    "url": "https://artist.bandcamp.com/track/hello-%E4%B8%96%E7%95%8C/",
+    "platform": "Bandcamp"
+  },
+  {
+    "url": "https://soundcloud.com/ethmusic/lostin-powers-she-so-heavy",
+    "platform": "SoundCloud"
+  },
+  {
+    "url": "https://m.soundcloud.com/example/public-track/",
+    "platform": "SoundCloud"
+  },
+  {
+    "url": "https://medal.tv/users/12345",
+    "platform": null
+  },
+  {
+    "url": "https://cdn.medal.tv/file.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://medal.tv/games/valorant/clips/Test.zip",
+    "platform": null
+  },
+  {
+    "url": "https://medal.tv.evil.test/games/v/clips/Test1",
+    "platform": null
+  },
+  {
+    "url": "https://9gag.com/u/user",
+    "platform": null
+  },
+  {
+    "url": "https://img-9gag-fun.9cache.com/photo/test.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://9gag.com.evil.test/gag/test",
+    "platform": null
+  },
+  {
+    "url": "https://va.media.tumblr.com/post/12345/movie.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://www.tumblr.com/dashboard",
+    "platform": null
+  },
+  {
+    "url": "https://blog.tumblr.com/archive",
+    "platform": null
+  },
+  {
+    "url": "https://blog.tumblr.com/post/not-numeric",
+    "platform": null
+  },
+  {
+    "url": "https://blog.tumblr.com.evil.test/post/12345",
+    "platform": null
+  },
+  {
+    "url": "https://social.example/@alice/12345",
+    "platform": null
+  },
+  {
+    "url": "http://127.0.0.1:17891/@alice/12345",
+    "platform": null
+  },
+  {
+    "url": "https://mastodon.social/api/v1/statuses/12345",
+    "platform": null
+  },
+  {
+    "url": "https://mastodon.social/@alice/12345/download.zip",
+    "platform": null
+  },
+  {
+    "url": "https://mastodon.social.evil.test/@alice/12345",
+    "platform": null
+  },
+  {
+    "url": "https://artist.bandcamp.com/album/a-collection",
+    "platform": null
+  },
+  {
+    "url": "https://artist.bandcamp.com/track/a%2Fother",
+    "platform": null
+  },
+  {
+    "url": "https://bandcamp.com/track/test",
+    "platform": null
+  },
+  {
+    "url": "https://www.bandcamp.com/track/test",
+    "platform": null
+  },
+  {
+    "url": "https://daily.bandcamp.com/track/test",
+    "platform": null
+  },
+  {
+    "url": "https://t4.bcbits.com/stream.mp3",
+    "platform": null
+  },
+  {
+    "url": "https://soundcloud.com/example/sets",
+    "platform": null
+  },
+  {
+    "url": "https://soundcloud.com/example/sets/album",
+    "platform": null
+  },
+  {
+    "url": "https://soundcloud.com/example/track/s-private",
+    "platform": null
+  },
+  {
+    "url": "https://soundcloud.com/example/track?secret_token=private",
+    "platform": null
+  },
+  {
+    "url": "https://soundcloud.com/example/track?oauth_token=private",
+    "platform": null
+  },
+  {
+    "url": "https://cf-media.sndcdn.com/audio.m3u8?token=public",
+    "platform": "HLS"
+  },
+  {
+    "url": "https://soundcloud.com.evil.test/u/t",
+    "platform": null
+  },
+  {
+    "url": "https://haokan.baidu.com/v?vid=invalid",
+    "platform": null
+  },
+  {
+    "url": "https://haokan.baidu.com/v?vid=1234567890123456789012345",
+    "platform": null
+  },
+  {
+    "url": "https://haokan.baidu.com/zip/file.zip",
+    "platform": null
+  },
+  {
+    "url": "https://haokan.baidu.com.evil.test/v?vid=12345",
+    "platform": null
+  },
+  {
+    "url": "https://tv.sohu.com/v/invalid.html",
+    "platform": null
+  },
+  {
+    "url": "https://tv.sohu.com/upload/file.zip",
+    "platform": null
+  },
+  {
+    "url": "https://tv.sohu.com/album/123456.shtml",
+    "platform": null
+  },
+  {
+    "url": "https://clyp.it/ojz0fwef",
+    "platform": "Clyp"
+  },
+  {
+    "url": "https://audioboom.com/posts/7398103-asim-chaudhry",
+    "platform": "AudioBoom"
+  },
+  {
+    "url": "https://audioboom.com/boos/123.mp3",
+    "platform": "AudioBoom"
+  },
+  {
+    "url": "https://audius.co/radiojuicy/tohaj-long-drive",
+    "platform": "Audius"
+  },
+  {
+    "url": "https://audius.co/artist/a%20song",
+    "platform": "Audius"
+  },
+  {
+    "url": "https://clyp.it/upload",
+    "platform": null
+  },
+  {
+    "url": "https://clyp.it/123456789",
+    "platform": null
+  },
+  {
+    "url": "https://clyp.it.evil.test/ojz0fwef",
+    "platform": null
+  },
+  {
+    "url": "https://audioboom.com/channels/123",
+    "platform": null
+  },
+  {
+    "url": "https://audioboom.com/posts/123.zip",
+    "platform": null
+  },
+  {
+    "url": "https://audioboom.com/posts/123456789012345678901",
+    "platform": null
+  },
+  {
+    "url": "https://audius.co/artist/album",
+    "platform": null
+  },
+  {
+    "url": "https://audius.co/artist/playlist/123",
+    "platform": null
+  },
+  {
+    "url": "https://audius.co/artist/a%2Fsong",
+    "platform": null
+  },
+  {
+    "url": "https://audius.co/artist/file.zip/download",
+    "platform": null
+  },
+  {
+    "url": "https://audius.co.evil.test/artist/song",
+    "platform": null
+  },
+  {
+    "url": "https://www.huya.com/video/play/1002412640.html",
+    "platform": "HuyaVideo"
+  },
+  {
+    "url": "https://www.163.com/v/video/VK87KDIT2.html",
+    "platform": "NetEaseNews"
+  },
+  {
+    "url": "https://rumble.com/embed/vb0ofn",
+    "platform": "Rumble"
+  },
+  {
+    "url": "https://rumble.com/embed/u3.vb0ofn",
+    "platform": "Rumble"
+  },
+  {
+    "url": "https://rumble.com/vb0ofn-a-clip.html",
+    "platform": "Rumble"
+  },
+  {
+    "url": "https://odysee.com/@Mantega:1/First-day-LBRY:1",
+    "platform": "Odysee"
+  },
+  {
+    "url": "https://lbry.tv/clip:1",
+    "platform": "Odysee"
+  },
+  {
+    "url": "https://odysee.com/$/embed/clip/abc123",
+    "platform": "Odysee"
+  },
+  {
+    "url": "https://ok.ru/videoembed/20079905452",
+    "platform": "OK.ru"
+  },
+  {
+    "url": "https://m.ok.ru/video/123-456",
+    "platform": "OK.ru"
+  },
+  {
+    "url": "https://ok.ru/web-api/video/moviePlayer/123",
+    "platform": "OK.ru"
+  },
+  {
+    "url": "https://huya.com/123456",
+    "platform": null
+  },
+  {
+    "url": "https://huya.com/video/play/test.html",
+    "platform": null
+  },
+  {
+    "url": "https://huya.com/video/play/123.mp4",
+    "platform": null
+  },
+  {
+    "url": "https://huya.com/video/play/123456789012345678901234567.html",
+    "platform": null
+  },
+  {
+    "url": "https://www.163.com/v/video/V.html",
+    "platform": null
+  },
+  {
+    "url": "https://163.com/music/file.zip",
+    "platform": null
+  },
+  {
+    "url": "https://www.163.com/v/video/abc.html",
+    "platform": null
+  },
+  {
+    "url": "https://rumble.com/videos",
+    "platform": null
+  },
+  {
+    "url": "https://rumble.com/video.zip",
+    "platform": null
+  },
+  {
+    "url": "https://rumble.com/embed/foo/bar.vb0ofn",
+    "platform": null
+  },
+  {
+    "url": "https://rumble.com/embed/a.b.vb0ofn",
+    "platform": null
+  },
+  {
+    "url": "https://odysee.com/@channel:1",
+    "platform": null
+  },
+  {
+    "url": "https://odysee.com/$/playlist/test",
+    "platform": null
+  },
+  {
+    "url": "https://odysee.com/clip:NOTHEX",
+    "platform": null
+  },
+  {
+    "url": "https://odysee.com/$/embed/clip/NOTHEX",
+    "platform": null
+  },
+  {
+    "url": "https://ok.ru/live/123",
+    "platform": null
+  },
+  {
+    "url": "https://ok.ru/profile/123",
+    "platform": null
+  },
+  {
+    "url": "https://ok.ru/video/123-",
+    "platform": null
+  },
+  {
+    "url": "https://ok.ru/video/123-456-789",
+    "platform": null
+  },
+  {
+    "url": "https://ok.ru/video/12345678901234567890123456789012345678901",
+    "platform": null
+  },
+  {
+    "url": "https://ok.ru.evil.test/video/123",
+    "platform": null
+  }
+]

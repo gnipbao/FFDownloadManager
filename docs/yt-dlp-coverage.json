@@ -1,0 +1,6976 @@
+{
+  "reference_commit": "897341241f2bfb2439fe0367f4c7c9ccd29a3828",
+  "reference_url": "https://github.com/yt-dlp/yt-dlp/blob/897341241f2bfb2439fe0367f4c7c9ccd29a3828/supportedsites.md",
+  "source_sha256": "9f525a377c18963b80532764cda57ed00afd73a3e201181163707f53cf6ca101",
+  "scope": "Reference inventory only. Partial means limited Rust single-item functionality, not yt-dlp parity or a successful live download. Pending is not implemented. Counts are extractors, not platforms.",
+  "extractor_count": 1731,
+  "partial_count": 41,
+  "pending_count": 1690,
+  "entries": [
+    {
+      "extractor": "10play",
+      "status": "pending"
+    },
+    {
+      "extractor": "10play:season",
+      "status": "pending"
+    },
+    {
+      "extractor": "17live",
+      "status": "pending"
+    },
+    {
+      "extractor": "17live:clip",
+      "status": "pending"
+    },
+    {
+      "extractor": "17live:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "1News",
+      "status": "pending"
+    },
+    {
+      "extractor": "1tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "1tv:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "20min",
+      "status": "pending"
+    },
+    {
+      "extractor": "23video",
+      "status": "pending"
+    },
+    {
+      "extractor": "247sports",
+      "status": "pending"
+    },
+    {
+      "extractor": "24tv.ua",
+      "status": "pending"
+    },
+    {
+      "extractor": "3qsdn",
+      "status": "pending"
+    },
+    {
+      "extractor": "3sat",
+      "status": "pending"
+    },
+    {
+      "extractor": "4tube",
+      "status": "pending"
+    },
+    {
+      "extractor": "56.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "7plus",
+      "status": "pending"
+    },
+    {
+      "extractor": "9c9media",
+      "status": "pending"
+    },
+    {
+      "extractor": "9gag",
+      "status": "partial",
+      "rust_adapter": "9GAG"
+    },
+    {
+      "extractor": "9News",
+      "status": "pending"
+    },
+    {
+      "extractor": "9now.com.au",
+      "status": "pending"
+    },
+    {
+      "extractor": "abc.net.au",
+      "status": "pending"
+    },
+    {
+      "extractor": "abc.net.au:iview",
+      "status": "pending"
+    },
+    {
+      "extractor": "abc.net.au:​iview:showseries",
+      "status": "pending"
+    },
+    {
+      "extractor": "abcnews",
+      "status": "pending"
+    },
+    {
+      "extractor": "abcnews:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "abcotvs",
+      "status": "pending"
+    },
+    {
+      "extractor": "abcotvs:clips",
+      "status": "pending"
+    },
+    {
+      "extractor": "AbemaTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "AbemaTVTitle",
+      "status": "pending"
+    },
+    {
+      "extractor": "AcademicEarth:Course",
+      "status": "pending"
+    },
+    {
+      "extractor": "acast",
+      "status": "pending"
+    },
+    {
+      "extractor": "acast:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "AcFunBangumi",
+      "status": "pending"
+    },
+    {
+      "extractor": "AcFunVideo",
+      "status": "partial",
+      "rust_adapter": "AcFun"
+    },
+    {
+      "extractor": "ADN",
+      "status": "pending"
+    },
+    {
+      "extractor": "ADNSeason",
+      "status": "pending"
+    },
+    {
+      "extractor": "AdobeConnect",
+      "status": "pending"
+    },
+    {
+      "extractor": "adobetv",
+      "status": "pending"
+    },
+    {
+      "extractor": "AdultSwim",
+      "status": "pending"
+    },
+    {
+      "extractor": "aenetworks",
+      "status": "pending"
+    },
+    {
+      "extractor": "aenetworks:collection",
+      "status": "pending"
+    },
+    {
+      "extractor": "aenetworks:show",
+      "status": "pending"
+    },
+    {
+      "extractor": "AeonCo",
+      "status": "pending"
+    },
+    {
+      "extractor": "agalega:videos",
+      "status": "pending"
+    },
+    {
+      "extractor": "AitubeKZVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Alibaba",
+      "status": "pending"
+    },
+    {
+      "extractor": "AliExpressLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "AlJazeera",
+      "status": "pending"
+    },
+    {
+      "extractor": "Allocine",
+      "status": "pending"
+    },
+    {
+      "extractor": "Allstar",
+      "status": "pending"
+    },
+    {
+      "extractor": "AllstarProfile",
+      "status": "pending"
+    },
+    {
+      "extractor": "AlphaPorno",
+      "status": "pending"
+    },
+    {
+      "extractor": "altcensored",
+      "status": "pending"
+    },
+    {
+      "extractor": "altcensored:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Alura",
+      "status": "pending"
+    },
+    {
+      "extractor": "AluraCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "AmadeusTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Amara",
+      "status": "pending"
+    },
+    {
+      "extractor": "AmazonMiniTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "amazonminitv:season",
+      "status": "pending"
+    },
+    {
+      "extractor": "amazonminitv:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "AmazonReviews",
+      "status": "pending"
+    },
+    {
+      "extractor": "AmazonStore",
+      "status": "pending"
+    },
+    {
+      "extractor": "AMCNetworks",
+      "status": "pending"
+    },
+    {
+      "extractor": "AmericasTestKitchen",
+      "status": "pending"
+    },
+    {
+      "extractor": "AmericasTestKitchenSeason",
+      "status": "pending"
+    },
+    {
+      "extractor": "AmHistoryChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "anderetijden",
+      "status": "pending"
+    },
+    {
+      "extractor": "Angel",
+      "status": "pending"
+    },
+    {
+      "extractor": "AnimalPlanet",
+      "status": "pending"
+    },
+    {
+      "extractor": "ant1newsgr:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "ant1newsgr:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "antenna:watch",
+      "status": "pending"
+    },
+    {
+      "extractor": "Anvato",
+      "status": "pending"
+    },
+    {
+      "extractor": "aol.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "APA",
+      "status": "pending"
+    },
+    {
+      "extractor": "Aparat",
+      "status": "pending"
+    },
+    {
+      "extractor": "apple:​music:connect",
+      "status": "pending"
+    },
+    {
+      "extractor": "apple:podcasts",
+      "status": "pending"
+    },
+    {
+      "extractor": "archive.org",
+      "status": "partial",
+      "rust_adapter": "Archive.org"
+    },
+    {
+      "extractor": "ArcPublishing",
+      "status": "pending"
+    },
+    {
+      "extractor": "ARDAudiothek",
+      "status": "pending"
+    },
+    {
+      "extractor": "ARDAudiothekPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "ARDMediathek",
+      "status": "pending"
+    },
+    {
+      "extractor": "ARDMediathekCollection",
+      "status": "pending"
+    },
+    {
+      "extractor": "Art19",
+      "status": "pending"
+    },
+    {
+      "extractor": "Art19Show",
+      "status": "pending"
+    },
+    {
+      "extractor": "arte.sky.it",
+      "status": "pending"
+    },
+    {
+      "extractor": "ArteTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "ArteTVCategory",
+      "status": "pending"
+    },
+    {
+      "extractor": "ArteTVEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "ArteTVPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "asobichannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "asobichannel:tag",
+      "status": "pending"
+    },
+    {
+      "extractor": "AsobiStage",
+      "status": "pending"
+    },
+    {
+      "extractor": "AtresPlayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "AtScaleConfEvent",
+      "status": "pending"
+    },
+    {
+      "extractor": "AudiMedia",
+      "status": "pending"
+    },
+    {
+      "extractor": "AudioBoom",
+      "status": "partial",
+      "rust_adapter": "AudioBoom"
+    },
+    {
+      "extractor": "Audiodraft:custom",
+      "status": "pending"
+    },
+    {
+      "extractor": "Audiodraft:generic",
+      "status": "pending"
+    },
+    {
+      "extractor": "audiomack",
+      "status": "pending"
+    },
+    {
+      "extractor": "audiomack:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "Audius",
+      "status": "partial",
+      "rust_adapter": "Audius"
+    },
+    {
+      "extractor": "audius:artist",
+      "status": "pending"
+    },
+    {
+      "extractor": "audius:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "audius:track",
+      "status": "pending"
+    },
+    {
+      "extractor": "AZMedien",
+      "status": "pending"
+    },
+    {
+      "extractor": "BaiduVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "BanBye",
+      "status": "pending"
+    },
+    {
+      "extractor": "BanByeChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bandcamp",
+      "status": "partial",
+      "rust_adapter": "Bandcamp"
+    },
+    {
+      "extractor": "Bandcamp:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bandcamp:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bandcamp:weekly",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bandlab",
+      "status": "pending"
+    },
+    {
+      "extractor": "BandlabPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "BannedVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "bbc",
+      "status": "pending"
+    },
+    {
+      "extractor": "bbc.co.uk",
+      "status": "pending"
+    },
+    {
+      "extractor": "bbc.co.uk:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "bbc.co.uk:​iplayer:episodes",
+      "status": "pending"
+    },
+    {
+      "extractor": "bbc.co.uk:​iplayer:group",
+      "status": "pending"
+    },
+    {
+      "extractor": "bbc.co.uk:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "BBVTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "BBVTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "BBVTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "BeaconTv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Beatport",
+      "status": "pending"
+    },
+    {
+      "extractor": "Beeg",
+      "status": "pending"
+    },
+    {
+      "extractor": "BehindKink",
+      "status": "pending"
+    },
+    {
+      "extractor": "BerufeTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bet",
+      "status": "pending"
+    },
+    {
+      "extractor": "bfi:player",
+      "status": "pending"
+    },
+    {
+      "extractor": "bfmtv",
+      "status": "pending"
+    },
+    {
+      "extractor": "bfmtv:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "bfmtv:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "bibeltv:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "bibeltv:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "bibeltv:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bigo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bild",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliBili",
+      "status": "partial",
+      "rust_adapter": "Bilibili"
+    },
+    {
+      "extractor": "Bilibili category extractor",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliAudio",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliAudioAlbum",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliBiliBangumi",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliBiliBangumiMedia",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliBiliBangumiSeason",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliCheese",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliCheeseSeason",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliCollectionList",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliBiliDynamic",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliFavoritesList",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliBiliPlayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliBiliSearch",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliSeriesList",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliSpaceAudio",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliSpaceVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "BilibiliWatchlater",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliIntl",
+      "status": "pending"
+    },
+    {
+      "extractor": "biliIntl:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "BiliLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "BioBioChileTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Biography",
+      "status": "pending"
+    },
+    {
+      "extractor": "BitChute",
+      "status": "pending"
+    },
+    {
+      "extractor": "BitChuteChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bitmovin",
+      "status": "pending"
+    },
+    {
+      "extractor": "BlackboardCollaborate",
+      "status": "pending"
+    },
+    {
+      "extractor": "BlackboardCollaborateLaunch",
+      "status": "pending"
+    },
+    {
+      "extractor": "BleacherReport",
+      "status": "pending"
+    },
+    {
+      "extractor": "BleacherReportCMS",
+      "status": "pending"
+    },
+    {
+      "extractor": "blerp",
+      "status": "pending"
+    },
+    {
+      "extractor": "blogger.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bloomberg",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bluesky",
+      "status": "partial",
+      "rust_adapter": "Bluesky"
+    },
+    {
+      "extractor": "BongaCams",
+      "status": "pending"
+    },
+    {
+      "extractor": "Boosty",
+      "status": "pending"
+    },
+    {
+      "extractor": "BostonGlobe",
+      "status": "pending"
+    },
+    {
+      "extractor": "Box",
+      "status": "pending"
+    },
+    {
+      "extractor": "BoxCastVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bpb",
+      "status": "pending"
+    },
+    {
+      "extractor": "BR",
+      "status": "pending"
+    },
+    {
+      "extractor": "BrainPOP",
+      "status": "pending"
+    },
+    {
+      "extractor": "BrainPOPELL",
+      "status": "pending"
+    },
+    {
+      "extractor": "BrainPOPEsp",
+      "status": "pending"
+    },
+    {
+      "extractor": "BrainPOPFr",
+      "status": "pending"
+    },
+    {
+      "extractor": "BrainPOPIl",
+      "status": "pending"
+    },
+    {
+      "extractor": "BrainPOPJr",
+      "status": "pending"
+    },
+    {
+      "extractor": "BravoTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "BreitBart",
+      "status": "pending"
+    },
+    {
+      "extractor": "brightcove:legacy",
+      "status": "pending"
+    },
+    {
+      "extractor": "brightcove:new",
+      "status": "pending"
+    },
+    {
+      "extractor": "Brilliantpala:Classes",
+      "status": "pending"
+    },
+    {
+      "extractor": "Brilliantpala:Elearn",
+      "status": "pending"
+    },
+    {
+      "extractor": "bt:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "bt:vestlendingen",
+      "status": "pending"
+    },
+    {
+      "extractor": "BTVPlus",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bundesliga",
+      "status": "pending"
+    },
+    {
+      "extractor": "Bundestag",
+      "status": "pending"
+    },
+    {
+      "extractor": "BunnyCdn",
+      "status": "pending"
+    },
+    {
+      "extractor": "BusinessInsider",
+      "status": "pending"
+    },
+    {
+      "extractor": "BuzzFeed",
+      "status": "pending"
+    },
+    {
+      "extractor": "BYUtv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Caltrans",
+      "status": "pending"
+    },
+    {
+      "extractor": "CAM4",
+      "status": "pending"
+    },
+    {
+      "extractor": "CamFMEpisode",
+      "status": "pending"
+    },
+    {
+      "extractor": "CamFMShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "CamModels",
+      "status": "pending"
+    },
+    {
+      "extractor": "Camsoda",
+      "status": "pending"
+    },
+    {
+      "extractor": "CamtasiaEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "Canal1",
+      "status": "pending"
+    },
+    {
+      "extractor": "CanalAlpha",
+      "status": "pending"
+    },
+    {
+      "extractor": "canalc2.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Canalplus",
+      "status": "pending"
+    },
+    {
+      "extractor": "Canalsurmas",
+      "status": "pending"
+    },
+    {
+      "extractor": "CaracolTvPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbc.ca",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbc.ca:listen",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbc.ca:player",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbc.ca:​player:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "CBS",
+      "status": "pending"
+    },
+    {
+      "extractor": "CBSLocal",
+      "status": "pending"
+    },
+    {
+      "extractor": "CBSLocalArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "CBSLocalLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbsnews",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbsnews:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbsnews:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbsnews:livevideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbssports",
+      "status": "pending"
+    },
+    {
+      "extractor": "cbssports:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "CCMA",
+      "status": "pending"
+    },
+    {
+      "extractor": "CCTV",
+      "status": "partial",
+      "rust_adapter": "CCTV"
+    },
+    {
+      "extractor": "CDA",
+      "status": "pending"
+    },
+    {
+      "extractor": "CDAFolder",
+      "status": "pending"
+    },
+    {
+      "extractor": "Cellebrite",
+      "status": "pending"
+    },
+    {
+      "extractor": "CeskaTelevize",
+      "status": "pending"
+    },
+    {
+      "extractor": "CGTN",
+      "status": "pending"
+    },
+    {
+      "extractor": "CharlieRose",
+      "status": "pending"
+    },
+    {
+      "extractor": "Chaturbate",
+      "status": "pending"
+    },
+    {
+      "extractor": "Chilloutzone",
+      "status": "pending"
+    },
+    {
+      "extractor": "chzzk:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "chzzk:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "cielotv.it",
+      "status": "pending"
+    },
+    {
+      "extractor": "Cinemax",
+      "status": "pending"
+    },
+    {
+      "extractor": "CinetecaMilano",
+      "status": "pending"
+    },
+    {
+      "extractor": "Cineverse",
+      "status": "pending"
+    },
+    {
+      "extractor": "CineverseDetails",
+      "status": "pending"
+    },
+    {
+      "extractor": "CiscoLiveSearch",
+      "status": "pending"
+    },
+    {
+      "extractor": "CiscoLiveSession",
+      "status": "pending"
+    },
+    {
+      "extractor": "ciscowebex",
+      "status": "pending"
+    },
+    {
+      "extractor": "CJSW",
+      "status": "pending"
+    },
+    {
+      "extractor": "Clipchamp",
+      "status": "pending"
+    },
+    {
+      "extractor": "ClipRs",
+      "status": "pending"
+    },
+    {
+      "extractor": "CloserToTruth",
+      "status": "pending"
+    },
+    {
+      "extractor": "CloudflareStream",
+      "status": "pending"
+    },
+    {
+      "extractor": "CloudyCDN",
+      "status": "pending"
+    },
+    {
+      "extractor": "Clubic",
+      "status": "pending"
+    },
+    {
+      "extractor": "Clyp",
+      "status": "partial",
+      "rust_adapter": "Clyp"
+    },
+    {
+      "extractor": "CNBCVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "CNN",
+      "status": "pending"
+    },
+    {
+      "extractor": "CNNIndonesia",
+      "status": "pending"
+    },
+    {
+      "extractor": "ComedyCentral",
+      "status": "pending"
+    },
+    {
+      "extractor": "ConanClassic",
+      "status": "pending"
+    },
+    {
+      "extractor": "CondeNast",
+      "status": "pending"
+    },
+    {
+      "extractor": "CookingChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Corus",
+      "status": "pending"
+    },
+    {
+      "extractor": "Coub",
+      "status": "pending"
+    },
+    {
+      "extractor": "CozyTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "cp24",
+      "status": "pending"
+    },
+    {
+      "extractor": "cpac",
+      "status": "pending"
+    },
+    {
+      "extractor": "cpac:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Cracked",
+      "status": "pending"
+    },
+    {
+      "extractor": "Craftsy",
+      "status": "pending"
+    },
+    {
+      "extractor": "croatian.film",
+      "status": "pending"
+    },
+    {
+      "extractor": "CrooksAndLiars",
+      "status": "pending"
+    },
+    {
+      "extractor": "CrowdBunker",
+      "status": "pending"
+    },
+    {
+      "extractor": "CrowdBunkerChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Crtvg",
+      "status": "pending"
+    },
+    {
+      "extractor": "CSpan",
+      "status": "pending"
+    },
+    {
+      "extractor": "CSpanCongress",
+      "status": "pending"
+    },
+    {
+      "extractor": "CtsNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "CTVNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "cu.ntv.co.jp",
+      "status": "pending"
+    },
+    {
+      "extractor": "CultureUnplugged",
+      "status": "pending"
+    },
+    {
+      "extractor": "curiositystream",
+      "status": "pending"
+    },
+    {
+      "extractor": "curiositystream:collections",
+      "status": "pending"
+    },
+    {
+      "extractor": "curiositystream:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "Cybrary",
+      "status": "pending"
+    },
+    {
+      "extractor": "CybraryCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "DacastPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "DacastVOD",
+      "status": "pending"
+    },
+    {
+      "extractor": "DagelijkseKost",
+      "status": "pending"
+    },
+    {
+      "extractor": "DailyMail",
+      "status": "pending"
+    },
+    {
+      "extractor": "dailymotion",
+      "status": "partial",
+      "rust_adapter": "Dailymotion"
+    },
+    {
+      "extractor": "dailymotion:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "dailymotion:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "dailymotion:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "DailyWire",
+      "status": "pending"
+    },
+    {
+      "extractor": "DailyWirePodcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "damtomo:record",
+      "status": "pending"
+    },
+    {
+      "extractor": "damtomo:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "dangalplay",
+      "status": "pending"
+    },
+    {
+      "extractor": "dangalplay:season",
+      "status": "pending"
+    },
+    {
+      "extractor": "daum.net",
+      "status": "pending"
+    },
+    {
+      "extractor": "daum.net:clip",
+      "status": "pending"
+    },
+    {
+      "extractor": "daum.net:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "daum.net:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "daystar:clip",
+      "status": "pending"
+    },
+    {
+      "extractor": "DBTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "DctpTv",
+      "status": "pending"
+    },
+    {
+      "extractor": "democracynow",
+      "status": "pending"
+    },
+    {
+      "extractor": "DestinationAmerica",
+      "status": "pending"
+    },
+    {
+      "extractor": "DetikEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "DeuxM",
+      "status": "pending"
+    },
+    {
+      "extractor": "DeuxMNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "DHM",
+      "status": "pending"
+    },
+    {
+      "extractor": "DigitalConcertHall",
+      "status": "pending"
+    },
+    {
+      "extractor": "DigitallySpeaking",
+      "status": "pending"
+    },
+    {
+      "extractor": "Digiteka",
+      "status": "pending"
+    },
+    {
+      "extractor": "Digiview",
+      "status": "pending"
+    },
+    {
+      "extractor": "DiscogsReleasePlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "DiscoveryLife",
+      "status": "pending"
+    },
+    {
+      "extractor": "DiscoveryNetworksDe",
+      "status": "pending"
+    },
+    {
+      "extractor": "DiscoveryPlus",
+      "status": "pending"
+    },
+    {
+      "extractor": "DiscoveryPlusIndia",
+      "status": "pending"
+    },
+    {
+      "extractor": "DiscoveryPlusIndiaShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "DiscoveryPlusItaly",
+      "status": "pending"
+    },
+    {
+      "extractor": "DiscoveryPlusItalyShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "Disney",
+      "status": "pending"
+    },
+    {
+      "extractor": "dlf",
+      "status": "pending"
+    },
+    {
+      "extractor": "dlf:corpus",
+      "status": "pending"
+    },
+    {
+      "extractor": "dlive:stream",
+      "status": "pending"
+    },
+    {
+      "extractor": "dlive:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "Douyin",
+      "status": "partial",
+      "rust_adapter": "Douyin"
+    },
+    {
+      "extractor": "DouyuShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "DouyuTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "DPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "DRBonanza",
+      "status": "pending"
+    },
+    {
+      "extractor": "Dropbox",
+      "status": "pending"
+    },
+    {
+      "extractor": "Dropout",
+      "status": "pending"
+    },
+    {
+      "extractor": "DropoutSeason",
+      "status": "pending"
+    },
+    {
+      "extractor": "DrTalks",
+      "status": "pending"
+    },
+    {
+      "extractor": "DrTuber",
+      "status": "pending"
+    },
+    {
+      "extractor": "drtv",
+      "status": "pending"
+    },
+    {
+      "extractor": "drtv:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "drtv:season",
+      "status": "pending"
+    },
+    {
+      "extractor": "drtv:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "DTube",
+      "status": "pending"
+    },
+    {
+      "extractor": "Dumpert",
+      "status": "pending"
+    },
+    {
+      "extractor": "Duoplay",
+      "status": "pending"
+    },
+    {
+      "extractor": "dvtv",
+      "status": "pending"
+    },
+    {
+      "extractor": "dw",
+      "status": "pending"
+    },
+    {
+      "extractor": "dw:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "dzen.ru",
+      "status": "pending"
+    },
+    {
+      "extractor": "dzen.ru:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "EbaumsWorld",
+      "status": "pending"
+    },
+    {
+      "extractor": "Ebay",
+      "status": "pending"
+    },
+    {
+      "extractor": "egghead:course",
+      "status": "pending"
+    },
+    {
+      "extractor": "egghead:lesson",
+      "status": "pending"
+    },
+    {
+      "extractor": "eggs:artist",
+      "status": "pending"
+    },
+    {
+      "extractor": "eggs:single",
+      "status": "pending"
+    },
+    {
+      "extractor": "EinsUndEinsTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "EinsUndEinsTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "EinsUndEinsTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "ElementorEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "Elonet",
+      "status": "pending"
+    },
+    {
+      "extractor": "ElPais",
+      "status": "pending"
+    },
+    {
+      "extractor": "ElTreceTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Embedly",
+      "status": "pending"
+    },
+    {
+      "extractor": "EMPFlix",
+      "status": "pending"
+    },
+    {
+      "extractor": "Epicon",
+      "status": "pending"
+    },
+    {
+      "extractor": "EpiconSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "EpidemicSound",
+      "status": "pending"
+    },
+    {
+      "extractor": "eplus",
+      "status": "pending"
+    },
+    {
+      "extractor": "Epoch",
+      "status": "pending"
+    },
+    {
+      "extractor": "Eporner",
+      "status": "pending"
+    },
+    {
+      "extractor": "Erocast",
+      "status": "pending"
+    },
+    {
+      "extractor": "EroProfile",
+      "status": "pending"
+    },
+    {
+      "extractor": "EroProfile:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "ERRArhiiv",
+      "status": "pending"
+    },
+    {
+      "extractor": "ERRJupiter",
+      "status": "pending"
+    },
+    {
+      "extractor": "ertflix",
+      "status": "pending"
+    },
+    {
+      "extractor": "ertflix:codename",
+      "status": "pending"
+    },
+    {
+      "extractor": "ertwebtv:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "ESPN",
+      "status": "pending"
+    },
+    {
+      "extractor": "ESPNArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "ESPNCricInfo",
+      "status": "pending"
+    },
+    {
+      "extractor": "EttuTv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Europa",
+      "status": "pending"
+    },
+    {
+      "extractor": "EuroParlWebstream",
+      "status": "pending"
+    },
+    {
+      "extractor": "EuropeanTour",
+      "status": "pending"
+    },
+    {
+      "extractor": "Eurosport",
+      "status": "pending"
+    },
+    {
+      "extractor": "EUScreen",
+      "status": "pending"
+    },
+    {
+      "extractor": "EWETV",
+      "status": "pending"
+    },
+    {
+      "extractor": "EWETVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "EWETVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "Expressen",
+      "status": "pending"
+    },
+    {
+      "extractor": "facebook",
+      "status": "pending"
+    },
+    {
+      "extractor": "facebook:ads",
+      "status": "pending"
+    },
+    {
+      "extractor": "facebook:reel",
+      "status": "pending"
+    },
+    {
+      "extractor": "FacebookPluginsVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "fancode:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "fancode:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "Fathom",
+      "status": "pending"
+    },
+    {
+      "extractor": "Faulio",
+      "status": "pending"
+    },
+    {
+      "extractor": "FaulioLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "faz.net",
+      "status": "pending"
+    },
+    {
+      "extractor": "fc2",
+      "status": "pending"
+    },
+    {
+      "extractor": "fc2:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "fc2:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "Fczenit",
+      "status": "pending"
+    },
+    {
+      "extractor": "Fifa",
+      "status": "pending"
+    },
+    {
+      "extractor": "FilmArchiv",
+      "status": "pending"
+    },
+    {
+      "extractor": "filmon",
+      "status": "pending"
+    },
+    {
+      "extractor": "filmon:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Filmweb",
+      "status": "pending"
+    },
+    {
+      "extractor": "FiveThirtyEight",
+      "status": "pending"
+    },
+    {
+      "extractor": "FiveTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Flickr",
+      "status": "pending"
+    },
+    {
+      "extractor": "Floatplane",
+      "status": "pending"
+    },
+    {
+      "extractor": "FloatplaneChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Folketinget",
+      "status": "pending"
+    },
+    {
+      "extractor": "FoodNetwork",
+      "status": "pending"
+    },
+    {
+      "extractor": "FootyRoom",
+      "status": "pending"
+    },
+    {
+      "extractor": "Formula1",
+      "status": "pending"
+    },
+    {
+      "extractor": "FOX",
+      "status": "pending"
+    },
+    {
+      "extractor": "FOX9",
+      "status": "pending"
+    },
+    {
+      "extractor": "FOX9News",
+      "status": "pending"
+    },
+    {
+      "extractor": "foxnews",
+      "status": "pending"
+    },
+    {
+      "extractor": "foxnews:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "FoxNewsVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "FoxSports",
+      "status": "pending"
+    },
+    {
+      "extractor": "fptplay",
+      "status": "pending"
+    },
+    {
+      "extractor": "FrancaisFacile",
+      "status": "pending"
+    },
+    {
+      "extractor": "FranceCulture",
+      "status": "pending"
+    },
+    {
+      "extractor": "franceinfo",
+      "status": "pending"
+    },
+    {
+      "extractor": "francetv",
+      "status": "pending"
+    },
+    {
+      "extractor": "francetv:site",
+      "status": "pending"
+    },
+    {
+      "extractor": "Freesound",
+      "status": "pending"
+    },
+    {
+      "extractor": "freespeech.org",
+      "status": "pending"
+    },
+    {
+      "extractor": "freetv:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "FreeTvMovies",
+      "status": "pending"
+    },
+    {
+      "extractor": "FrontendMasters",
+      "status": "pending"
+    },
+    {
+      "extractor": "FrontendMastersCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "FrontendMastersLesson",
+      "status": "pending"
+    },
+    {
+      "extractor": "Funk",
+      "status": "pending"
+    },
+    {
+      "extractor": "Funker530",
+      "status": "pending"
+    },
+    {
+      "extractor": "Fux",
+      "status": "pending"
+    },
+    {
+      "extractor": "FuyinTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Gab",
+      "status": "pending"
+    },
+    {
+      "extractor": "Gaia",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameDevTVDashboard",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameJolt",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameJoltCommunity",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameJoltGame",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameJoltGameSoundtrack",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameJoltSearch",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameJoltUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameSpot",
+      "status": "pending"
+    },
+    {
+      "extractor": "GameStar",
+      "status": "pending"
+    },
+    {
+      "extractor": "Gaskrank",
+      "status": "pending"
+    },
+    {
+      "extractor": "Gazeta",
+      "status": "pending"
+    },
+    {
+      "extractor": "GBNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "GDCVault",
+      "status": "pending"
+    },
+    {
+      "extractor": "GediDigital",
+      "status": "pending"
+    },
+    {
+      "extractor": "gem.cbc.ca",
+      "status": "pending"
+    },
+    {
+      "extractor": "gem.cbc.ca:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "gem.cbc.ca:olympics",
+      "status": "pending"
+    },
+    {
+      "extractor": "gem.cbc.ca:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Genius",
+      "status": "pending"
+    },
+    {
+      "extractor": "GeniusLyrics",
+      "status": "pending"
+    },
+    {
+      "extractor": "Germanupa",
+      "status": "pending"
+    },
+    {
+      "extractor": "GetCourseRu",
+      "status": "pending"
+    },
+    {
+      "extractor": "GetCourseRuPlayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "Gettr",
+      "status": "pending"
+    },
+    {
+      "extractor": "GettrStreaming",
+      "status": "pending"
+    },
+    {
+      "extractor": "GiantBomb",
+      "status": "pending"
+    },
+    {
+      "extractor": "GlattvisionTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "GlattvisionTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "GlattvisionTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "Glide",
+      "status": "pending"
+    },
+    {
+      "extractor": "GlobalPlayerAudio",
+      "status": "pending"
+    },
+    {
+      "extractor": "GlobalPlayerAudioEpisode",
+      "status": "pending"
+    },
+    {
+      "extractor": "GlobalPlayerLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "GlobalPlayerLivePlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "GlobalPlayerVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Globo",
+      "status": "pending"
+    },
+    {
+      "extractor": "GloboArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "glomex",
+      "status": "pending"
+    },
+    {
+      "extractor": "glomex:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "GMANetworkVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Go",
+      "status": "pending"
+    },
+    {
+      "extractor": "GoDiscovery",
+      "status": "pending"
+    },
+    {
+      "extractor": "GodResource",
+      "status": "pending"
+    },
+    {
+      "extractor": "GodTube",
+      "status": "pending"
+    },
+    {
+      "extractor": "Golem",
+      "status": "pending"
+    },
+    {
+      "extractor": "goodgame:stream",
+      "status": "pending"
+    },
+    {
+      "extractor": "GoogleDrive",
+      "status": "pending"
+    },
+    {
+      "extractor": "GoogleDrive:Folder",
+      "status": "pending"
+    },
+    {
+      "extractor": "GoPro",
+      "status": "pending"
+    },
+    {
+      "extractor": "GoToStage",
+      "status": "pending"
+    },
+    {
+      "extractor": "Graspop",
+      "status": "pending"
+    },
+    {
+      "extractor": "Gronkh",
+      "status": "pending"
+    },
+    {
+      "extractor": "gronkh:feed",
+      "status": "pending"
+    },
+    {
+      "extractor": "gronkh:vods",
+      "status": "pending"
+    },
+    {
+      "extractor": "Groupon",
+      "status": "pending"
+    },
+    {
+      "extractor": "Harpodeon",
+      "status": "pending"
+    },
+    {
+      "extractor": "hbo",
+      "status": "pending"
+    },
+    {
+      "extractor": "HearThisAt",
+      "status": "pending"
+    },
+    {
+      "extractor": "Heise",
+      "status": "pending"
+    },
+    {
+      "extractor": "HellPorno",
+      "status": "pending"
+    },
+    {
+      "extractor": "hetklokhuis",
+      "status": "pending"
+    },
+    {
+      "extractor": "hgtv.com:show",
+      "status": "pending"
+    },
+    {
+      "extractor": "HGTVDe",
+      "status": "pending"
+    },
+    {
+      "extractor": "HGTVUsa",
+      "status": "pending"
+    },
+    {
+      "extractor": "HiDive",
+      "status": "pending"
+    },
+    {
+      "extractor": "HistoricFilms",
+      "status": "pending"
+    },
+    {
+      "extractor": "history:player",
+      "status": "pending"
+    },
+    {
+      "extractor": "history:topic",
+      "status": "pending"
+    },
+    {
+      "extractor": "HitRecord",
+      "status": "pending"
+    },
+    {
+      "extractor": "HollywoodReporter",
+      "status": "pending"
+    },
+    {
+      "extractor": "HollywoodReporterPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Holodex",
+      "status": "pending"
+    },
+    {
+      "extractor": "HotNewHipHop",
+      "status": "pending"
+    },
+    {
+      "extractor": "hotstar",
+      "status": "pending"
+    },
+    {
+      "extractor": "hotstar:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "hrfernsehen",
+      "status": "pending"
+    },
+    {
+      "extractor": "HRTi",
+      "status": "pending"
+    },
+    {
+      "extractor": "HRTiPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "HSEProduct",
+      "status": "pending"
+    },
+    {
+      "extractor": "HSEShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "html5",
+      "status": "pending"
+    },
+    {
+      "extractor": "Huajiao",
+      "status": "pending"
+    },
+    {
+      "extractor": "HuffPost",
+      "status": "pending"
+    },
+    {
+      "extractor": "Hungama",
+      "status": "pending"
+    },
+    {
+      "extractor": "HungamaAlbumPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "HungamaSong",
+      "status": "pending"
+    },
+    {
+      "extractor": "huya:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "huya:video",
+      "status": "partial",
+      "rust_adapter": "HuyaVideo"
+    },
+    {
+      "extractor": "Hypem",
+      "status": "pending"
+    },
+    {
+      "extractor": "Hytale",
+      "status": "pending"
+    },
+    {
+      "extractor": "Icareus",
+      "status": "pending"
+    },
+    {
+      "extractor": "IdagioAlbum",
+      "status": "pending"
+    },
+    {
+      "extractor": "IdagioPersonalPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "IdagioPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "IdagioRecording",
+      "status": "pending"
+    },
+    {
+      "extractor": "IdagioTrack",
+      "status": "pending"
+    },
+    {
+      "extractor": "iflix:episode",
+      "status": "pending"
+    },
+    {
+      "extractor": "IflixSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "ign.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "IGNArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "IGNVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "iheartradio",
+      "status": "pending"
+    },
+    {
+      "extractor": "iheartradio:podcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "IlPost",
+      "status": "pending"
+    },
+    {
+      "extractor": "Iltalehti",
+      "status": "pending"
+    },
+    {
+      "extractor": "imdb",
+      "status": "pending"
+    },
+    {
+      "extractor": "imdb:list",
+      "status": "pending"
+    },
+    {
+      "extractor": "Imgur",
+      "status": "partial",
+      "rust_adapter": "Imgur"
+    },
+    {
+      "extractor": "imgur:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "imgur:gallery",
+      "status": "pending"
+    },
+    {
+      "extractor": "Ina",
+      "status": "pending"
+    },
+    {
+      "extractor": "Inc",
+      "status": "pending"
+    },
+    {
+      "extractor": "IndavideoEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "InfoQ",
+      "status": "pending"
+    },
+    {
+      "extractor": "Instagram",
+      "status": "partial",
+      "rust_adapter": "Instagram"
+    },
+    {
+      "extractor": "instagram:story",
+      "status": "pending"
+    },
+    {
+      "extractor": "instagram:tag",
+      "status": "pending"
+    },
+    {
+      "extractor": "instagram:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "InstagramIOS",
+      "status": "pending"
+    },
+    {
+      "extractor": "Internazionale",
+      "status": "pending"
+    },
+    {
+      "extractor": "InvestigationDiscovery",
+      "status": "pending"
+    },
+    {
+      "extractor": "IPrima",
+      "status": "pending"
+    },
+    {
+      "extractor": "IPrimaCNN",
+      "status": "pending"
+    },
+    {
+      "extractor": "iq.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "iq.com:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "iqiyi",
+      "status": "pending"
+    },
+    {
+      "extractor": "IslamChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "IslamChannelSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "IsraelNationalNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "ITProTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "ITProTVCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "ITV",
+      "status": "pending"
+    },
+    {
+      "extractor": "ITVBTCC",
+      "status": "pending"
+    },
+    {
+      "extractor": "ivi",
+      "status": "pending"
+    },
+    {
+      "extractor": "ivi:compilation",
+      "status": "pending"
+    },
+    {
+      "extractor": "ivideon",
+      "status": "pending"
+    },
+    {
+      "extractor": "Ivoox",
+      "status": "pending"
+    },
+    {
+      "extractor": "iwara",
+      "status": "pending"
+    },
+    {
+      "extractor": "iwara:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "iwara:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "Ixigua",
+      "status": "partial",
+      "rust_adapter": "Ixigua"
+    },
+    {
+      "extractor": "Jamendo",
+      "status": "pending"
+    },
+    {
+      "extractor": "JamendoAlbum",
+      "status": "pending"
+    },
+    {
+      "extractor": "JeuxVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "jiosaavn:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "jiosaavn:artist",
+      "status": "pending"
+    },
+    {
+      "extractor": "jiosaavn:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "jiosaavn:show",
+      "status": "pending"
+    },
+    {
+      "extractor": "jiosaavn:​show:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "jiosaavn:song",
+      "status": "pending"
+    },
+    {
+      "extractor": "Joj",
+      "status": "pending"
+    },
+    {
+      "extractor": "Jove",
+      "status": "pending"
+    },
+    {
+      "extractor": "JStream",
+      "status": "pending"
+    },
+    {
+      "extractor": "JTBC",
+      "status": "pending"
+    },
+    {
+      "extractor": "JTBC:program",
+      "status": "pending"
+    },
+    {
+      "extractor": "JWPlatform",
+      "status": "pending"
+    },
+    {
+      "extractor": "Kakao",
+      "status": "pending"
+    },
+    {
+      "extractor": "Kaltura",
+      "status": "pending"
+    },
+    {
+      "extractor": "KankaNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "Karaoketv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Katsomo",
+      "status": "pending"
+    },
+    {
+      "extractor": "KelbyOne",
+      "status": "pending"
+    },
+    {
+      "extractor": "Kenh14Playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Kenh14Video",
+      "status": "pending"
+    },
+    {
+      "extractor": "khanacademy",
+      "status": "pending"
+    },
+    {
+      "extractor": "khanacademy:unit",
+      "status": "pending"
+    },
+    {
+      "extractor": "kick:clips",
+      "status": "pending"
+    },
+    {
+      "extractor": "kick:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "kick:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "Kicker",
+      "status": "pending"
+    },
+    {
+      "extractor": "KickStarter",
+      "status": "pending"
+    },
+    {
+      "extractor": "Kika",
+      "status": "pending"
+    },
+    {
+      "extractor": "KikaPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "KinoPoisk",
+      "status": "pending"
+    },
+    {
+      "extractor": "Kommunetv",
+      "status": "pending"
+    },
+    {
+      "extractor": "KompasVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "KrasView",
+      "status": "pending"
+    },
+    {
+      "extractor": "KTH",
+      "status": "pending"
+    },
+    {
+      "extractor": "Ku6",
+      "status": "pending"
+    },
+    {
+      "extractor": "KukuluLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "kuwo:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "kuwo:category",
+      "status": "pending"
+    },
+    {
+      "extractor": "kuwo:chart",
+      "status": "pending"
+    },
+    {
+      "extractor": "kuwo:mv",
+      "status": "pending"
+    },
+    {
+      "extractor": "kuwo:singer",
+      "status": "pending"
+    },
+    {
+      "extractor": "kuwo:song",
+      "status": "pending"
+    },
+    {
+      "extractor": "la7.it",
+      "status": "pending"
+    },
+    {
+      "extractor": "la7.it:​pod:episode",
+      "status": "pending"
+    },
+    {
+      "extractor": "la7.it:podcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "laracasts",
+      "status": "pending"
+    },
+    {
+      "extractor": "laracasts:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "LastFM",
+      "status": "pending"
+    },
+    {
+      "extractor": "LastFMPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "LastFMUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "LaXarxaMes",
+      "status": "pending"
+    },
+    {
+      "extractor": "lbry",
+      "status": "partial",
+      "rust_adapter": "Odysee"
+    },
+    {
+      "extractor": "lbry:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "lbry:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "LCI",
+      "status": "pending"
+    },
+    {
+      "extractor": "Lcp",
+      "status": "pending"
+    },
+    {
+      "extractor": "LcpPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "Le",
+      "status": "pending"
+    },
+    {
+      "extractor": "LearningOnScreen",
+      "status": "pending"
+    },
+    {
+      "extractor": "Lecture2Go",
+      "status": "pending"
+    },
+    {
+      "extractor": "Lecturio",
+      "status": "pending"
+    },
+    {
+      "extractor": "LecturioCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "LecturioDeCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "LeFigaroVideoEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "LeFigaroVideoSection",
+      "status": "pending"
+    },
+    {
+      "extractor": "LEGO",
+      "status": "pending"
+    },
+    {
+      "extractor": "Lemonde",
+      "status": "pending"
+    },
+    {
+      "extractor": "Lenta",
+      "status": "pending"
+    },
+    {
+      "extractor": "LePlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Libsyn",
+      "status": "pending"
+    },
+    {
+      "extractor": "life",
+      "status": "pending"
+    },
+    {
+      "extractor": "life:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "likee",
+      "status": "pending"
+    },
+    {
+      "extractor": "likee:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "LinkedIn",
+      "status": "pending"
+    },
+    {
+      "extractor": "linkedin:events",
+      "status": "pending"
+    },
+    {
+      "extractor": "linkedin:learning",
+      "status": "pending"
+    },
+    {
+      "extractor": "linkedin:​learning:course",
+      "status": "pending"
+    },
+    {
+      "extractor": "Liputan6",
+      "status": "pending"
+    },
+    {
+      "extractor": "ListenNotes",
+      "status": "pending"
+    },
+    {
+      "extractor": "LiTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "LiveJournal",
+      "status": "pending"
+    },
+    {
+      "extractor": "Livestreamfails",
+      "status": "pending"
+    },
+    {
+      "extractor": "Lnk",
+      "status": "pending"
+    },
+    {
+      "extractor": "loc",
+      "status": "pending"
+    },
+    {
+      "extractor": "Locipo",
+      "status": "pending"
+    },
+    {
+      "extractor": "LocipoPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Loco",
+      "status": "pending"
+    },
+    {
+      "extractor": "loom",
+      "status": "pending"
+    },
+    {
+      "extractor": "loom:folder",
+      "status": "pending"
+    },
+    {
+      "extractor": "LoveHomePorn",
+      "status": "pending"
+    },
+    {
+      "extractor": "LRTRadio",
+      "status": "pending"
+    },
+    {
+      "extractor": "LRTStream",
+      "status": "pending"
+    },
+    {
+      "extractor": "LRTVOD",
+      "status": "pending"
+    },
+    {
+      "extractor": "LSMLREmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "LSMLTVEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "LSMReplay",
+      "status": "pending"
+    },
+    {
+      "extractor": "Lumni",
+      "status": "pending"
+    },
+    {
+      "extractor": "maariv.co.il",
+      "status": "pending"
+    },
+    {
+      "extractor": "MagellanTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "MagentaMusik",
+      "status": "pending"
+    },
+    {
+      "extractor": "mailru",
+      "status": "pending"
+    },
+    {
+      "extractor": "mailru:music",
+      "status": "pending"
+    },
+    {
+      "extractor": "mailru:​music:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "MainStreaming",
+      "status": "pending"
+    },
+    {
+      "extractor": "mangomolo:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "mangomolo:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "MangoTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "ManyVids",
+      "status": "pending"
+    },
+    {
+      "extractor": "MaoriTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Markiza",
+      "status": "pending"
+    },
+    {
+      "extractor": "MarkizaPage",
+      "status": "pending"
+    },
+    {
+      "extractor": "massengeschmack.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Masters",
+      "status": "pending"
+    },
+    {
+      "extractor": "MatchiTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "MatchTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "mave",
+      "status": "pending"
+    },
+    {
+      "extractor": "mave:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "MBN",
+      "status": "pending"
+    },
+    {
+      "extractor": "MDR",
+      "status": "pending"
+    },
+    {
+      "extractor": "MedalTV",
+      "status": "partial",
+      "rust_adapter": "Medal"
+    },
+    {
+      "extractor": "media.ccc.de",
+      "status": "pending"
+    },
+    {
+      "extractor": "media.ccc.de:lists",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mediaite",
+      "status": "pending"
+    },
+    {
+      "extractor": "MediaKlikk",
+      "status": "pending"
+    },
+    {
+      "extractor": "Medialaan",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mediaset",
+      "status": "pending"
+    },
+    {
+      "extractor": "MediasetShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mediasite",
+      "status": "pending"
+    },
+    {
+      "extractor": "MediasiteCatalog",
+      "status": "pending"
+    },
+    {
+      "extractor": "MediasiteNamedCatalog",
+      "status": "pending"
+    },
+    {
+      "extractor": "MediaStream",
+      "status": "pending"
+    },
+    {
+      "extractor": "MediaWorksNZVOD",
+      "status": "pending"
+    },
+    {
+      "extractor": "Medici",
+      "status": "pending"
+    },
+    {
+      "extractor": "megaphone.fm",
+      "status": "pending"
+    },
+    {
+      "extractor": "megatvcom",
+      "status": "pending"
+    },
+    {
+      "extractor": "megatvcom:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "Meipai",
+      "status": "pending"
+    },
+    {
+      "extractor": "mellowfan",
+      "status": "pending"
+    },
+    {
+      "extractor": "mellowfan:capture",
+      "status": "pending"
+    },
+    {
+      "extractor": "mellowfan:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "mellowfan:​channel:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "mellowfan:movie",
+      "status": "pending"
+    },
+    {
+      "extractor": "mellowfan:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "MelonVOD",
+      "status": "pending"
+    },
+    {
+      "extractor": "Metacritic",
+      "status": "pending"
+    },
+    {
+      "extractor": "mewatch",
+      "status": "pending"
+    },
+    {
+      "extractor": "MicrosoftBuild",
+      "status": "pending"
+    },
+    {
+      "extractor": "MicrosoftEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "MicrosoftLearnEpisode",
+      "status": "pending"
+    },
+    {
+      "extractor": "MicrosoftLearnPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "MicrosoftLearnSession",
+      "status": "pending"
+    },
+    {
+      "extractor": "MicrosoftMedius",
+      "status": "pending"
+    },
+    {
+      "extractor": "minds",
+      "status": "pending"
+    },
+    {
+      "extractor": "minds:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "minds:group",
+      "status": "pending"
+    },
+    {
+      "extractor": "mir24.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "mirrativ",
+      "status": "pending"
+    },
+    {
+      "extractor": "mirrativ:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "MirrorCoUK",
+      "status": "pending"
+    },
+    {
+      "extractor": "mixch",
+      "status": "pending"
+    },
+    {
+      "extractor": "mixch:archive",
+      "status": "pending"
+    },
+    {
+      "extractor": "mixch:movie",
+      "status": "pending"
+    },
+    {
+      "extractor": "mixcloud",
+      "status": "pending"
+    },
+    {
+      "extractor": "mixcloud:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "mixcloud:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mixlr",
+      "status": "pending"
+    },
+    {
+      "extractor": "MixlrRecoring",
+      "status": "pending"
+    },
+    {
+      "extractor": "MLB",
+      "status": "pending"
+    },
+    {
+      "extractor": "MLBArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "MLBTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "MLBVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "MLSSoccer",
+      "status": "pending"
+    },
+    {
+      "extractor": "MNetTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "MNetTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "MNetTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "MochaVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mojevideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Monstercat",
+      "status": "pending"
+    },
+    {
+      "extractor": "monstersiren",
+      "status": "pending"
+    },
+    {
+      "extractor": "Motorsport",
+      "status": "pending"
+    },
+    {
+      "extractor": "MovieFap",
+      "status": "pending"
+    },
+    {
+      "extractor": "moviepilot",
+      "status": "pending"
+    },
+    {
+      "extractor": "MovingImage",
+      "status": "pending"
+    },
+    {
+      "extractor": "MSN",
+      "status": "pending"
+    },
+    {
+      "extractor": "mtg",
+      "status": "pending"
+    },
+    {
+      "extractor": "mtv",
+      "status": "pending"
+    },
+    {
+      "extractor": "MTVUutisetArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "MuenchenTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "MujRozhlas",
+      "status": "pending"
+    },
+    {
+      "extractor": "Murrtube",
+      "status": "pending"
+    },
+    {
+      "extractor": "MurrtubeUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "MuseAI",
+      "status": "pending"
+    },
+    {
+      "extractor": "MuseScore",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mux",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mx3",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mx3Neo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mx3Volksmusik",
+      "status": "pending"
+    },
+    {
+      "extractor": "mxplayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "mxplayer:season",
+      "status": "pending"
+    },
+    {
+      "extractor": "mxplayer:show",
+      "status": "pending"
+    },
+    {
+      "extractor": "MySpace",
+      "status": "pending"
+    },
+    {
+      "extractor": "MySpace:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "MySpass",
+      "status": "pending"
+    },
+    {
+      "extractor": "MyVideoGe",
+      "status": "pending"
+    },
+    {
+      "extractor": "MyVidster",
+      "status": "pending"
+    },
+    {
+      "extractor": "Mzaalo",
+      "status": "pending"
+    },
+    {
+      "extractor": "n-tv.de",
+      "status": "pending"
+    },
+    {
+      "extractor": "N1Info:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "N1InfoAsset",
+      "status": "pending"
+    },
+    {
+      "extractor": "NascarClassics",
+      "status": "pending"
+    },
+    {
+      "extractor": "Nate",
+      "status": "pending"
+    },
+    {
+      "extractor": "NateProgram",
+      "status": "pending"
+    },
+    {
+      "extractor": "NationalGeographicTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Naver",
+      "status": "pending"
+    },
+    {
+      "extractor": "Naver:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "nba",
+      "status": "pending"
+    },
+    {
+      "extractor": "nba:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "nba:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "nba:watch",
+      "status": "pending"
+    },
+    {
+      "extractor": "nba:​watch:collection",
+      "status": "pending"
+    },
+    {
+      "extractor": "nba:​watch:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "NBC",
+      "status": "pending"
+    },
+    {
+      "extractor": "NBCNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "nbcolympics",
+      "status": "pending"
+    },
+    {
+      "extractor": "nbcolympics:stream",
+      "status": "pending"
+    },
+    {
+      "extractor": "NBCSports",
+      "status": "pending"
+    },
+    {
+      "extractor": "NBCSportsStream",
+      "status": "pending"
+    },
+    {
+      "extractor": "NBCSportsVPlayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "NBCStations",
+      "status": "pending"
+    },
+    {
+      "extractor": "ndr",
+      "status": "pending"
+    },
+    {
+      "extractor": "ndr:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "ndr:​embed:base",
+      "status": "pending"
+    },
+    {
+      "extractor": "NDTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "nebula:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "nebula:media",
+      "status": "pending"
+    },
+    {
+      "extractor": "nebula:season",
+      "status": "pending"
+    },
+    {
+      "extractor": "nebula:subscriptions",
+      "status": "pending"
+    },
+    {
+      "extractor": "nebula:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "NekoHacker",
+      "status": "pending"
+    },
+    {
+      "extractor": "Nest",
+      "status": "pending"
+    },
+    {
+      "extractor": "NestClip",
+      "status": "pending"
+    },
+    {
+      "extractor": "NetAppCollection",
+      "status": "pending"
+    },
+    {
+      "extractor": "NetAppVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "netease:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "netease:djradio",
+      "status": "pending"
+    },
+    {
+      "extractor": "netease:mv",
+      "status": "pending"
+    },
+    {
+      "extractor": "netease:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "netease:program",
+      "status": "pending"
+    },
+    {
+      "extractor": "netease:singer",
+      "status": "pending"
+    },
+    {
+      "extractor": "netease:song",
+      "status": "pending"
+    },
+    {
+      "extractor": "NetPlusTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "NetPlusTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "NetPlusTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "Netzkino",
+      "status": "pending"
+    },
+    {
+      "extractor": "Newgrounds",
+      "status": "pending"
+    },
+    {
+      "extractor": "Newgrounds:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Newgrounds:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "NewsPicks",
+      "status": "pending"
+    },
+    {
+      "extractor": "Newsy",
+      "status": "pending"
+    },
+    {
+      "extractor": "Nexx",
+      "status": "pending"
+    },
+    {
+      "extractor": "NexxEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "nfb",
+      "status": "pending"
+    },
+    {
+      "extractor": "nfb:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "NFHSNetwork",
+      "status": "pending"
+    },
+    {
+      "extractor": "nfl.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "nfl.com:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "nfl.com:​plus:episode",
+      "status": "pending"
+    },
+    {
+      "extractor": "nfl.com:​plus:replay",
+      "status": "pending"
+    },
+    {
+      "extractor": "NhkForSchoolBangumi",
+      "status": "pending"
+    },
+    {
+      "extractor": "NhkForSchoolProgramList",
+      "status": "pending"
+    },
+    {
+      "extractor": "NhkForSchoolSubject",
+      "status": "pending"
+    },
+    {
+      "extractor": "NhkRadioNewsPage",
+      "status": "pending"
+    },
+    {
+      "extractor": "NhkRadiru",
+      "status": "pending"
+    },
+    {
+      "extractor": "NhkRadiruLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "NhkVod",
+      "status": "pending"
+    },
+    {
+      "extractor": "NhkVodProgram",
+      "status": "pending"
+    },
+    {
+      "extractor": "nhl.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "nick.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "niconico",
+      "status": "pending"
+    },
+    {
+      "extractor": "niconico:history",
+      "status": "pending"
+    },
+    {
+      "extractor": "niconico:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "niconico:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "niconico:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "niconico:tag",
+      "status": "pending"
+    },
+    {
+      "extractor": "NiconicoChannelPlus",
+      "status": "pending"
+    },
+    {
+      "extractor": "NiconicoChannelPlus:​channel:lives",
+      "status": "pending"
+    },
+    {
+      "extractor": "NiconicoChannelPlus:​channel:videos",
+      "status": "pending"
+    },
+    {
+      "extractor": "NiconicoUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "nicovideo:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "nicovideo:​search:date",
+      "status": "pending"
+    },
+    {
+      "extractor": "nicovideo:search_url",
+      "status": "pending"
+    },
+    {
+      "extractor": "NinaProtocol",
+      "status": "pending"
+    },
+    {
+      "extractor": "Nintendo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Nitter",
+      "status": "pending"
+    },
+    {
+      "extractor": "njoy",
+      "status": "pending"
+    },
+    {
+      "extractor": "njoy:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "NobelPrize",
+      "status": "pending"
+    },
+    {
+      "extractor": "NoicePodcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "NonkTube",
+      "status": "pending"
+    },
+    {
+      "extractor": "NoodleMagazine",
+      "status": "pending"
+    },
+    {
+      "extractor": "NOSNLArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "Nova",
+      "status": "pending"
+    },
+    {
+      "extractor": "NovaEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "NovaPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "NowCanal",
+      "status": "pending"
+    },
+    {
+      "extractor": "nowness",
+      "status": "pending"
+    },
+    {
+      "extractor": "nowness:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "nowness:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "Noz",
+      "status": "pending"
+    },
+    {
+      "extractor": "npo",
+      "status": "pending"
+    },
+    {
+      "extractor": "npo.nl:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "npo.nl:radio",
+      "status": "pending"
+    },
+    {
+      "extractor": "npo.nl:​radio:fragment",
+      "status": "pending"
+    },
+    {
+      "extractor": "Npr",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRK",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKRadioPodkast",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKSkole",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKTVDirekte",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKTVEpisode",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKTVEpisodes",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKTVSeason",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRKTVSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "NRLTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "nts.live",
+      "status": "pending"
+    },
+    {
+      "extractor": "ntv.ru",
+      "status": "pending"
+    },
+    {
+      "extractor": "NubilesPorn",
+      "status": "pending"
+    },
+    {
+      "extractor": "Nuvid",
+      "status": "pending"
+    },
+    {
+      "extractor": "NYTimes",
+      "status": "pending"
+    },
+    {
+      "extractor": "NYTimesArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "NYTimesCookingGuide",
+      "status": "pending"
+    },
+    {
+      "extractor": "NYTimesCookingRecipe",
+      "status": "pending"
+    },
+    {
+      "extractor": "nzherald",
+      "status": "pending"
+    },
+    {
+      "extractor": "NZOnScreen",
+      "status": "pending"
+    },
+    {
+      "extractor": "NZZ",
+      "status": "pending"
+    },
+    {
+      "extractor": "ocw.mit.edu",
+      "status": "pending"
+    },
+    {
+      "extractor": "Odnoklassniki",
+      "status": "partial",
+      "rust_adapter": "OK.ru"
+    },
+    {
+      "extractor": "OfTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "OfTVPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "OktoberfestTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "OlympicsReplay",
+      "status": "pending"
+    },
+    {
+      "extractor": "Omnyfm",
+      "status": "pending"
+    },
+    {
+      "extractor": "OmnyfmPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "OmnyfmShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "on24",
+      "status": "pending"
+    },
+    {
+      "extractor": "OnDemandChinaEpisode",
+      "status": "pending"
+    },
+    {
+      "extractor": "OnDemandKorea",
+      "status": "pending"
+    },
+    {
+      "extractor": "OnDemandKoreaProgram",
+      "status": "pending"
+    },
+    {
+      "extractor": "OneFootball",
+      "status": "pending"
+    },
+    {
+      "extractor": "OnePlacePodcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "onet.pl",
+      "status": "pending"
+    },
+    {
+      "extractor": "onet.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "onet.tv:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "OnetMVP",
+      "status": "pending"
+    },
+    {
+      "extractor": "onsen",
+      "status": "pending"
+    },
+    {
+      "extractor": "Opencast",
+      "status": "pending"
+    },
+    {
+      "extractor": "OpencastPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "orf:​fm4:story",
+      "status": "pending"
+    },
+    {
+      "extractor": "orf:iptv",
+      "status": "pending"
+    },
+    {
+      "extractor": "orf:on",
+      "status": "pending"
+    },
+    {
+      "extractor": "orf:podcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "orf:radio",
+      "status": "pending"
+    },
+    {
+      "extractor": "OsnatelTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "OsnatelTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "OsnatelTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "OutsideTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "OwnCloud",
+      "status": "pending"
+    },
+    {
+      "extractor": "PacktPub",
+      "status": "pending"
+    },
+    {
+      "extractor": "PacktPubCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "PalcoMP3:artist",
+      "status": "pending"
+    },
+    {
+      "extractor": "PalcoMP3:song",
+      "status": "pending"
+    },
+    {
+      "extractor": "PalcoMP3:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "PandaTv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Panopto",
+      "status": "pending"
+    },
+    {
+      "extractor": "PanoptoList",
+      "status": "pending"
+    },
+    {
+      "extractor": "PanoptoPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "ParamountPressExpress",
+      "status": "pending"
+    },
+    {
+      "extractor": "Parler",
+      "status": "pending"
+    },
+    {
+      "extractor": "parliamentlive.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Parlview",
+      "status": "pending"
+    },
+    {
+      "extractor": "parti:livestream",
+      "status": "pending"
+    },
+    {
+      "extractor": "parti:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "patreon",
+      "status": "pending"
+    },
+    {
+      "extractor": "patreon:campaign",
+      "status": "pending"
+    },
+    {
+      "extractor": "pbs",
+      "status": "pending"
+    },
+    {
+      "extractor": "PBSKids",
+      "status": "pending"
+    },
+    {
+      "extractor": "PearVideo",
+      "status": "partial",
+      "rust_adapter": "PearVideo"
+    },
+    {
+      "extractor": "PeekVids",
+      "status": "pending"
+    },
+    {
+      "extractor": "peer.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "PeerTube",
+      "status": "partial",
+      "rust_adapter": "PeerTube"
+    },
+    {
+      "extractor": "PeerTube:Playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "peloton",
+      "status": "pending"
+    },
+    {
+      "extractor": "peloton:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "PerformGroup",
+      "status": "pending"
+    },
+    {
+      "extractor": "periscope",
+      "status": "pending"
+    },
+    {
+      "extractor": "periscope:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "PGATour",
+      "status": "pending"
+    },
+    {
+      "extractor": "PhilharmonieDeParis",
+      "status": "pending"
+    },
+    {
+      "extractor": "phoenix.de",
+      "status": "pending"
+    },
+    {
+      "extractor": "Photobucket",
+      "status": "pending"
+    },
+    {
+      "extractor": "PiaLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "Piapro",
+      "status": "pending"
+    },
+    {
+      "extractor": "picarto",
+      "status": "pending"
+    },
+    {
+      "extractor": "picarto:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "Piksel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Pinkbike",
+      "status": "pending"
+    },
+    {
+      "extractor": "Pinterest",
+      "status": "pending"
+    },
+    {
+      "extractor": "PinterestCollection",
+      "status": "pending"
+    },
+    {
+      "extractor": "Platzi",
+      "status": "pending"
+    },
+    {
+      "extractor": "PlatziCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "play.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "player.sky.it",
+      "status": "pending"
+    },
+    {
+      "extractor": "PlayerFm",
+      "status": "pending"
+    },
+    {
+      "extractor": "PlaySuisse",
+      "status": "pending"
+    },
+    {
+      "extractor": "Playtvak",
+      "status": "pending"
+    },
+    {
+      "extractor": "PlayVids",
+      "status": "pending"
+    },
+    {
+      "extractor": "pluralsight",
+      "status": "pending"
+    },
+    {
+      "extractor": "pluralsight:course",
+      "status": "pending"
+    },
+    {
+      "extractor": "PlutoTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "PlyrEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "PodbayFM",
+      "status": "pending"
+    },
+    {
+      "extractor": "PodbayFMChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Podchaser",
+      "status": "pending"
+    },
+    {
+      "extractor": "podomatic",
+      "status": "pending"
+    },
+    {
+      "extractor": "PokerGo",
+      "status": "pending"
+    },
+    {
+      "extractor": "PokerGoCollection",
+      "status": "pending"
+    },
+    {
+      "extractor": "PolsatGo",
+      "status": "pending"
+    },
+    {
+      "extractor": "PolskieRadio",
+      "status": "pending"
+    },
+    {
+      "extractor": "polskieradio:audition",
+      "status": "pending"
+    },
+    {
+      "extractor": "polskieradio:category",
+      "status": "pending"
+    },
+    {
+      "extractor": "polskieradio:legacy",
+      "status": "pending"
+    },
+    {
+      "extractor": "polskieradio:player",
+      "status": "pending"
+    },
+    {
+      "extractor": "polskieradio:podcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "polskieradio:​podcast:list",
+      "status": "pending"
+    },
+    {
+      "extractor": "Popcorntimes",
+      "status": "pending"
+    },
+    {
+      "extractor": "PopcornTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "Pornbox",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornerBros",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornFlip",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornHub",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornHubPagedVideoList",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornHubPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornHubUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornHubUserVideosUpload",
+      "status": "pending"
+    },
+    {
+      "extractor": "Pornotube",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornoVoisines",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornoXO",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornTop",
+      "status": "pending"
+    },
+    {
+      "extractor": "PornTube",
+      "status": "pending"
+    },
+    {
+      "extractor": "Pr0gramm",
+      "status": "pending"
+    },
+    {
+      "extractor": "PrankCast",
+      "status": "pending"
+    },
+    {
+      "extractor": "PrankCastPost",
+      "status": "pending"
+    },
+    {
+      "extractor": "PremiershipRugby",
+      "status": "pending"
+    },
+    {
+      "extractor": "PressTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "ProjectVeritas",
+      "status": "pending"
+    },
+    {
+      "extractor": "PRXAccount",
+      "status": "pending"
+    },
+    {
+      "extractor": "PRXSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "prxseries:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "prxstories:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "PRXStory",
+      "status": "pending"
+    },
+    {
+      "extractor": "puhutv",
+      "status": "pending"
+    },
+    {
+      "extractor": "puhutv:serie",
+      "status": "pending"
+    },
+    {
+      "extractor": "Pyvideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "QDance",
+      "status": "pending"
+    },
+    {
+      "extractor": "QingTing",
+      "status": "pending"
+    },
+    {
+      "extractor": "qqmusic",
+      "status": "pending"
+    },
+    {
+      "extractor": "qqmusic:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "qqmusic:mv",
+      "status": "pending"
+    },
+    {
+      "extractor": "qqmusic:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "qqmusic:singer",
+      "status": "pending"
+    },
+    {
+      "extractor": "qqmusic:toplist",
+      "status": "pending"
+    },
+    {
+      "extractor": "QuantumTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "QuantumTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "QuantumTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "R7",
+      "status": "pending"
+    },
+    {
+      "extractor": "R7Article",
+      "status": "pending"
+    },
+    {
+      "extractor": "Radiko",
+      "status": "pending"
+    },
+    {
+      "extractor": "RadikoRadio",
+      "status": "pending"
+    },
+    {
+      "extractor": "radio.de",
+      "status": "pending"
+    },
+    {
+      "extractor": "Radio1Be",
+      "status": "pending"
+    },
+    {
+      "extractor": "radiocanada",
+      "status": "pending"
+    },
+    {
+      "extractor": "radiocanada:audiovideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "radiofrance",
+      "status": "pending"
+    },
+    {
+      "extractor": "RadioFranceLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "RadioFrancePodcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "RadioFranceProfile",
+      "status": "pending"
+    },
+    {
+      "extractor": "RadioFranceProgramSchedule",
+      "status": "pending"
+    },
+    {
+      "extractor": "RadioJavan",
+      "status": "pending"
+    },
+    {
+      "extractor": "radiokapital",
+      "status": "pending"
+    },
+    {
+      "extractor": "radiokapital:show",
+      "status": "pending"
+    },
+    {
+      "extractor": "RadioRadicale",
+      "status": "pending"
+    },
+    {
+      "extractor": "RadioZetPodcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "radlive",
+      "status": "pending"
+    },
+    {
+      "extractor": "radlive:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "radlive:season",
+      "status": "pending"
+    },
+    {
+      "extractor": "Rai",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiCultura",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiPlayLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiPlayPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiPlaySound",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiPlaySoundLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiPlaySoundPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "RaiSudtirol",
+      "status": "pending"
+    },
+    {
+      "extractor": "RayWenderlich",
+      "status": "pending"
+    },
+    {
+      "extractor": "RayWenderlichCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "RbgTum",
+      "status": "pending"
+    },
+    {
+      "extractor": "RbgTumCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "RbgTumNewCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "RCS",
+      "status": "pending"
+    },
+    {
+      "extractor": "RCSEmbeds",
+      "status": "pending"
+    },
+    {
+      "extractor": "RCSVarious",
+      "status": "pending"
+    },
+    {
+      "extractor": "RCTIPlus",
+      "status": "pending"
+    },
+    {
+      "extractor": "RCTIPlusSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "RCTIPlusTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "RDS",
+      "status": "pending"
+    },
+    {
+      "extractor": "RedBull",
+      "status": "pending"
+    },
+    {
+      "extractor": "RedBullEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "RedBullTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "RedBullTVRrnContent",
+      "status": "pending"
+    },
+    {
+      "extractor": "Reddit",
+      "status": "partial",
+      "rust_adapter": "Reddit"
+    },
+    {
+      "extractor": "RedGifs",
+      "status": "pending"
+    },
+    {
+      "extractor": "RedGifsSearch",
+      "status": "pending"
+    },
+    {
+      "extractor": "RedGifsUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "RedTube",
+      "status": "pending"
+    },
+    {
+      "extractor": "RENTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "RENTVArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "Restudy",
+      "status": "pending"
+    },
+    {
+      "extractor": "Reuters",
+      "status": "pending"
+    },
+    {
+      "extractor": "ReverbNation",
+      "status": "pending"
+    },
+    {
+      "extractor": "RideHome",
+      "status": "pending"
+    },
+    {
+      "extractor": "RinseFM",
+      "status": "pending"
+    },
+    {
+      "extractor": "RinseFMArtistPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "RockstarGames",
+      "status": "pending"
+    },
+    {
+      "extractor": "Rokfin",
+      "status": "pending"
+    },
+    {
+      "extractor": "rokfin:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "rokfin:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "rokfin:stack",
+      "status": "pending"
+    },
+    {
+      "extractor": "RoosterTeeth",
+      "status": "pending"
+    },
+    {
+      "extractor": "RoosterTeethSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "RottenTomatoes",
+      "status": "pending"
+    },
+    {
+      "extractor": "RoyaLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "Rozhlas",
+      "status": "pending"
+    },
+    {
+      "extractor": "RozhlasVltava",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTBF",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTDocumentry",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTDocumentryPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "rte",
+      "status": "pending"
+    },
+    {
+      "extractor": "rte:radio",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtl.lu:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtl.lu:tele-vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtl.nl",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtl2",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTLLuLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTLLuRadio",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTP",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTRFM",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTS",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTVCKaltura",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTVCPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "RTVCPlayEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtve.es:alacarta",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtve.es:audio",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtve.es:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtve.es:program",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtve.es:television",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtvslo.si",
+      "status": "pending"
+    },
+    {
+      "extractor": "rtvslo.si:show",
+      "status": "pending"
+    },
+    {
+      "extractor": "RudoVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Rule34Video",
+      "status": "pending"
+    },
+    {
+      "extractor": "Rumble",
+      "status": "partial",
+      "rust_adapter": "Rumble"
+    },
+    {
+      "extractor": "RumbleChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "RumbleEmbed",
+      "status": "partial",
+      "rust_adapter": "Rumble"
+    },
+    {
+      "extractor": "Ruptly",
+      "status": "pending"
+    },
+    {
+      "extractor": "rutube",
+      "status": "pending"
+    },
+    {
+      "extractor": "rutube:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "rutube:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "rutube:movie",
+      "status": "pending"
+    },
+    {
+      "extractor": "rutube:person",
+      "status": "pending"
+    },
+    {
+      "extractor": "rutube:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "rutube:tags",
+      "status": "pending"
+    },
+    {
+      "extractor": "Ruutu",
+      "status": "pending"
+    },
+    {
+      "extractor": "Ruv",
+      "status": "pending"
+    },
+    {
+      "extractor": "ruv.is:spila",
+      "status": "pending"
+    },
+    {
+      "extractor": "S4C",
+      "status": "pending"
+    },
+    {
+      "extractor": "S4CSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "safari",
+      "status": "pending"
+    },
+    {
+      "extractor": "safari:api",
+      "status": "pending"
+    },
+    {
+      "extractor": "safari:course",
+      "status": "pending"
+    },
+    {
+      "extractor": "Saitosan",
+      "status": "pending"
+    },
+    {
+      "extractor": "SAKTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "SAKTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "SAKTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "SaltTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "SaltTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "SaltTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "SampleFocus",
+      "status": "pending"
+    },
+    {
+      "extractor": "Sangiin",
+      "status": "pending"
+    },
+    {
+      "extractor": "Sapo",
+      "status": "pending"
+    },
+    {
+      "extractor": "SaucePlus",
+      "status": "pending"
+    },
+    {
+      "extractor": "SaucePlusChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "SBS",
+      "status": "pending"
+    },
+    {
+      "extractor": "sbs.co.kr",
+      "status": "pending"
+    },
+    {
+      "extractor": "sbs.co.kr:allvod_program",
+      "status": "pending"
+    },
+    {
+      "extractor": "sbs.co.kr:programs_vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "schooltv",
+      "status": "pending"
+    },
+    {
+      "extractor": "ScienceChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Screen9",
+      "status": "pending"
+    },
+    {
+      "extractor": "Screencast",
+      "status": "pending"
+    },
+    {
+      "extractor": "Screencastify",
+      "status": "pending"
+    },
+    {
+      "extractor": "ScreencastOMatic",
+      "status": "pending"
+    },
+    {
+      "extractor": "ScreenRec",
+      "status": "pending"
+    },
+    {
+      "extractor": "ScrippsNetworks",
+      "status": "pending"
+    },
+    {
+      "extractor": "scrippsnetworks:watch",
+      "status": "pending"
+    },
+    {
+      "extractor": "Scrolller",
+      "status": "pending"
+    },
+    {
+      "extractor": "sejm",
+      "status": "pending"
+    },
+    {
+      "extractor": "Sen",
+      "status": "pending"
+    },
+    {
+      "extractor": "SenalColombiaLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "senate.gov",
+      "status": "pending"
+    },
+    {
+      "extractor": "senate.gov:isvp",
+      "status": "pending"
+    },
+    {
+      "extractor": "Servus",
+      "status": "pending"
+    },
+    {
+      "extractor": "Sexu",
+      "status": "pending"
+    },
+    {
+      "extractor": "SeznamZpravy",
+      "status": "pending"
+    },
+    {
+      "extractor": "SeznamZpravyArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "Shahid",
+      "status": "pending"
+    },
+    {
+      "extractor": "ShahidShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "SharePoint",
+      "status": "pending"
+    },
+    {
+      "extractor": "ShemarooMe",
+      "status": "pending"
+    },
+    {
+      "extractor": "Shiey",
+      "status": "pending"
+    },
+    {
+      "extractor": "showroom:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "showroom:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "ShugiinItvLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "ShugiinItvLiveRoom",
+      "status": "pending"
+    },
+    {
+      "extractor": "ShugiinItvVod",
+      "status": "pending"
+    },
+    {
+      "extractor": "SibnetEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "simplecast",
+      "status": "pending"
+    },
+    {
+      "extractor": "simplecast:episode",
+      "status": "pending"
+    },
+    {
+      "extractor": "simplecast:podcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "Sina",
+      "status": "pending"
+    },
+    {
+      "extractor": "Skeb",
+      "status": "pending"
+    },
+    {
+      "extractor": "sky.it",
+      "status": "pending"
+    },
+    {
+      "extractor": "sky:news",
+      "status": "pending"
+    },
+    {
+      "extractor": "sky:​news:story",
+      "status": "pending"
+    },
+    {
+      "extractor": "sky:sports",
+      "status": "pending"
+    },
+    {
+      "extractor": "sky:​sports:news",
+      "status": "pending"
+    },
+    {
+      "extractor": "SkylineWebcams",
+      "status": "pending"
+    },
+    {
+      "extractor": "skynewsarabia:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "skynewsarabia:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "SkyNewsAU",
+      "status": "pending"
+    },
+    {
+      "extractor": "Slideshare",
+      "status": "pending"
+    },
+    {
+      "extractor": "SlidesLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "Slutload",
+      "status": "pending"
+    },
+    {
+      "extractor": "smotrim",
+      "status": "pending"
+    },
+    {
+      "extractor": "smotrim:audio",
+      "status": "pending"
+    },
+    {
+      "extractor": "smotrim:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "smotrim:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "SnapchatSpotlight",
+      "status": "pending"
+    },
+    {
+      "extractor": "SoftWhiteUnderbelly",
+      "status": "pending"
+    },
+    {
+      "extractor": "Sohu",
+      "status": "partial",
+      "rust_adapter": "Sohu"
+    },
+    {
+      "extractor": "SohuV",
+      "status": "partial",
+      "rust_adapter": "Sohu"
+    },
+    {
+      "extractor": "SonyLIV",
+      "status": "pending"
+    },
+    {
+      "extractor": "SonyLIVSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "soop",
+      "status": "pending"
+    },
+    {
+      "extractor": "soop:catchstory",
+      "status": "pending"
+    },
+    {
+      "extractor": "soop:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "soop:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundcloud",
+      "status": "partial",
+      "rust_adapter": "SoundCloud"
+    },
+    {
+      "extractor": "soundcloud:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundcloud:related",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundcloud:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundcloud:set",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundcloud:trackstation",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundcloud:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundcloud:​user:permalink",
+      "status": "pending"
+    },
+    {
+      "extractor": "SoundcloudEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundgasm",
+      "status": "pending"
+    },
+    {
+      "extractor": "soundgasm:profile",
+      "status": "pending"
+    },
+    {
+      "extractor": "southpark.cc.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "southpark.cc.com:español",
+      "status": "pending"
+    },
+    {
+      "extractor": "southpark.de",
+      "status": "pending"
+    },
+    {
+      "extractor": "southpark.lat",
+      "status": "pending"
+    },
+    {
+      "extractor": "southparkstudios.co.uk",
+      "status": "pending"
+    },
+    {
+      "extractor": "southparkstudios.com.br",
+      "status": "pending"
+    },
+    {
+      "extractor": "southparkstudios.nu",
+      "status": "pending"
+    },
+    {
+      "extractor": "SovietsCloset",
+      "status": "pending"
+    },
+    {
+      "extractor": "SovietsClosetPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "SpankBang",
+      "status": "pending"
+    },
+    {
+      "extractor": "SpankBangPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Spiegel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Sport5",
+      "status": "pending"
+    },
+    {
+      "extractor": "SportBox",
+      "status": "pending"
+    },
+    {
+      "extractor": "sporteurope",
+      "status": "pending"
+    },
+    {
+      "extractor": "Spreaker",
+      "status": "pending"
+    },
+    {
+      "extractor": "SpreakerShow",
+      "status": "pending"
+    },
+    {
+      "extractor": "SproutVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "sr:mediathek",
+      "status": "pending"
+    },
+    {
+      "extractor": "SRGSSR",
+      "status": "pending"
+    },
+    {
+      "extractor": "SRGSSRPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "StacommuLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "StacommuVOD",
+      "status": "pending"
+    },
+    {
+      "extractor": "StagePlusVODConcert",
+      "status": "pending"
+    },
+    {
+      "extractor": "startrek",
+      "status": "pending"
+    },
+    {
+      "extractor": "startv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Steam",
+      "status": "pending"
+    },
+    {
+      "extractor": "SteamCommunity",
+      "status": "pending"
+    },
+    {
+      "extractor": "SteamCommunityBroadcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "StoryFire",
+      "status": "pending"
+    },
+    {
+      "extractor": "StoryFireSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "StoryFireUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "Streaks",
+      "status": "pending"
+    },
+    {
+      "extractor": "Streamable",
+      "status": "partial",
+      "rust_adapter": "Streamable"
+    },
+    {
+      "extractor": "StreamCZ",
+      "status": "pending"
+    },
+    {
+      "extractor": "StreetVoice",
+      "status": "pending"
+    },
+    {
+      "extractor": "Stripchat",
+      "status": "pending"
+    },
+    {
+      "extractor": "stv:player",
+      "status": "pending"
+    },
+    {
+      "extractor": "stvr",
+      "status": "pending"
+    },
+    {
+      "extractor": "Subsplash",
+      "status": "pending"
+    },
+    {
+      "extractor": "subsplash:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Substack",
+      "status": "pending"
+    },
+    {
+      "extractor": "SunPorno",
+      "status": "pending"
+    },
+    {
+      "extractor": "sverigesradio:episode",
+      "status": "pending"
+    },
+    {
+      "extractor": "sverigesradio:publication",
+      "status": "pending"
+    },
+    {
+      "extractor": "svt:page",
+      "status": "pending"
+    },
+    {
+      "extractor": "svt:play",
+      "status": "pending"
+    },
+    {
+      "extractor": "svt:​play:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "Syfy",
+      "status": "pending"
+    },
+    {
+      "extractor": "SztvHu",
+      "status": "pending"
+    },
+    {
+      "extractor": "t-online.de",
+      "status": "pending"
+    },
+    {
+      "extractor": "Tagesschau",
+      "status": "pending"
+    },
+    {
+      "extractor": "TapTapApp",
+      "status": "pending"
+    },
+    {
+      "extractor": "TapTapAppIntl",
+      "status": "pending"
+    },
+    {
+      "extractor": "TapTapMoment",
+      "status": "pending"
+    },
+    {
+      "extractor": "TapTapPostIntl",
+      "status": "pending"
+    },
+    {
+      "extractor": "tarangplus:episodes",
+      "status": "pending"
+    },
+    {
+      "extractor": "tarangplus:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "tarangplus:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "Tass",
+      "status": "pending"
+    },
+    {
+      "extractor": "TBS",
+      "status": "pending"
+    },
+    {
+      "extractor": "TBSJPEpisode",
+      "status": "pending"
+    },
+    {
+      "extractor": "TBSJPPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "TBSJPProgram",
+      "status": "pending"
+    },
+    {
+      "extractor": "Teachable",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeachableCourse",
+      "status": "pending"
+    },
+    {
+      "extractor": "teachertube",
+      "status": "pending"
+    },
+    {
+      "extractor": "teachertube:​user:collection",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeachingChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "Teamcoco",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeamTreeHouse",
+      "status": "pending"
+    },
+    {
+      "extractor": "techtv.mit.edu",
+      "status": "pending"
+    },
+    {
+      "extractor": "TedEmbed",
+      "status": "partial",
+      "rust_adapter": "TED"
+    },
+    {
+      "extractor": "TedPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "TedSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "TedTalk",
+      "status": "partial",
+      "rust_adapter": "TED"
+    },
+    {
+      "extractor": "Tele13",
+      "status": "pending"
+    },
+    {
+      "extractor": "Tele5",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeleBruxelles",
+      "status": "pending"
+    },
+    {
+      "extractor": "TelecaribePlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "Telecinco",
+      "status": "pending"
+    },
+    {
+      "extractor": "Telegraaf",
+      "status": "pending"
+    },
+    {
+      "extractor": "telegram:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeleMB",
+      "status": "pending"
+    },
+    {
+      "extractor": "Telemundo",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeleQuebec",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeleQuebecEmission",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeleQuebecLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeleQuebecSquat",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeleQuebecVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "TeleTask",
+      "status": "pending"
+    },
+    {
+      "extractor": "Telewebion",
+      "status": "pending"
+    },
+    {
+      "extractor": "TennisTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "TF1",
+      "status": "pending"
+    },
+    {
+      "extractor": "TFO",
+      "status": "pending"
+    },
+    {
+      "extractor": "theatercomplextown:ppv",
+      "status": "pending"
+    },
+    {
+      "extractor": "theatercomplextown:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheChosen",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheChosenGroup",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheGuardianPodcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheGuardianPodcastPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheHighWire",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheIntercept",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThePlatform",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThePlatformFeed",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheStar",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheSun",
+      "status": "pending"
+    },
+    {
+      "extractor": "TheWeatherChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThisAmericanLife",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThisOldHouse",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThisVid",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThisVidMember",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThisVidPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThreeSpeak",
+      "status": "pending"
+    },
+    {
+      "extractor": "ThreeSpeakUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "TikTok",
+      "status": "partial",
+      "rust_adapter": "TikTok"
+    },
+    {
+      "extractor": "tiktok:collection",
+      "status": "pending"
+    },
+    {
+      "extractor": "tiktok:effect",
+      "status": "pending"
+    },
+    {
+      "extractor": "tiktok:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "tiktok:sound",
+      "status": "pending"
+    },
+    {
+      "extractor": "tiktok:tag",
+      "status": "pending"
+    },
+    {
+      "extractor": "tiktok:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "TLC",
+      "status": "pending"
+    },
+    {
+      "extractor": "TMZ",
+      "status": "pending"
+    },
+    {
+      "extractor": "TNAFlix",
+      "status": "pending"
+    },
+    {
+      "extractor": "TNAFlixNetworkEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "toggle",
+      "status": "pending"
+    },
+    {
+      "extractor": "toggo",
+      "status": "pending"
+    },
+    {
+      "extractor": "tokfm:audition",
+      "status": "pending"
+    },
+    {
+      "extractor": "tokfm:podcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "ToonGoggles",
+      "status": "pending"
+    },
+    {
+      "extractor": "tou.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "toutiao",
+      "status": "pending"
+    },
+    {
+      "extractor": "Toypics",
+      "status": "pending"
+    },
+    {
+      "extractor": "ToypicsUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "TravelChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "TrtCocukVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "TrtWorld",
+      "status": "pending"
+    },
+    {
+      "extractor": "TrueID",
+      "status": "pending"
+    },
+    {
+      "extractor": "TruNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "Truth",
+      "status": "pending"
+    },
+    {
+      "extractor": "ttinglive",
+      "status": "pending"
+    },
+    {
+      "extractor": "Tube8",
+      "status": "pending"
+    },
+    {
+      "extractor": "TubeTuGraz",
+      "status": "pending"
+    },
+    {
+      "extractor": "TubeTuGrazSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "tubitv",
+      "status": "pending"
+    },
+    {
+      "extractor": "tubitv:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "Tumblr",
+      "status": "partial",
+      "rust_adapter": "Tumblr"
+    },
+    {
+      "extractor": "tunein:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "tunein:podcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "tunein:​podcast:program",
+      "status": "pending"
+    },
+    {
+      "extractor": "tunein:station",
+      "status": "pending"
+    },
+    {
+      "extractor": "tv.dfb.de",
+      "status": "pending"
+    },
+    {
+      "extractor": "TV2",
+      "status": "pending"
+    },
+    {
+      "extractor": "TV2Article",
+      "status": "pending"
+    },
+    {
+      "extractor": "TV2DK",
+      "status": "pending"
+    },
+    {
+      "extractor": "TV2DKBornholmPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "tv2play.hu",
+      "status": "pending"
+    },
+    {
+      "extractor": "tv2playseries.hu",
+      "status": "pending"
+    },
+    {
+      "extractor": "TV4",
+      "status": "pending"
+    },
+    {
+      "extractor": "TV5MONDE",
+      "status": "pending"
+    },
+    {
+      "extractor": "tv5unis",
+      "status": "pending"
+    },
+    {
+      "extractor": "tv5unis:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "tv8.it",
+      "status": "pending"
+    },
+    {
+      "extractor": "tv8.it:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "tv8.it:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVANouvelles",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVANouvellesArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvaplus",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVC",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVCArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVer",
+      "status": "pending"
+    },
+    {
+      "extractor": "tver:olympic",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvigle",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVIPlayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVN24",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvnoe",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVO",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvopengr:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvopengr:watch",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvp",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvp:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvp:stream",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvp:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvp:​vod:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "TVPlayHome",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvw",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvw:news",
+      "status": "pending"
+    },
+    {
+      "extractor": "tvw:tvchannels",
+      "status": "pending"
+    },
+    {
+      "extractor": "Tweakers",
+      "status": "pending"
+    },
+    {
+      "extractor": "TwitCasting",
+      "status": "pending"
+    },
+    {
+      "extractor": "TwitCastingLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "TwitCastingUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitch:clips",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitch:collection",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitch:stream",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitch:videos",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitch:​videos:clips",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitch:​videos:collections",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitch:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitter",
+      "status": "partial",
+      "rust_adapter": "X"
+    },
+    {
+      "extractor": "twitter:amplify",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitter:broadcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitter:card",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitter:shortener",
+      "status": "pending"
+    },
+    {
+      "extractor": "twitter:spaces",
+      "status": "pending"
+    },
+    {
+      "extractor": "Txxx",
+      "status": "pending"
+    },
+    {
+      "extractor": "udemy",
+      "status": "pending"
+    },
+    {
+      "extractor": "udemy:course",
+      "status": "pending"
+    },
+    {
+      "extractor": "UDNEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "UFCTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "ukcolumn",
+      "status": "pending"
+    },
+    {
+      "extractor": "UlizaPlayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "UlizaPortal",
+      "status": "pending"
+    },
+    {
+      "extractor": "umg:de",
+      "status": "pending"
+    },
+    {
+      "extractor": "Unistra",
+      "status": "pending"
+    },
+    {
+      "extractor": "UnitedNationsWebTv",
+      "status": "pending"
+    },
+    {
+      "extractor": "Unity",
+      "status": "pending"
+    },
+    {
+      "extractor": "uol.com.br",
+      "status": "pending"
+    },
+    {
+      "extractor": "uplynk",
+      "status": "pending"
+    },
+    {
+      "extractor": "uplynk:preplay",
+      "status": "pending"
+    },
+    {
+      "extractor": "Urort",
+      "status": "pending"
+    },
+    {
+      "extractor": "URPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "USANetwork",
+      "status": "pending"
+    },
+    {
+      "extractor": "USAToday",
+      "status": "pending"
+    },
+    {
+      "extractor": "ustream",
+      "status": "pending"
+    },
+    {
+      "extractor": "ustream:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "ustudio",
+      "status": "pending"
+    },
+    {
+      "extractor": "ustudio:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "Varzesh3",
+      "status": "pending"
+    },
+    {
+      "extractor": "Vbox7",
+      "status": "pending"
+    },
+    {
+      "extractor": "Veo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Vevo",
+      "status": "pending"
+    },
+    {
+      "extractor": "VevoPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "VGTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "vh1.com",
+      "status": "pending"
+    },
+    {
+      "extractor": "vhx:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "vice",
+      "status": "pending"
+    },
+    {
+      "extractor": "vice:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "vice:show",
+      "status": "pending"
+    },
+    {
+      "extractor": "Viddler",
+      "status": "pending"
+    },
+    {
+      "extractor": "Videa",
+      "status": "pending"
+    },
+    {
+      "extractor": "video.arnes.si",
+      "status": "pending"
+    },
+    {
+      "extractor": "video.google:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "video.sky.it",
+      "status": "pending"
+    },
+    {
+      "extractor": "video.sky.it:live",
+      "status": "pending"
+    },
+    {
+      "extractor": "VideoKenPlayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "VideoPress",
+      "status": "pending"
+    },
+    {
+      "extractor": "Vidflex",
+      "status": "pending"
+    },
+    {
+      "extractor": "Vidio",
+      "status": "pending"
+    },
+    {
+      "extractor": "VidioLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "VidioPremier",
+      "status": "pending"
+    },
+    {
+      "extractor": "VidLii",
+      "status": "pending"
+    },
+    {
+      "extractor": "Vidly",
+      "status": "pending"
+    },
+    {
+      "extractor": "vids.io",
+      "status": "pending"
+    },
+    {
+      "extractor": "Vidyard",
+      "status": "pending"
+    },
+    {
+      "extractor": "viewlift",
+      "status": "pending"
+    },
+    {
+      "extractor": "viewlift:embed",
+      "status": "pending"
+    },
+    {
+      "extractor": "Viidea",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo",
+      "status": "partial",
+      "rust_adapter": "Vimeo"
+    },
+    {
+      "extractor": "vimeo:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:event",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:group",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:likes",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:ondemand",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:pro",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:review",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "vimeo:watchlater",
+      "status": "pending"
+    },
+    {
+      "extractor": "ViMP",
+      "status": "pending"
+    },
+    {
+      "extractor": "ViMP:Playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Viously",
+      "status": "pending"
+    },
+    {
+      "extractor": "Viqeo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Visir",
+      "status": "pending"
+    },
+    {
+      "extractor": "Viu",
+      "status": "pending"
+    },
+    {
+      "extractor": "viu:ott",
+      "status": "pending"
+    },
+    {
+      "extractor": "viu:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "ViuOTTIndonesia",
+      "status": "pending"
+    },
+    {
+      "extractor": "vk",
+      "status": "pending"
+    },
+    {
+      "extractor": "vk:uservideos",
+      "status": "pending"
+    },
+    {
+      "extractor": "vk:wallpost",
+      "status": "pending"
+    },
+    {
+      "extractor": "VKPlay",
+      "status": "pending"
+    },
+    {
+      "extractor": "VKPlayLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "vm.tiktok",
+      "status": "pending"
+    },
+    {
+      "extractor": "Vocaroo",
+      "status": "pending"
+    },
+    {
+      "extractor": "VODPlatform",
+      "status": "pending"
+    },
+    {
+      "extractor": "voicy",
+      "status": "pending"
+    },
+    {
+      "extractor": "voicy:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "volejtv:category",
+      "status": "pending"
+    },
+    {
+      "extractor": "volejtv:club",
+      "status": "pending"
+    },
+    {
+      "extractor": "volejtv:match",
+      "status": "pending"
+    },
+    {
+      "extractor": "VoxMedia",
+      "status": "pending"
+    },
+    {
+      "extractor": "VoxMediaVolume",
+      "status": "pending"
+    },
+    {
+      "extractor": "vpro",
+      "status": "pending"
+    },
+    {
+      "extractor": "vqq:series",
+      "status": "pending"
+    },
+    {
+      "extractor": "vqq:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "vrsquare",
+      "status": "pending"
+    },
+    {
+      "extractor": "vrsquare:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "vrsquare:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "vrsquare:section",
+      "status": "pending"
+    },
+    {
+      "extractor": "VRT",
+      "status": "pending"
+    },
+    {
+      "extractor": "vrtmax",
+      "status": "pending"
+    },
+    {
+      "extractor": "VTM",
+      "status": "pending"
+    },
+    {
+      "extractor": "VTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "VTVGo",
+      "status": "pending"
+    },
+    {
+      "extractor": "VTXTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "VTXTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "VTXTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "Walla",
+      "status": "pending"
+    },
+    {
+      "extractor": "WalyTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "WalyTVLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "WalyTVRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "washingtonpost",
+      "status": "pending"
+    },
+    {
+      "extractor": "washingtonpost:article",
+      "status": "pending"
+    },
+    {
+      "extractor": "wat.tv",
+      "status": "pending"
+    },
+    {
+      "extractor": "WatchESPN",
+      "status": "pending"
+    },
+    {
+      "extractor": "WDR",
+      "status": "pending"
+    },
+    {
+      "extractor": "WDRElefant",
+      "status": "pending"
+    },
+    {
+      "extractor": "WDRPage",
+      "status": "pending"
+    },
+    {
+      "extractor": "web.archive:youtube",
+      "status": "pending"
+    },
+    {
+      "extractor": "Webcamerapl",
+      "status": "pending"
+    },
+    {
+      "extractor": "Webcaster",
+      "status": "pending"
+    },
+    {
+      "extractor": "WebcasterFeed",
+      "status": "pending"
+    },
+    {
+      "extractor": "WebOfStories",
+      "status": "pending"
+    },
+    {
+      "extractor": "WebOfStoriesPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "Weibo",
+      "status": "partial",
+      "rust_adapter": "Weibo"
+    },
+    {
+      "extractor": "WeiboUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "WeiboVideo",
+      "status": "partial",
+      "rust_adapter": "Weibo"
+    },
+    {
+      "extractor": "WeiqiTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "wetv:episode",
+      "status": "pending"
+    },
+    {
+      "extractor": "WeTvSeries",
+      "status": "pending"
+    },
+    {
+      "extractor": "Weverse",
+      "status": "pending"
+    },
+    {
+      "extractor": "WeverseLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "WeverseLiveTab",
+      "status": "pending"
+    },
+    {
+      "extractor": "WeverseMedia",
+      "status": "pending"
+    },
+    {
+      "extractor": "WeverseMediaTab",
+      "status": "pending"
+    },
+    {
+      "extractor": "WeverseMoment",
+      "status": "pending"
+    },
+    {
+      "extractor": "WeVidi",
+      "status": "pending"
+    },
+    {
+      "extractor": "whowatch",
+      "status": "pending"
+    },
+    {
+      "extractor": "Whyp",
+      "status": "pending"
+    },
+    {
+      "extractor": "wikimedia.org",
+      "status": "partial",
+      "rust_adapter": "WikimediaCommons"
+    },
+    {
+      "extractor": "Wimbledon",
+      "status": "pending"
+    },
+    {
+      "extractor": "WimTV",
+      "status": "pending"
+    },
+    {
+      "extractor": "WinSportsVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "Wistia",
+      "status": "pending"
+    },
+    {
+      "extractor": "WistiaChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "WistiaPlaylist",
+      "status": "pending"
+    },
+    {
+      "extractor": "wnl",
+      "status": "pending"
+    },
+    {
+      "extractor": "wordpress:mb.miniAudioPlayer",
+      "status": "pending"
+    },
+    {
+      "extractor": "wordpress:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "WorldStarHipHop",
+      "status": "pending"
+    },
+    {
+      "extractor": "wppilot",
+      "status": "pending"
+    },
+    {
+      "extractor": "wppilot:channels",
+      "status": "pending"
+    },
+    {
+      "extractor": "wrestleuniverse:ppv",
+      "status": "pending"
+    },
+    {
+      "extractor": "wrestleuniverse:vod",
+      "status": "pending"
+    },
+    {
+      "extractor": "WSJ",
+      "status": "pending"
+    },
+    {
+      "extractor": "WSJArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "WWE",
+      "status": "pending"
+    },
+    {
+      "extractor": "wyborcza:video",
+      "status": "pending"
+    },
+    {
+      "extractor": "WyborczaPodcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "wykop:dig",
+      "status": "pending"
+    },
+    {
+      "extractor": "wykop:​dig:comment",
+      "status": "pending"
+    },
+    {
+      "extractor": "wykop:post",
+      "status": "pending"
+    },
+    {
+      "extractor": "wykop:​post:comment",
+      "status": "pending"
+    },
+    {
+      "extractor": "XboxClips",
+      "status": "pending"
+    },
+    {
+      "extractor": "XHamster",
+      "status": "pending"
+    },
+    {
+      "extractor": "XHamsterEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "XHamsterUser",
+      "status": "pending"
+    },
+    {
+      "extractor": "XiaoHongShu",
+      "status": "partial",
+      "rust_adapter": "Xiaohongshu"
+    },
+    {
+      "extractor": "ximalaya",
+      "status": "pending"
+    },
+    {
+      "extractor": "ximalaya:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "Xinpianchang",
+      "status": "pending"
+    },
+    {
+      "extractor": "XMinus",
+      "status": "pending"
+    },
+    {
+      "extractor": "XNXX",
+      "status": "pending"
+    },
+    {
+      "extractor": "XVideos",
+      "status": "pending"
+    },
+    {
+      "extractor": "xvideos:quickies",
+      "status": "pending"
+    },
+    {
+      "extractor": "XXXYMovies",
+      "status": "pending"
+    },
+    {
+      "extractor": "yahoo",
+      "status": "pending"
+    },
+    {
+      "extractor": "yahoo:japannews",
+      "status": "pending"
+    },
+    {
+      "extractor": "yahoo:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "YandexDisk",
+      "status": "pending"
+    },
+    {
+      "extractor": "yandexmusic:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "yandexmusic:​artist:albums",
+      "status": "pending"
+    },
+    {
+      "extractor": "yandexmusic:​artist:tracks",
+      "status": "pending"
+    },
+    {
+      "extractor": "yandexmusic:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "yandexmusic:track",
+      "status": "pending"
+    },
+    {
+      "extractor": "YandexVideo",
+      "status": "pending"
+    },
+    {
+      "extractor": "YandexVideoPreview",
+      "status": "pending"
+    },
+    {
+      "extractor": "YapFiles",
+      "status": "pending"
+    },
+    {
+      "extractor": "Yappy",
+      "status": "pending"
+    },
+    {
+      "extractor": "YappyProfile",
+      "status": "pending"
+    },
+    {
+      "extractor": "yfanefa",
+      "status": "pending"
+    },
+    {
+      "extractor": "YleAreena",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouJizz",
+      "status": "pending"
+    },
+    {
+      "extractor": "youku",
+      "status": "pending"
+    },
+    {
+      "extractor": "youku:show",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouNowChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouNowLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouNowMoment",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouPorn",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouPornCategory",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouPornChannel",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouPornCollection",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouPornStar",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouPornTag",
+      "status": "pending"
+    },
+    {
+      "extractor": "YouPornVideos",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube",
+      "status": "partial",
+      "rust_adapter": "YouTube"
+    },
+    {
+      "extractor": "youtube:clip",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:favorites",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:history",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:​music:search_url",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:notif",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:playlist",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:recommended",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:search",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:search_url",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:​shorts:pivot:audio",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:subscriptions",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:tab",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "youtube:watchlater",
+      "status": "pending"
+    },
+    {
+      "extractor": "YoutubeLivestreamEmbed",
+      "status": "pending"
+    },
+    {
+      "extractor": "YoutubeYtBe",
+      "status": "partial",
+      "rust_adapter": "YouTube"
+    },
+    {
+      "extractor": "Zaiko",
+      "status": "pending"
+    },
+    {
+      "extractor": "ZaikoETicket",
+      "status": "pending"
+    },
+    {
+      "extractor": "zan",
+      "status": "pending"
+    },
+    {
+      "extractor": "Zapiks",
+      "status": "pending"
+    },
+    {
+      "extractor": "Zattoo",
+      "status": "pending"
+    },
+    {
+      "extractor": "ZattooLive",
+      "status": "pending"
+    },
+    {
+      "extractor": "ZattooMovies",
+      "status": "pending"
+    },
+    {
+      "extractor": "ZattooRecordings",
+      "status": "pending"
+    },
+    {
+      "extractor": "zdf",
+      "status": "pending"
+    },
+    {
+      "extractor": "zdf:channel",
+      "status": "pending"
+    },
+    {
+      "extractor": "ZeeNews",
+      "status": "pending"
+    },
+    {
+      "extractor": "ZenPorn",
+      "status": "pending"
+    },
+    {
+      "extractor": "ZetlandDKArticle",
+      "status": "pending"
+    },
+    {
+      "extractor": "Zhihu",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:album",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:chart-home",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:chart-music-video",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:hub",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:liveradio",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:podcast",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:podcast-episode",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:user",
+      "status": "pending"
+    },
+    {
+      "extractor": "zingmp3:week-chart",
+      "status": "pending"
+    },
+    {
+      "extractor": "zoom",
+      "status": "pending"
+    },
+    {
+      "extractor": "zoom:clips",
+      "status": "pending"
+    },
+    {
+      "extractor": "Zype",
+      "status": "pending"
+    },
+    {
+      "extractor": "generic",
+      "status": "partial",
+      "rust_adapter": "Generic"
+    }
+  ]
+}

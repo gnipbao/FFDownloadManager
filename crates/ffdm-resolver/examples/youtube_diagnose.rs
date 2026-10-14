@@ -77,7 +77,7 @@ async fn main() -> anyhow::Result<()> {
     let result = ytdown::extractor::youtube::YoutubeExtractor::new()
         .extract(&ctx, &source)
         .await
-        .map_err(|e| anyhow::anyhow!(ffdownload::media::safe_error(&e.to_string())))?;
+        .map_err(|e| anyhow::anyhow!(ffdm_resolver::utils::safe_error(&e.to_string())))?;
     let ytdown::MediaInfo::Single(info) = result else {
         anyhow::bail!("not a single video");
     };
@@ -102,7 +102,7 @@ async fn main() -> anyhow::Result<()> {
             .header("Range", format!("bytes={tail}-{tail}"))
             .send()
             .await
-            .map_err(|e| anyhow::anyhow!(ffdownload::media::safe_error(&e.to_string())))?;
+            .map_err(|e| anyhow::anyhow!(ffdm_resolver::utils::safe_error(&e.to_string())))?;
         println!(
             "{}",
             serde_json::json!({"itag":format.itag,"client":client,"size":format.filesize,"head":head,"tail":response.status().as_u16(),"content_range":response.headers().get("content-range").and_then(|s|s.to_str().ok())})

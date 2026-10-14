@@ -165,6 +165,7 @@ async fn prepare_resume(
     storage: &dyn gosh_dl::Storage,
     id: DownloadId,
     paths: &Paths,
+    source_max_connections: Option<usize>,
 ) -> Result<()> {
     let mut status = storage
         .load_download(id)
@@ -172,6 +173,36 @@ async fn prepare_resume(
         .context("saved task was not restored by the engine")?;
     if status.state == DownloadState::Completed {
         return Ok(());
+    }
+    if let Some(max_connections) = source_max_connections {
+        if let Some(json) = storage.load_runtime_metadata(id).await? {
+            // gosh-dl 0.6.3 restores DownloadOptions from this sidecar and
+            // prioritizes its connection count over EngineConfig. Update that
+            // count too, preserving the rest of its persisted runtime data.
+            let mut runtime: serde_json::Value =
+                serde_json::from_str(&json).context("saved engine runtime metadata is invalid")?;
+            if let Some(options) = runtime
+                .get_mut("options")
+                .and_then(|value| value.as_object_mut())
+            {
+                let previous = options
+                    .get("max_connections")
+                    .and_then(|value| value.as_u64());
+                let effective = previous.map_or(max_connections as u64, |count| {
+                    count.min(max_connections as u64)
+                });
+                options.insert("max_connections".into(), effective.into());
+                storage
+                    .save_runtime_metadata(id, &serde_json::to_string(&runtime)?)
+                    .await?;
+            }
+        }
+    }
+    // Older checkpoints stored a custom UA in the generic header list. The
+    // engine also sends its default UA, so migrate this header into its explicit
+    // metadata slot before resuming without changing validators or ranges.
+    if let Some(user_agent) = take_user_agent(&mut status.metadata.headers)? {
+        status.metadata.user_agent = Some(user_agent);
     }
     let segments = storage.load_segments(id).await?;
     let engine_part = paths.part.with_extension("part.part");
@@ -298,33 +329,18 @@ pub async fn download_with_control(
 }
 
 pub fn validate_headers(headers: &[(String, String)]) -> Result<()> {
-    ensure!(
-        headers.len() <= 48
-            && headers
-                .iter()
-                .map(|(k, v)| k.len() + v.len())
-                .sum::<usize>()
-                <= 16 * 1024,
-        "媒体请求头过大"
-    );
-    for (name, value) in headers {
-        reqwest::header::HeaderName::from_bytes(name.as_bytes()).context("无效的媒体请求头名称")?;
-        reqwest::header::HeaderValue::from_str(value).context("无效的媒体请求头内容")?;
-        ensure!(
-            !matches!(
-                name.to_ascii_lowercase().as_str(),
-                "host"
-                    | "range"
-                    | "if-range"
-                    | "content-length"
-                    | "transfer-encoding"
-                    | "connection"
-                    | "proxy-authorization"
-            ),
-            "媒体请求头不能覆盖传输控制字段"
-        );
-    }
-    Ok(())
+    ffdm_resolver::validation::validate_headers(headers)
+}
+
+fn take_user_agent(headers: &mut Vec<(String, String)>) -> Result<Option<String>> {
+    let values: Vec<_> = headers
+        .iter()
+        .filter(|(name, _)| name.eq_ignore_ascii_case("user-agent"))
+        .map(|(_, value)| value.clone())
+        .collect();
+    ensure!(values.len() <= 1, "媒体请求不能包含多个 User-Agent");
+    headers.retain(|(name, _)| !name.eq_ignore_ascii_case("user-agent"));
+    Ok(values.into_iter().next())
 }
 
 /// Platform headers belong to the media request, not the page or UI transport.
@@ -361,6 +377,7 @@ async fn download_inner(
     authorization: Option<&FileAuthorization>,
 ) -> Result<DownloadReport> {
     validate_headers(&headers)?;
+    let mut user_agent = take_user_agent(&mut headers)?;
     headers.retain(|(name, _)| !name.eq_ignore_ascii_case("accept-encoding"));
     headers.push(("Accept-Encoding".into(), "identity".into()));
     let started = Instant::now();
@@ -433,9 +450,28 @@ async fn download_inner(
             }
         }
     }
-    let connections = saved
+    let source_limits = ffdm_resolver::source_policy::limits(&url);
+    if source_limits.is_some() && user_agent.is_none() {
+        user_agent = Some(ffdm_resolver::source_policy::USER_AGENT.into());
+    }
+    let requested_connections = saved
         .as_ref()
         .map_or(request.connections, |j| j.connections);
+    let connections = source_limits.map_or(requested_connections, |policy| {
+        requested_connections.min(policy.max_connections)
+    });
+    if let Some(job) = &mut saved {
+        if job.connections != connections {
+            // Adopt a source's current limits without changing its identity,
+            // validators or already completed ranges in the engine database.
+            job.connections = connections;
+            save_job(&paths.job, job, true)?;
+        }
+    }
+    let mut preflight_headers = headers.clone();
+    if let Some(agent) = &user_agent {
+        preflight_headers.push(("User-Agent".into(), agent.clone()));
+    }
     let expected_hash = saved
         .as_ref()
         .and_then(|j| j.expected_sha256.clone())
@@ -444,6 +480,7 @@ async fn download_inner(
         download_dir: paths.parent.clone(),
         max_concurrent_downloads: 1,
         max_connections_per_download: connections,
+        global_download_limit: source_limits.map(|policy| policy.bytes_per_second),
         min_segment_size: 1024 * 1024,
         database_path: Some(paths.state.join("engine.sqlite")),
         http: HttpConfig {
@@ -469,7 +506,13 @@ async fn download_inner(
             auth.clone(),
         ));
         if let Some(job) = &saved {
-            prepare_resume(storage.as_ref(), job.id, &paths).await?;
+            prepare_resume(
+                storage.as_ref(),
+                job.id,
+                &paths,
+                source_limits.map(|policy| policy.max_connections),
+            )
+            .await?;
         }
         DownloadEngine::with_storage(config, storage).await?
     } else if let Some(job) = &saved {
@@ -479,7 +522,13 @@ async fn download_inner(
         // keep its ID, headers, validators and range checkpoints intact.
         let database = config.database_path.take().unwrap();
         let storage = std::sync::Arc::new(gosh_dl::SqliteStorage::new(database).await?);
-        prepare_resume(storage.as_ref(), job.id, &paths).await?;
+        prepare_resume(
+            storage.as_ref(),
+            job.id,
+            &paths,
+            source_limits.map(|policy| policy.max_connections),
+        )
+        .await?;
         DownloadEngine::with_storage(config, storage).await?
     } else {
         DownloadEngine::new(config).await?
@@ -500,6 +549,7 @@ async fn download_inner(
                     .into_owned(),
             ),
             max_connections: Some(connections),
+            user_agent,
             headers,
             ..Default::default()
         };
@@ -531,12 +581,37 @@ async fn download_inner(
     };
     let starting_progress = engine.status(id).map_or(0, |s| s.progress.completed_size);
     let transfer_started = Instant::now();
+    // Keep the permit until shutdown has joined the workers, including on
+    // pause/failure. Releasing it on a terminal event alone can exceed the
+    // source's concurrency budget while the old workers are still exiting.
+    let mut source_permit = None;
+    let mut engine_resumed = false;
     let outcome: Result<bool> = async {
         let status = engine.status(id).context("saved task was not restored by the engine")?;
         if status.state == DownloadState::Completed { return Ok(true); }
-        engine.resume(id).await?;
+        if control.as_ref().is_some_and(|control| *control.pause.borrow()) {
+            return Ok(false);
+        }
         let pause_deadline = tokio::time::Instant::now() + request.pause_after.unwrap_or(Duration::from_secs(365 * 86400));
         let timeout_deadline = tokio::time::Instant::now() + request.timeout;
+        source_permit = tokio::select! {
+            result = ffdm_resolver::source_policy::acquire(&url) => result?,
+            _ = pause_requested(&mut control) => return Ok(false),
+            _ = tokio::time::sleep_until(pause_deadline), if request.pause_after.is_some() => return Ok(false),
+            _ = tokio::time::sleep_until(timeout_deadline) => bail!("download timed out while waiting for the source; saved session retained"),
+            signal = tokio::signal::ctrl_c(), if request.interactive => { signal?; return Ok(false); },
+        };
+        if source_limits.is_some() && authorization.is_none() {
+            tokio::select! {
+                result = ffdm_resolver::source_policy::preflight(&url, &preflight_headers) => result?,
+                _ = pause_requested(&mut control) => return Ok(false),
+                _ = tokio::time::sleep_until(pause_deadline), if request.pause_after.is_some() => return Ok(false),
+                _ = tokio::time::sleep_until(timeout_deadline) => bail!("download timed out during source check; saved session retained"),
+                signal = tokio::signal::ctrl_c(), if request.interactive => { signal?; return Ok(false); },
+            }
+        }
+        engine.resume(id).await?;
+        engine_resumed = true;
         let mut ticks = tokio::time::interval(Duration::from_millis(500));
         loop {
             tokio::select! {
@@ -583,6 +658,16 @@ async fn download_inner(
         eprintln!();
     }
     shutdown_result?;
+    // gosh-dl does not retain Retry-After from later requests. If a transfer
+    // races a new limit after preflight, impose the conservative fallback.
+    if engine_resumed
+        && outcome
+            .as_ref()
+            .is_err_and(|error| error.to_string().contains("429"))
+    {
+        let _ = ffdm_resolver::source_policy::record_retry_after(&url, None);
+    }
+    drop(source_permit);
     let complete = outcome?;
     let bytes = engine.status(id).map_or(0, |s| s.progress.completed_size);
     drop(events);

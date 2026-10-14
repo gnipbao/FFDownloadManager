@@ -95,6 +95,21 @@ fn default_connections() -> usize {
     4
 }
 
+fn source_connections(url: &str, media: Option<&MediaPlan>, requested: usize) -> usize {
+    let cap = |limit: usize, source: &str| {
+        ffdm_resolver::source_policy::limits(source)
+            .map_or(limit, |policy| limit.min(policy.max_connections))
+    };
+    media.map_or_else(
+        || cap(requested, url),
+        |plan| {
+            plan.streams
+                .iter()
+                .fold(requested, |limit, stream| cap(limit, &stream.url))
+        },
+    )
+}
+
 #[derive(Serialize)]
 pub struct Snapshot {
     pub tasks: Vec<Task>,
@@ -336,7 +351,7 @@ impl DownloadService {
         self.enqueue(
             url.into(),
             filename,
-            request.connections,
+            source_connections(&request.url, None, request.connections),
             expected_sha256,
             TaskSource::File(authorization),
             demo,
@@ -386,10 +401,11 @@ impl DownloadService {
             );
         }
         self.media.validate_download(&plan).await?;
+        let connections = source_connections(&plan.source_url, Some(&plan), request.connections);
         self.enqueue(
             plan.source_url.clone(),
             filename,
-            request.connections,
+            connections,
             hash,
             TaskSource::Media(Box::new(plan)),
             false,
@@ -668,6 +684,7 @@ impl DownloadService {
         );
         let previous = task.clone();
         let task = &mut inner.tasks[index];
+        task.connections = source_connections(&task.url, task.media.as_ref(), task.connections);
         task.authorization_required |= authorization.is_some();
         task.state = "queued".into();
         task.error = None;

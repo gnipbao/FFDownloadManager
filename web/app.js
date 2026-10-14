@@ -279,19 +279,20 @@ function suggestName() {
   }
   $('#form-error').hidden = true;
   $('#parse-video').disabled = false;
-  const audioLink = mediaSite === '汽水音乐';
-  $('#parse-video').textContent = audioLink ? '解析音频' : mediaSite === '音视频' ? '解析音视频' : '解析视频';
-  $('#media-panel').setAttribute('aria-label', audioLink ? '音频解析结果' : '视频解析结果');
-  $('#media-panel .media-eyebrow').textContent = audioLink ? '音频信息' : '视频信息';
+  const audioLink = isMusicPlatform(mediaSite);
+  const genericLink = mediaSite === '网页资源';
+  $('#parse-video').textContent = audioLink ? '解析音频' : genericLink ? '解析资源' : '解析视频';
+  $('#media-panel').setAttribute('aria-label', audioLink ? '音频解析结果' : genericLink ? '资源解析结果' : '视频解析结果');
+  $('#media-panel .media-eyebrow').textContent = audioLink ? '音频信息' : genericLink ? '资源信息' : '视频信息';
   updateSubmitButton();
   const field = $('#download-filename');
   if (!filenameEdited) field.value = '';
   field.placeholder = '粘贴链接后自动识别文件名和后缀';
   $('#filename-hint').textContent = '后缀会根据下载文件自动补全。';
   if (mediaSite) {
-    $('#media-source-label').textContent = mediaSite === '音视频' ? '音视频页面链接' : `${mediaSite} ${audioLink ? '音乐' : '视频'}链接`;
-    field.placeholder = audioLink ? '解析后自动填写歌曲名称' : '解析后自动填写视频名称';
-    $('#filename-hint').textContent = audioLink ? '自动读取网页播放音频并识别文件格式。' : '解析视频后选择清晰度和文件格式。';
+    $('#media-source-label').textContent = genericLink ? '网页媒体或文件资源链接' : `${mediaSite} ${audioLink ? '音频' : '视频'}链接`;
+    field.placeholder = audioLink ? '解析后自动填写音频名称' : genericLink ? '解析后自动填写资源名称' : '解析后自动填写视频名称';
+    $('#filename-hint').textContent = audioLink ? '自动读取网页播放音频并识别文件格式。' : genericLink ? '识别网页中的视频、音频或直接文件，再选择下载格式。' : '解析视频后选择清晰度和文件格式。';
     return;
   }
   const raw = videoUrl($('#download-url').value);
@@ -313,6 +314,7 @@ function videoPlatform(raw) {
     if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null;
     const host = url.hostname;
     const path = url.pathname;
+    if (path.toLowerCase().endsWith('.m3u8')) return 'HLS';
     const main = (...domains) => domains.some(domain => [domain, `www.${domain}`, `m.${domain}`].includes(host));
     const short = /^\/[a-zA-Z0-9_-]+\/?$/;
     if (url.protocol === 'https:' && url.hostname === 'music.douyin.com' && url.pathname === '/qishui/share/track') return '汽水音乐';
@@ -336,8 +338,122 @@ function videoPlatform(raw) {
       && /^\/(?:[^/]+\/status|i\/web\/status|i\/status)\/\d+(?:\/(?:video|photo)\/\d+)?\/?$/.test(path)) return 'X';
     if ((main('reddit.com') || ['old.reddit.com', 'new.reddit.com'].includes(host)) && /^\/(?:r\/[^/]+\/)?comments\/[\w-]+(?:\/|$)/.test(path)
       || ['redd.it', 'www.redd.it'].includes(host) && short.test(path)) return 'Reddit';
+    if (((main('kuaishou.com', 'chenzhongtech.com') || host === 'v.m.chenzhongtech.com') && /^\/(?:short-video|photo|video|fw\/photo)\/[\w-]+\/?$/.test(path))
+      || host === 'v.kuaishou.com' && short.test(path)) return '快手';
+    if (host === 'm.weibo.cn' && /^\/(?:status|detail)\/[\w-]+\/?$/.test(path)
+      || ['weibo.com', 'www.weibo.com'].includes(host) && (/^\/\d+\/[\w-]+\/?$/.test(path) || /^\/tv\/show\/\d+:[a-fA-F0-9]+\/?$/.test(path))
+      || host === 'video.weibo.com' && /^\/show\/?$/.test(path) && url.searchParams.getAll('fid').some(id => /^\d+:[a-fA-F0-9]+$/.test(id))) return '微博';
+    if (main('acfun.cn') && /^\/v\/ac\d+(?:_\d+)?\/?$/.test(path)) return 'AcFun';
+    if (['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'].includes(host) && /^\/(?:\d+(?:\/[a-fA-F0-9]{10})?|video\/\d+|channels\/[\w-]+\/\d+|groups\/[\w-]+\/videos\/\d+)\/?$/.test(path)) return 'Vimeo';
+    if (['dailymotion.com', 'www.dailymotion.com'].includes(host) && /^\/(?:video|embed\/video)\/[\w-]+\/?$/.test(path)
+      || host === 'dai.ly' && short.test(path)) return 'Dailymotion';
+    if (['streamable.com', 'www.streamable.com'].includes(host) && /^\/(?:[es]\/)?[\w-]+\/?$/.test(path)
+      || ['streamable.com', 'www.streamable.com'].includes(host) && /^\/s\/[\w-]+\/[\w-]+\/?$/.test(path)) return 'Streamable';
+    if (main('imgur.com') && /^\/(?:[^/]+-)?[a-zA-Z0-9]{5,10}(?:\.(?:gifv|mp4))?\/?$/.test(path)
+      || host === 'i.imgur.com' && /^\/[a-zA-Z0-9]{5,10}\.gifv$/.test(path)) return 'Imgur';
+    if (['cctv.com','cntv.cn','cntv.com'].some(domain => host === domain || host.endsWith(`.${domain}`)) && /\.(?:shtml|html)$/.test(path)) return '央视网';
+    if (main('ixigua.com') && /^\/(?:video\/)?\d+\/?$/.test(path)) return '西瓜视频';
+    if (['pearvideo.com','www.pearvideo.com'].includes(host) && /^\/video_\d+\/?$/.test(path)) return '梨视频';
+    if (['archive.org','www.archive.org'].includes(host) && /^\/(?:details|embed)\/[\w-]+(?:\/|$)/.test(path)) return 'Archive.org';
+    if (['ted.com','www.ted.com','embed.ted.com','embed-ssl.ted.com'].includes(host) && /^\/talks\/(?:lang\/[^/]+\/)?[\w-]+\/?$/.test(path)) return 'TED';
+    if (host === 'commons.wikimedia.org') {
+      const title = path.startsWith('/wiki/') ? decodeURIComponent(path.slice(6)) : path === '/w/index.php' ? url.searchParams.get('title') || '' : '';
+      if (/^File:.+\.(?:mp4|webm|ogv|ogg|oga|wav|flac|mp3|m4a|opus|mov|avi|mpeg|mpg)$/i.test(title)) return 'Wikimedia Commons';
+    }
+    if (['bsky.app','www.bsky.app','main.bsky.dev'].includes(host) && /^\/profile\/[^/]+\/post\/[\w-]+\/?$/.test(path)) return 'Bluesky';
+    if (['framatube.org','video.blender.org','peertube.tv','peertube2.cpy.re','tilvids.com','diode.zone','makertube.net','media.fsfe.org','peertube.debian.social'].includes(host)
+      && /^\/(?:w|videos\/(?:watch|embed))\/(?:[a-zA-Z0-9]{22}|[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12})\/?$/.test(path)) return 'PeerTube';
+    if (['medal.tv', 'www.medal.tv'].includes(host) && /^\/games\/[a-zA-Z0-9_-]{1,128}\/clips\/[a-zA-Z0-9_-]{1,128}\/?$/.test(path)) return 'Medal';
+    if (['9gag.com', 'www.9gag.com'].includes(host) && /^\/gag\/[a-zA-Z0-9_-]{1,128}\/?$/.test(path)) return '9GAG';
+    if (tumblrPost(url)) return 'Tumblr';
+    if (['mastodon.social','mastodon.online','mstdn.social','mas.to','fosstodon.org','infosec.exchange','tech.lgbt'].includes(host) && mastodonPost(url)) return 'Mastodon';
+    if (bandcampTrack(url)) return 'Bandcamp';
+    if (['soundcloud.com','www.soundcloud.com','m.soundcloud.com'].includes(host)
+      && /^\/[a-zA-Z0-9_-]{1,200}\/[a-zA-Z0-9_-]{1,200}\/?$/.test(path)
+      && !['search','discover','you','stations','settings'].includes(path.split('/')[1])
+      && !['tracks','sets','albums','reposts','likes','spotlight','comments'].includes(path.split('/')[2])
+      && !url.searchParams.has('secret_token') && !url.searchParams.has('oauth_token')) return 'SoundCloud';
+    if (sohuPage(url)) return '搜狐视频';
+    if (host === 'haokan.baidu.com' && /^\/v\/?$/.test(path) && url.searchParams.getAll('vid').some(id => /^\d{1,24}$/.test(id))) return '好看视频';
+    if (['clyp.it','www.clyp.it'].includes(host) && /^\/[a-z0-9]{8}\/?$/.test(path)) return 'Clyp';
+    if (['audioboom.com','www.audioboom.com'].includes(host) && /^\/(?:posts|boos)\/\d{1,20}(?:-[^/]*|\.mp3)?\/?$/.test(path)) return 'AudioBoom';
+    if (['audius.co','www.audius.co'].includes(host) && audiusTrack(url)) return 'Audius';
+    if (['huya.com','www.huya.com'].includes(host) && /^\/video\/play\/\d{1,24}\.html\/?$/.test(path)) return '虎牙点播';
+    if (['163.com','www.163.com','m.163.com'].includes(host) && /^\/v\/video\/V[a-zA-Z0-9]{1,31}\.html\/?$/.test(path)) return '网易新闻';
+    if (['rumble.com','www.rumble.com'].includes(host) && (/^\/v[a-z0-9]+(?:-[a-zA-Z0-9_.-]+)?\.html\/?$/.test(path)
+      || /^\/embed\/(?:[a-z0-9]+\.)?[a-z0-9]{1,24}\/?$/.test(path))) return 'Rumble';
+    if (['odysee.com','www.odysee.com','lbry.tv','www.lbry.tv'].includes(host) && odyseePage(url)) return 'Odysee';
+    if (['ok.ru','www.ok.ru','m.ok.ru','odnoklassniki.ru','www.odnoklassniki.ru'].includes(host)
+      && /^\/(?:video|videoembed|web-api\/video\/moviePlayer)\/\d+(?:-\d+)?\/?$/.test(path)
+      && path.replace(/\/$/, '').split('/').at(-1).length <= 40) return 'OK.ru';
     return null;
   } catch { return null; }
+}
+
+function mastodonPost(url) {
+  const path = decodeURIComponent(url.pathname);
+  return /^\/@[a-zA-Z0-9_.-]+(?:@[a-zA-Z0-9_.-]+)?\/\d{1,32}\/?$/.test(path)
+    || /^\/users\/[a-zA-Z0-9_.-]+(?:@[a-zA-Z0-9_.-]+)?\/statuses\/\d{1,32}\/?$/.test(path);
+}
+
+function tumblrPost(url) {
+  const parts = url.pathname.replace(/^\/+|\/+$/g, '').split('/');
+  let blog, id;
+  if (['tumblr.com','www.tumblr.com'].includes(url.hostname)) {
+    if (parts[0] === 'blog' && parts[1] === 'view') [, , blog, id] = parts;
+    else if (parts[0] === 'video') [, blog, id] = parts;
+    else [blog, id] = parts;
+  } else if (url.hostname.endsWith('.tumblr.com')) {
+    blog = url.hostname.slice(0, -11);
+    if (['media','assets','api','va','vtt','www'].includes(blog) || !['post','video'].includes(parts[0])) return false;
+    id = parts[1];
+  } else return false;
+  return /^[a-zA-Z0-9-]{1,63}$/.test(blog || '') && /^\d{1,32}$/.test(id || '');
+}
+
+function isMusicPlatform(site) {
+  return ['汽水音乐', 'Bandcamp', 'SoundCloud', 'Clyp', 'AudioBoom', 'Audius'].includes(site);
+}
+
+function audiusTrack(url) {
+  const parts = url.pathname.replace(/^\/|\/$/g, '').split('/');
+  if (parts.length !== 2 || !/^[a-zA-Z0-9_-]{1,100}$/.test(parts[0])) return false;
+  const slug = decodeURIComponent(parts[1]);
+  return slug.length > 0 && new TextEncoder().encode(slug).length <= 500
+    && !['album','playlist'].includes(slug) && !/[\x00-\x1f\x7f-\x9f/\\]/.test(slug);
+}
+
+function odyseePage(url) {
+  const parts = decodeURIComponent(url.pathname).replace(/^\/+|\/+$/g, '').split('/');
+  const valid = (raw, channel = false) => {
+    const match = raw.match(/^(.*?)(?::([a-fA-F0-9]{1,40}))?$/);
+    return !!match && match[1].length > 0 && new TextEncoder().encode(match[1]).length <= 300
+      && match[1].startsWith('@') === channel && !/[\x00-\x1f\x7f-\x9f/$:#?&]/.test(match[1]);
+  };
+  if (parts[0] === '$') return parts.length === 4 && ['embed','download'].includes(parts[1]) && valid(`${parts[2]}:${parts[3]}`);
+  if (parts[0].startsWith('@') && !valid(parts.shift(), true)) return false;
+  return parts.length === 1 && valid(parts[0]);
+}
+
+function bandcampTrack(url) {
+  const artist = url.hostname.endsWith('.bandcamp.com') ? url.hostname.slice(0, -13) : '';
+  if (!/^[a-zA-Z0-9-]{1,63}$/.test(artist) || ['www','daily','discover'].includes(artist)) return false;
+  const match = url.pathname.match(/^\/track\/([^/]{1,400})\/?$/);
+  if (!match) return false;
+  const slug = decodeURIComponent(match[1]);
+  return !slug.includes('/') && !/[\u0000-\u001f\u007f-\u009f]/.test(slug);
+}
+
+function sohuPage(url) {
+  if (!['tv.sohu.com','my.tv.sohu.com'].includes(url.hostname)) return false;
+  let path = url.pathname.slice(1), mytv = url.hostname === 'my.tv.sohu.com';
+  if (url.hostname === 'tv.sohu.com' && path.startsWith('v/')) {
+    const match = path.match(/^v\/([a-zA-Z0-9_=\-]{1,512})\.html$/);
+    if (!match) return false;
+    try { path = atob(match[1].replace(/-/g,'+').replace(/_/g,'/')); } catch { return false; }
+    mytv = path.startsWith('us/') || path.startsWith('pl/');
+  }
+  return mytv ? /^(?:us|pl)\/\d{1,24}\/\d{1,24}\.shtml$/.test(path) : /^\d{8}\/n\d{1,24}\.shtml$/.test(path);
 }
 
 function videoUrl(raw) {
@@ -368,10 +484,38 @@ function mediaPlatform(raw, mode) {
       Instagram: ['instagram.com', 'www.instagram.com', 'm.instagram.com'],
       X: ['x.com', 'www.x.com', 'm.x.com', 'mobile.x.com', 'twitter.com', 'www.twitter.com', 'm.twitter.com', 'mobile.twitter.com'],
       Reddit: ['reddit.com', 'www.reddit.com', 'm.reddit.com', 'old.reddit.com', 'new.reddit.com', 'redd.it', 'www.redd.it'],
+      快手: ['kuaishou.com', 'www.kuaishou.com', 'm.kuaishou.com', 'v.kuaishou.com', 'chenzhongtech.com', 'www.chenzhongtech.com', 'v.m.chenzhongtech.com'],
+      微博: ['weibo.com', 'www.weibo.com', 'm.weibo.cn', 'video.weibo.com'],
+      AcFun: ['acfun.cn', 'www.acfun.cn', 'm.acfun.cn'],
+      Vimeo: ['vimeo.com', 'www.vimeo.com', 'player.vimeo.com'],
+      Dailymotion: ['dailymotion.com', 'www.dailymotion.com', 'dai.ly'],
+      Streamable: ['streamable.com', 'www.streamable.com'],
+      Imgur: ['imgur.com', 'www.imgur.com', 'm.imgur.com', ...(url.pathname.endsWith('.gifv') ? ['i.imgur.com'] : [])],
+      西瓜视频: ['ixigua.com', 'www.ixigua.com', 'm.ixigua.com'],
+      梨视频: ['pearvideo.com', 'www.pearvideo.com'],
+      'Archive.org': ['archive.org', 'www.archive.org'],
+      TED: ['ted.com', 'www.ted.com', 'embed.ted.com', 'embed-ssl.ted.com'],
+      'Wikimedia Commons': ['commons.wikimedia.org'],
+      Bluesky: ['bsky.app', 'www.bsky.app', 'main.bsky.dev'],
+      PeerTube: ['framatube.org','video.blender.org','peertube.tv','peertube2.cpy.re','tilvids.com','diode.zone','makertube.net','media.fsfe.org','peertube.debian.social'],
+      Medal: ['medal.tv','www.medal.tv'],
+      '9GAG': ['9gag.com','www.9gag.com'],
+      Mastodon: ['mastodon.social','mastodon.online','mstdn.social','mas.to','fosstodon.org','infosec.exchange','tech.lgbt'],
+      SoundCloud: ['soundcloud.com','www.soundcloud.com','m.soundcloud.com'],
+      '搜狐视频': ['tv.sohu.com','my.tv.sohu.com'],
+      '好看视频': ['haokan.baidu.com'],
+      Clyp: ['clyp.it','www.clyp.it'],
+      AudioBoom: ['audioboom.com','www.audioboom.com'],
+      Audius: ['audius.co','www.audius.co'],
+      '虎牙点播': ['huya.com','www.huya.com'],
+      '网易新闻': ['163.com','www.163.com','m.163.com'],
+      Rumble: ['rumble.com','www.rumble.com'],
+      Odysee: ['odysee.com','www.odysee.com','lbry.tv','www.lbry.tv'],
+      'OK.ru': ['ok.ru','www.ok.ru','m.ok.ru','odnoklassniki.ru','www.odnoklassniki.ru'],
     };
-    if (['http:', 'https:'].includes(url.protocol) && !url.username && !url.password) return Object.entries(sites).find(([, hosts]) => hosts.includes(url.hostname))?.[0] || '音视频';
+    if (['http:', 'https:'].includes(url.protocol) && !url.username && !url.password) return Object.entries(sites).find(([, hosts]) => hosts.includes(url.hostname))?.[0] || '网页资源';
   } catch { /* The parser reports invalid URLs when explicitly requested. */ }
-  return '音视频';
+  return '网页资源';
 }
 
 function cookieForDownload(raw, value) {
@@ -388,7 +532,7 @@ function updateSubmitButton() {
   const busy = mediaRequest?.version === filenameVersion;
   const unavailable = mediaPreview && !mediaPreview.formats.some(f => !f.needs_merge || mediaPreview.ffmpeg_available);
   $('#submit-download').disabled = submitting || busy || unavailable;
-  const noun = mediaSite === '汽水音乐' ? '音频' : mediaSite === '音视频' ? '音视频' : '视频';
+  const noun = isMusicPlatform(mediaSite) ? '音频' : mediaSite === '网页资源' ? '资源' : '视频';
   $('#submit-download').innerHTML = busy ? `正在解析${noun}…` : mediaSite && !mediaPreview ? `${icon('search')}解析${noun}` : `${icon('download')}开始下载`;
 }
 
@@ -411,8 +555,10 @@ function applyMediaFormat() {
       : mediaPreview.formats.some(f => f.id === 'xhs-original')
         ? '网页播放版可能含平台水印，建议选择原始文件'
         : '未取得可用原始文件，当前版本可能含平台水印'
-    : mediaPreview.platform === 'Qishui Music' ? '网页播放音频直接保存，不转码' : null;
-  $('#media-format-info').textContent = [format.total_bytes ? bytes(format.total_bytes) : '大小以下载时为准', format.needs_merge ? '下载完成后自动合并音视频' : format.audio_only ? '保存音频文件' : '包含完整音视频', sourceInfo].filter(Boolean).join(' · ');
+    : mediaPreview.platform === 'Qishui Music' ? '网页播放音频直接保存，不转码'
+    : mediaPreview.platform === 'WikimediaCommons' ? '源站限制下载速率，使用单连接' : null;
+  if (mediaPreview.platform === 'WikimediaCommons') $('#download-connections').value = '1';
+  $('#media-format-info').textContent = [format.total_bytes ? bytes(format.total_bytes) : '大小以下载时为准', format.needs_merge ? format.audio_only ? '下载完成后自动封装音频' : '下载完成后自动封装音视频' : format.audio_only ? '保存音频文件' : mediaPreview.platform === 'Direct File' ? '保存完整文件' : '保存视频文件', sourceInfo].filter(Boolean).join(' · ');
 }
 
 async function parseVideo() {
@@ -434,9 +580,11 @@ async function parseVideo() {
       const result = await api.resolveMedia(url, cookie);
       if (version !== filenameVersion || !$('#new-dialog').open) return;
       mediaPreview = result;
+      $('#media-panel .media-eyebrow').textContent = result.platform === 'Direct File' ? '文件信息' : result.formats.every(f => f.audio_only) ? '音频信息' : '视频信息';
       $('#media-title').textContent = result.title;
       const duration = result.duration_seconds ? `${Math.floor(result.duration_seconds / 60)}:${String(result.duration_seconds % 60).padStart(2, '0')}` : '';
-      $('#media-meta').textContent = [result.platform, duration, `${result.formats.length} 个下载格式`].filter(Boolean).join(' · ');
+      const platformLabel = {'Generic':'网页媒体', 'Direct File':'文件直链', 'CCTV':'央视网', 'Ixigua':'西瓜视频', 'PearVideo':'梨视频', 'WikimediaCommons':'Wikimedia Commons', 'Sohu':'搜狐视频', 'Haokan':'好看视频', 'HuyaVideo':'虎牙点播', 'NetEaseNews':'网易新闻'}[result.platform] || result.platform;
+      $('#media-meta').textContent = [platformLabel, duration, `${result.formats.length} 个下载格式`].filter(Boolean).join(' · ');
       $('#media-format').innerHTML = result.formats.map(f => `<option value="${escape(f.id)}" ${f.needs_merge && !result.ffmpeg_available ? 'disabled' : ''}>${escape(f.label)}${f.needs_merge && !result.ffmpeg_available ? '（需要 FFmpeg）' : ''}</option>`).join('');
       const preferred = result.formats.find(f => !f.audio_only && (!f.needs_merge || result.ffmpeg_available)) || result.formats.find(f => !f.needs_merge || result.ffmpeg_available);
       if (preferred) $('#media-format').value = preferred.id;
