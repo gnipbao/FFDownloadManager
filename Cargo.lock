@@ -1716,7 +1716,7 @@ dependencies = [
 
 [[package]]
 name = "ffdownload-desktop"
-version = "0.3.7"
+version = "0.3.9"
 dependencies = [
  "anyhow",
  "ffdownload-manager",
@@ -1733,7 +1733,7 @@ dependencies = [
 
 [[package]]
 name = "ffdownload-manager"
-version = "0.3.7"
+version = "0.3.9"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2256,8 +2256,6 @@ dependencies = [
 [[package]]
 name = "gosh-dl"
 version = "0.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4204babb283aa7d1cb639f2668b21db69dad1221d41cb404b960e069265a379"
 dependencies = [
  "async-trait",
  "bytes",

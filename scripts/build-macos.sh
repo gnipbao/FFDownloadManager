@@ -15,6 +15,13 @@ if [ "${CI:-}" != true ]; then
   esac
 fi
 if [ ! -x node_modules/.bin/tauri ]; then npm ci --ignore-scripts --cache .tools/npm-cache; fi
+FFDM_VERSION=$(node -p "require('./src-tauri/tauri.conf.json').version")
+# Tauri builds only the desktop binary. Refresh the separate Web/CLI host too.
+cargo build --release --locked --bin ffdm
+test "$(./target/release/ffdm --version)" = "ffdm $FFDM_VERSION" || {
+  echo 'CLI and desktop versions do not match; refusing to package.' >&2
+  exit 1
+}
 sh scripts/build-ffmpeg-macos.sh
 node_modules/.bin/tauri build --bundles app -- --locked
 FFDM_APP="$FFDM_ROOT/target/release/bundle/macos/FFDownload.app"
@@ -26,7 +33,6 @@ codesign --force --sign - "$FFDM_DIST/FFDownload.app/Contents/Resources/ffmpeg"
 codesign --force --deep --sign - "$FFDM_DIST/FFDownload.app"
 codesign --verify --deep --strict "$FFDM_DIST/FFDownload.app"
 FFDM_ARCH=$(uname -m)
-FFDM_VERSION=$(node -p "require('./src-tauri/tauri.conf.json').version")
 ditto -c -k --sequesterRsrc --keepParent "$FFDM_DIST/FFDownload.app" "$FFDM_DIST/FFDownload-$FFDM_VERSION-macos-$FFDM_ARCH.zip"
 mkdir -p "$FFDM_ROOT/.bench-work/desktop"
 FFDM_STAGE=$(mktemp -d "$FFDM_ROOT/.bench-work/desktop/dmg.XXXXXX")
@@ -40,3 +46,4 @@ hdiutil verify "$FFDM_DIST/FFDownload-$FFDM_VERSION-macos-$FFDM_ARCH.dmg"
 echo "Built $FFDM_DIST/FFDownload.app"
 echo "Archive $FFDM_DIST/FFDownload-$FFDM_VERSION-macos-$FFDM_ARCH.zip"
 echo "Installer $FFDM_DIST/FFDownload-$FFDM_VERSION-macos-$FFDM_ARCH.dmg"
+echo "Web/CLI $FFDM_ROOT/target/release/ffdm"

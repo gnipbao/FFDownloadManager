@@ -1,6 +1,6 @@
 [package]
 name = "ffdownload-manager"
-version = "0.3.7"
+version = "0.3.9"
 edition = "2021"
 rust-version = "1.95"
 description = "A Rust HTTP download MVP with reproducible benchmarks"
@@ -9,7 +9,12 @@ publish = false
 [workspace]
 members = ["src-tauri", "crates/ffdm-resolver"]
 default-members = ["."]
+exclude = ["vendor/gosh-dl"]
 resolver = "2"
+
+[patch.crates-io]
+# Preserve the published API/checkpoint format while fixing stale TLS retries.
+gosh-dl = { path = "vendor/gosh-dl" }
 
 [lib]
 name = "ffdownload"

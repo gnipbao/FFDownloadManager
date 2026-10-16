@@ -19,6 +19,7 @@ use std::{
 };
 
 const TEST_COOKIE: &str = "session=ffdm-test-only-secret-never-a-real-cookie";
+const TEST_BEARER: &str = "Bearer ffdm-test-only-secret-header-token";
 const PAYLOAD: &[u8] = b"ordinary file without browser authorization\0\x80\xff";
 
 struct Server(tokio::task::JoinHandle<()>);
@@ -73,6 +74,64 @@ async fn source() -> (String, Arc<AtomicUsize>, Server) {
         axum::serve(listener, router).await.unwrap();
     }));
     (origin, hits, server)
+}
+
+async fn held_source() -> (String, tokio::sync::watch::Sender<bool>, Server) {
+    let (release, released) = tokio::sync::watch::channel(false);
+    let router = Router::new().route(
+        "/held.bin",
+        get(move |method: Method| {
+            let mut released = released.clone();
+            async move {
+                let body = if method == Method::HEAD {
+                    Body::empty()
+                } else {
+                    Body::from_stream(futures_util::stream::once(async move {
+                        while !*released.borrow_and_update() {
+                            if released.changed().await.is_err() {
+                                break;
+                            }
+                        }
+                        Ok::<_, std::convert::Infallible>(PAYLOAD)
+                    }))
+                };
+                Response::builder()
+                    .header(header::CONTENT_TYPE, "application/octet-stream")
+                    .header(header::CONTENT_LENGTH, PAYLOAD.len())
+                    .body(body)
+                    .unwrap()
+            }
+        }),
+    );
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let origin = format!("http://{}", listener.local_addr().unwrap());
+    let server = Server(tokio::spawn(async move {
+        axum::serve(listener, router).await.unwrap();
+    }));
+    (origin, release, server)
+}
+
+fn saved_task(id: &str, url: &str, state: &str) -> Value {
+    json!({
+        "id":id,"filename":format!("{id}.zip"),"url":url,
+        "connections":4,"state":state,"created_at":1,"completed_at":null,
+        "total_bytes":8192,"completed_bytes":1024,"speed_bytes":0,
+        "active_connections":0,"eta_seconds":null,"sha256":null,
+        "expected_sha256":null,"error":if state == "error" { Some("HTTP 401") } else { None },
+        "demo":false
+    })
+}
+
+fn task_value(service: &DownloadService, id: &str) -> Value {
+    serde_json::to_value(
+        service
+            .snapshot()
+            .tasks
+            .into_iter()
+            .find(|task| task.id == id)
+            .unwrap(),
+    )
+    .unwrap()
 }
 
 async fn terminal_task(service: &DownloadService, id: &str) -> Task {
@@ -177,6 +236,230 @@ async fn cookies_on_http_and_header_injection_are_rejected_before_source_request
     }
     assert_eq!(hits.load(Ordering::Relaxed), 0);
     assert!(service.snapshot().tasks.is_empty());
+    service.shutdown().await.unwrap();
+    assert_files_contain_no_secret(dir.path());
+}
+
+#[tokio::test]
+async fn custom_headers_validate_at_the_web_boundary_before_any_source_request() {
+    let (source, hits, _source_server) = source().await;
+    let dir = tempfile::tempdir().unwrap();
+    let web = LocalWeb::bind(0, dir.path().join("files"), dir.path().join("state"))
+        .await
+        .unwrap();
+    let origin = format!("http://{}", web.address);
+    let service = web.service.clone();
+    let _web_server = Server(tokio::spawn(async move {
+        axum::serve(web.listener, web.router).await.unwrap();
+    }));
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    let https_source = source.replacen("http://", "https://", 1);
+    let mut requests = vec![
+        json!({"url":format!("{source}/public.bin"),"headers":[["Authorization",TEST_BEARER]]}),
+        json!({"headers":[["Authorization",TEST_BEARER],["authorization",TEST_BEARER]]}),
+        json!({"headers":[["Bad Header Name",TEST_BEARER]]}),
+        json!({"headers":[[":authority",TEST_BEARER]]}),
+        json!({"headers":[["Authorization",format!("{TEST_BEARER}\r\nX-Injected: value")]]}),
+        json!({"headers":[["Authorization",format!("{TEST_BEARER}\0value")]]}),
+        json!({"headers":[["Authorization",format!("{TEST_BEARER}\tvalue")]]}),
+        json!({"cookie":TEST_COOKIE,"headers":[["Cookie",TEST_COOKIE]]}),
+        json!({"headers":TEST_BEARER}),
+        json!({"headers":[["Authorization",TEST_BEARER,TEST_BEARER]]}),
+        json!({"headers":[["Authorization",{"token":TEST_BEARER}]]}),
+        json!({"headers":[["X-Token",format!("{TEST_BEARER}{}", "x".repeat(16 * 1024))]]}),
+        json!({"headers":(0..49).map(|index| [format!("X-Test-{index}"),TEST_BEARER.into()]).collect::<Vec<_>>()}),
+    ];
+    for name in [
+        "Host",
+        "Range",
+        "If-Range",
+        "If-Match",
+        "If-None-Match",
+        "If-Modified-Since",
+        "If-Unmodified-Since",
+        "Content-Length",
+        "Transfer-Encoding",
+        "Connection",
+        "Keep-Alive",
+        "TE",
+        "Trailer",
+        "Upgrade",
+        "Proxy-Authorization",
+        "Proxy-Connection",
+        "Accept-Encoding",
+    ] {
+        requests.push(json!({"headers":[[name,TEST_BEARER]]}));
+    }
+    for mut request in requests {
+        if request.get("url").is_none() {
+            request["url"] = json!(format!("{https_source}/public.bin"));
+        }
+        request["direct"] = json!(true);
+        let response = tokio::time::timeout(
+            Duration::from_secs(2),
+            post(&client, &origin, "/api/tasks")
+                .header(header::CONTENT_TYPE, "application/json")
+                .body(request.to_string())
+                .send(),
+        )
+        .await
+        .expect("invalid headers must be rejected before source I/O")
+        .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        assert_no_secret(&response.text().await.unwrap());
+    }
+    assert_eq!(hits.load(Ordering::Relaxed), 0);
+    assert!(service.snapshot().tasks.is_empty());
+    service.shutdown().await.unwrap();
+    assert_files_contain_no_secret(dir.path());
+}
+
+#[tokio::test]
+async fn web_header_retries_preserve_tasks_keep_secrets_private_and_expire_on_restart() {
+    let (source, release, _source_server) = held_source().await;
+    let dir = tempfile::tempdir().unwrap();
+    let downloads = dir.path().join("files");
+    let state = dir.path().join("state");
+    std::fs::create_dir_all(&downloads).unwrap();
+    std::fs::create_dir_all(&state).unwrap();
+    let private_url = format!("{}/private.zip", source.replacen("http://", "https://", 1));
+    std::fs::write(
+        state.join("tasks.json"),
+        serde_json::to_vec(&json!({
+            "schema":1,"directory":downloads.canonicalize().unwrap(),
+            "tasks":[saved_task("failed-auth",&private_url,"error"),
+                     saved_task("paused-auth",&private_url,"paused")]
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    let web = LocalWeb::bind(0, downloads.clone(), state.clone())
+        .await
+        .unwrap();
+    let origin = format!("http://{}", web.address);
+    let service = web.service;
+    let web_server = Server(tokio::spawn(async move {
+        axum::serve(web.listener, web.router).await.unwrap();
+    }));
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+
+    // Occupy every real worker with a localhost body held by this test. The
+    // protected retries stay queued, so acceptance and persistence are tested
+    // without making a TLS request or weakening production TLS verification.
+    for index in 0..service.snapshot().max_active {
+        let response = post(&client, &origin, "/api/tasks")
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(
+                json!({
+                    "url":format!("{source}/held.bin"),"filename":format!("held-{index}.bin"),
+                    "connections":1
+                })
+                .to_string(),
+            )
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_no_secret(&response.text().await.unwrap());
+    }
+
+    for id in ["failed-auth", "paused-auth"] {
+        let path = format!("/api/tasks/{id}/resume");
+        let response = post(&client, &origin, &path)
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(
+                json!({"headers":[["Authorization",TEST_BEARER],["X-Api-Key",TEST_COOKIE]]})
+                    .to_string(),
+            )
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_no_secret(&response.text().await.unwrap());
+        let task = service
+            .snapshot()
+            .tasks
+            .into_iter()
+            .find(|task| task.id == id)
+            .unwrap();
+        assert_eq!(task.state, "queued");
+        assert_eq!(task.completed_bytes, 1024);
+        assert_eq!(task.total_bytes, Some(8192));
+        assert!(task.authorization_required);
+        assert!(!task.authorization_needed);
+        assert!(task.error.is_none());
+        service.pause(id).unwrap();
+        let before = task_value(&service, id);
+        let response = post(&client, &origin, &path)
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(
+                json!({"headers":[["Authorization",TEST_BEARER],["authorization",TEST_BEARER]]})
+                    .to_string(),
+            )
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        assert_no_secret(&response.text().await.unwrap());
+        assert_eq!(task_value(&service, id), before);
+
+        // Existing callers may omit the body; credentials remain reusable only
+        // within this process, without a second prompt while the task is paused.
+        let response = post(&client, &origin, &path).send().await.unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        service.pause(id).unwrap();
+    }
+    let snapshot = client
+        .get(format!("{origin}/api/tasks"))
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+    assert_no_secret(&snapshot);
+    assert_files_contain_no_secret(dir.path());
+    release.send_replace(true);
+    service.shutdown().await.unwrap();
+    drop(client);
+    drop(web_server);
+    tokio::time::timeout(Duration::from_secs(3), async {
+        while Arc::strong_count(&service) != 1 {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .unwrap();
+    drop(service);
+
+    let web = LocalWeb::bind(0, downloads, state).await.unwrap();
+    let origin = format!("http://{}", web.address);
+    let service = web.service.clone();
+    let _web_server = Server(tokio::spawn(async move {
+        axum::serve(web.listener, web.router).await.unwrap();
+    }));
+    let client = reqwest::Client::builder().no_proxy().build().unwrap();
+    for id in ["failed-auth", "paused-auth"] {
+        let before = serde_json::to_value(service.snapshot()).unwrap();
+        let protected = before["tasks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|task| task["id"] == id)
+            .unwrap();
+        assert_eq!(protected["authorization_required"], true);
+        assert_eq!(protected["authorization_needed"], true);
+        assert_eq!(protected["state"], "paused");
+        let response = post(&client, &origin, &format!("/api/tasks/{id}/resume"))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        let body = response.text().await.unwrap();
+        assert!(body.contains("Header") || body.contains("header"), "{body}");
+        assert_no_secret(&body);
+        assert_eq!(serde_json::to_value(service.snapshot()).unwrap(), before);
+    }
     service.shutdown().await.unwrap();
     assert_files_contain_no_secret(dir.path());
 }

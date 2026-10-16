@@ -34,6 +34,7 @@ async fn deleted_completed_file_disappears_live_and_after_restart_without_erasin
                 connections: 1,
                 direct: false,
                 cookie: None,
+                headers: Vec::new(),
                 sha256: None,
             },
             false,

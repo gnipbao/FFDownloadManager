@@ -178,7 +178,8 @@ fn desktop_snapshot(state: State<'_, DesktopState>) -> Snapshot {
 }
 
 #[tauri::command]
-async fn desktop_create(state: State<'_, DesktopState>, task: NewTask) -> Reply<Task> {
+async fn desktop_create(state: State<'_, DesktopState>, task: serde_json::Value) -> Reply<Task> {
+    let task: NewTask = serde_json::from_value(task).map_err(|_| "下载请求格式错误".to_owned())?;
     state.service.create(task, false).await.map_err(error)
 }
 
@@ -215,10 +216,16 @@ async fn desktop_resume(
     state: State<'_, DesktopState>,
     id: String,
     cookie: Option<String>,
+    headers: Option<serde_json::Value>,
 ) -> Reply<()> {
+    let headers: Vec<(String, String)> = headers
+        .map(serde_json::from_value)
+        .transpose()
+        .map_err(|_| "授权请求格式错误".to_owned())?
+        .unwrap_or_default();
     state
         .service
-        .resume_with_cookie(&id, cookie.as_deref())
+        .resume_with_headers(&id, cookie.as_deref(), &headers)
         .map_err(error)
 }
 
@@ -640,6 +647,8 @@ mod tests {
             "only the bundled main window may access tasks"
         );
         let capabilities = invoke(&window, "desktop_capabilities", json!({})).unwrap();
+        assert_eq!(capabilities["version"], env!("CARGO_PKG_VERSION"));
+        assert_eq!(capabilities["file_download_headers"], true);
         assert_eq!(capabilities["dev_mode"], cfg!(debug_assertions));
         assert_eq!(capabilities["browser_capture"], cfg!(debug_assertions));
         assert_eq!(
@@ -708,6 +717,42 @@ mod tests {
             json!({"task":{"url":server.url,"filename":"../escape.bin"}})
         )
         .is_err());
+        let secret = "desktop-header-test-secret";
+        for (url, headers, hint) in [
+            (
+                server.url.as_str(),
+                json!([["Authorization", format!("Bearer {secret}")]]),
+                "HTTPS",
+            ),
+            (
+                "https://files.example.test/archive.zip",
+                json!([["X-Api-Key", secret], ["x-api-key", secret]]),
+                "重复",
+            ),
+            (
+                "https://files.example.test/archive.zip",
+                json!(secret),
+                "请求格式错误",
+            ),
+        ] {
+            let failure = invoke(
+                &window,
+                "desktop_create",
+                json!({"task":{"url":url,"headers":headers}}),
+            )
+            .unwrap_err();
+            assert!(failure.as_str().unwrap().contains(hint));
+            assert!(!failure.to_string().contains(secret));
+        }
+        let malformed = invoke(
+            &window,
+            "desktop_resume",
+            json!({"id":"missing-task","headers":secret}),
+        )
+        .unwrap_err();
+        assert_eq!(malformed, json!("授权请求格式错误"));
+        let legacy = invoke(&window, "desktop_resume", json!({"id":"missing-task"})).unwrap_err();
+        assert_eq!(legacy, json!("任务不存在"));
         let task = invoke(
             &window,
             "desktop_create",

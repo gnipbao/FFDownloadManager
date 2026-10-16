@@ -68,6 +68,9 @@ pub struct NewTask {
     pub url: String,
     #[serde(default)]
     pub cookie: Option<String>,
+    /// Private file-request headers; only held by the running process.
+    #[serde(default)]
+    pub headers: Vec<(String, String)>,
     /// Explicit file mode bypasses only automatic media-page classification.
     #[serde(default)]
     pub direct: bool,
@@ -317,7 +320,11 @@ impl DownloadService {
 
     pub async fn create(self: &Arc<Self>, request: NewTask, demo: bool) -> Result<Task> {
         let url = parse_url(&request.url)?;
-        let authorization = FileAuthorization::new(url.as_str(), request.cookie.as_deref())?;
+        let authorization = FileAuthorization::with_headers(
+            url.as_str(),
+            request.cookie.as_deref(),
+            &request.headers,
+        )?;
         ensure!(
             request.direct || crate::media::platform(url.as_str()).is_none(),
             "这是音视频页面链接，请先解析并选择下载格式"
@@ -654,6 +661,17 @@ impl DownloadService {
     }
 
     pub fn resume_with_cookie(self: &Arc<Self>, id: &str, cookie: Option<&str>) -> Result<()> {
+        self.resume_with_headers(id, cookie, &[])
+    }
+
+    /// Replace this task's private request credentials, preserving range state.
+    /// With no supplied credentials, reuse those already in this process.
+    pub fn resume_with_headers(
+        self: &Arc<Self>,
+        id: &str,
+        cookie: Option<&str>,
+        headers: &[(String, String)],
+    ) -> Result<()> {
         let mut inner = self.inner.lock().unwrap();
         ensure!(!inner.stopping, "服务正在退出");
         ensure!(!inner.active.contains_key(id), "任务仍在运行或保存中");
@@ -671,7 +689,7 @@ impl DownloadService {
             !self.directory.join(&task.filename).exists(),
             "目标文件已存在，请在 Finder 中检查"
         );
-        let authorization = FileAuthorization::new(&task.url, cookie)?;
+        let authorization = FileAuthorization::with_headers(&task.url, cookie, headers)?;
         ensure!(
             authorization.is_none() || task.media.is_none(),
             "音视频任务请重新解析，不能使用文件下载授权"
@@ -680,7 +698,7 @@ impl DownloadService {
             !task.authorization_required
                 || authorization.is_some()
                 || inner.authorizations.contains_key(id),
-            "此任务需要网站登录授权，请重新填写 Cookie 后继续下载"
+            "此任务需要网站授权，请重新填写 Cookie 或自定义 Header 后继续下载"
         );
         let previous = task.clone();
         let task = &mut inner.tasks[index];

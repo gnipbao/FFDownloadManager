@@ -46,6 +46,7 @@ async fn live_controls_persist_resume_and_preserve_completed_files() {
         .create(
             NewTask {
                 cookie: None,
+                headers: Vec::new(),
                 url: server.url.clone(),
                 direct: false,
                 filename: Some("resume.bin".into()),
@@ -118,6 +119,7 @@ async fn queue_is_bounded_and_rejects_path_traversal() {
             .create(
                 NewTask {
                     cookie: None,
+                    headers: Vec::new(),
                     url: server.url.clone(),
                     direct: false,
                     filename: Some(filename.into()),
@@ -134,6 +136,7 @@ async fn queue_is_bounded_and_rejects_path_traversal() {
             .create(
                 NewTask {
                     cookie: None,
+                    headers: Vec::new(),
                     url: server.url.clone(),
                     direct: false,
                     filename: Some("file.bin".into()),
@@ -301,6 +304,8 @@ async fn web_capabilities_gate_dev_tools_and_never_expose_system_proxy_controls(
             .unwrap(),
     )
     .unwrap();
+    assert_eq!(info["version"], env!("CARGO_PKG_VERSION"));
+    assert_eq!(info["file_download_headers"], true);
     assert_eq!(info["dev_mode"], cfg!(debug_assertions));
     assert_eq!(info["application_capture"], false);
     assert_eq!(info["browser_capture"], cfg!(debug_assertions));

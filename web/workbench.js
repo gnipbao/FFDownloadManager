@@ -6,6 +6,7 @@ export async function initWorkbench({toast, onTaskCreated, hasActive}) {
   let capabilities;
   try { capabilities = await api.capabilities(); }
   catch { toast('无法读取功能配置，请刷新页面重试', true); return; }
+  if (!isDesktop) $('.sidebar-version span:last-child').textContent = capabilities.version ? `${capabilities.version} · Web` : '后端版本未知';
   const captureEnabled = capabilities.browser_capture || capabilities.application_capture;
   $('#tab-capture').hidden = !captureEnabled;
   $('#tab-speedtest').hidden = !capabilities.dev_mode;

@@ -3,6 +3,8 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct Capabilities {
+    pub version: &'static str,
+    pub file_download_headers: bool,
     pub dev_mode: bool,
     pub browser_capture: bool,
     pub application_capture: bool,
@@ -11,6 +13,8 @@ pub struct Capabilities {
 impl Capabilities {
     pub fn for_host(desktop: bool) -> Self {
         Self {
+            version: env!("CARGO_PKG_VERSION"),
+            file_download_headers: true,
             dev_mode: cfg!(debug_assertions),
             // Capture remains experimental until desktop playback is reliable.
             browser_capture: cfg!(debug_assertions),

@@ -105,7 +105,7 @@ impl LocalWeb {
             .route("/capture-demo/sample.mp4", get(capture_sample))
             .with_state(state.clone())
             .nest("/sample", fixture_router(config))
-            .layer(DefaultBodyLimit::max(16 * 1024))
+            .layer(DefaultBodyLimit::max(64 * 1024))
             .layer(middleware::from_fn_with_state(state, local_only));
         Ok(Self {
             service,
@@ -119,7 +119,11 @@ impl LocalWeb {
 
 pub async fn serve(port: u16, directory: PathBuf, state_directory: PathBuf) -> Result<()> {
     let web = LocalWeb::bind(port, directory, state_directory).await?;
-    println!("FFDownload 已启动：http://{}", web.address);
+    println!(
+        "FFDownload {} 已启动：http://{}",
+        env!("CARGO_PKG_VERSION"),
+        web.address
+    );
     println!("下载位置：{}", web.service.directory().display());
     println!("按 Ctrl-C 保存下载进度并退出。");
     let service = web.service.clone();
@@ -256,8 +260,9 @@ async fn snapshot(State(state): State<WebState>) -> Json<crate::service::Snapsho
 }
 async fn create(
     State(state): State<WebState>,
-    Json(request): Json<NewTask>,
+    request: Result<Json<NewTask>, axum::extract::rejection::JsonRejection>,
 ) -> ApiResult<crate::service::Task> {
+    let Json(request) = request.map_err(|_| anyhow::anyhow!("下载请求格式错误"))?;
     Ok(Json(state.service.create(request, false).await?))
 }
 #[derive(Deserialize)]
@@ -302,6 +307,7 @@ async fn demo(State(state): State<WebState>) -> ApiResult<crate::service::Task> 
             .create(
                 NewTask {
                     cookie: None,
+                    headers: Vec::new(),
                     url: format!("{}/sample/file.bin", state.origin),
                     direct: false,
                     filename: Some("FFDownload-体验文件.bin".into()),
@@ -335,6 +341,8 @@ async fn resume(
     #[derive(Deserialize, Default)]
     struct AuthorizationRequest {
         cookie: Option<String>,
+        #[serde(default)]
+        headers: Vec<(String, String)>,
     }
     let request: AuthorizationRequest = if body.is_empty() {
         AuthorizationRequest::default()
@@ -343,7 +351,7 @@ async fn resume(
     };
     state
         .service
-        .resume_with_cookie(&id, request.cookie.as_deref())?;
+        .resume_with_headers(&id, request.cookie.as_deref(), &request.headers)?;
     Ok(done())
 }
 async fn remove(

@@ -198,6 +198,12 @@ async fn prepare_resume(
             }
         }
     }
+    // The engine supplies identity encoding on each request. Remove the
+    // duplicate added by older hosts without changing resume validators.
+    status
+        .metadata
+        .headers
+        .retain(|(name, _)| !name.eq_ignore_ascii_case("accept-encoding"));
     // Older checkpoints stored a custom UA in the generic header list. The
     // engine also sends its default UA, so migrate this header into its explicit
     // metadata slot before resuming without changing validators or ranges.
@@ -379,7 +385,6 @@ async fn download_inner(
     validate_headers(&headers)?;
     let mut user_agent = take_user_agent(&mut headers)?;
     headers.retain(|(name, _)| !name.eq_ignore_ascii_case("accept-encoding"));
-    headers.push(("Accept-Encoding".into(), "identity".into()));
     let started = Instant::now();
     ensure!(
         (1..=16).contains(&request.connections),
