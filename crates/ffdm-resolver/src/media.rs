@@ -208,7 +208,7 @@ impl MediaResolver {
             .build()?;
         let probe = crate::youtube::MediaProbe::new()?;
         Ok(Self {
-            youtube: crate::youtube::YoutubeResolver::new(client.clone(), probe.clone()),
+            youtube: crate::youtube::YoutubeResolver::new(),
             other_platforms: Ytdown::builder().client(client).build()?,
             probe,
             bilibili: BiliClient::new(
@@ -472,16 +472,20 @@ impl MediaResolver {
                 .map_err(|e| anyhow::anyhow!("B 站解析失败：{}", safe_error(&e.to_string())))?;
             normalize_bilibili(url.as_str(), plan)
         } else {
-            let info = if platform == "YouTube" {
-                self.youtube
+            let (info, youtube_probe) = if platform == "YouTube" {
+                let resolved = self
+                    .youtube
                     .resolve_with_cookie(url, platform_cookie)
                     .await
-                    .map_err(youtube_error)?
+                    .map_err(youtube_error)?;
+                (resolved.info, Some(resolved.probe))
             } else {
-                self.other_platforms
+                let info = self
+                    .other_platforms
                     .resolve(url.as_str())
                     .await
-                    .map_err(ytdown_error)?
+                    .map_err(ytdown_error)?;
+                (info, None)
             };
             match info {
                 MediaInfo::Single(info) => {
@@ -494,12 +498,12 @@ impl MediaResolver {
                         info.duration.map(|d| d.as_secs()),
                         &info.formats,
                     )?;
-                    if platform == "YouTube" {
+                    if let Some(probe) = youtube_probe {
                         use futures_util::{stream, StreamExt};
                         let checked: Vec<_> =
                             stream::iter(resolved.plans.into_iter().map(|plan| async {
                                 for media in &plan.2.streams {
-                                    if self.probe.check(media).await.is_err() {
+                                    if probe.check(media).await.is_err() {
                                         return None;
                                     }
                                 }
