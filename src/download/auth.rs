@@ -1033,12 +1033,46 @@ mod tests {
     }
 
     fn assert_state_has_no_secrets(directory: &std::path::Path, secrets: &[&str]) {
+        assert_state_has_no_secrets_while_live(directory, secrets, false);
+    }
+
+    fn assert_state_has_no_secrets_while_live(
+        directory: &std::path::Path,
+        secrets: &[&str],
+        transfer_active: bool,
+    ) {
         for entry in std::fs::read_dir(directory).unwrap() {
             let entry = entry.unwrap();
             if entry.file_type().unwrap().is_dir() {
-                assert_state_has_no_secrets(&entry.path(), secrets);
+                assert_state_has_no_secrets_while_live(&entry.path(), secrets, transfer_active);
             } else {
-                let bytes = std::fs::read(entry.path()).unwrap();
+                if transfer_active && entry.file_name() == "session.lock" {
+                    // This empty ownership marker is exclusively byte-range
+                    // locked by fs2 on Windows, including past EOF. Its length
+                    // proves it cannot contain credentials without ReadFile.
+                    assert_eq!(entry.metadata().unwrap().len(), 0);
+                    continue;
+                }
+                let bytes = match std::fs::read(entry.path()) {
+                    Ok(bytes) => bytes,
+                    Err(error)
+                        if cfg!(windows)
+                            && transfer_active
+                            && error.raw_os_error() == Some(33)
+                            && entry.file_name() == "engine.sqlite-shm" =>
+                    {
+                        // SQLite protects its shared-memory index with byte-range
+                        // locks on Windows. ReadFile cannot scan those bytes while
+                        // the transfer owns the database. The database and WAL
+                        // are still checked now; the strict scan after shutdown
+                        // checks every remaining file without this exception.
+                        continue;
+                    }
+                    Err(error) => panic!(
+                        "cannot inspect checkpoint file {}: {error}",
+                        entry.path().display()
+                    ),
+                };
                 for secret in secrets {
                     assert!(
                         !bytes
@@ -1096,9 +1130,9 @@ mod tests {
         })
         .await
         .unwrap();
-        // Include the live SQLite WAL/SHM whenever present, before shutdown
-        // checkpoints and closes the connection.
-        assert_state_has_no_secrets(directory.path(), &secrets);
+        // Inspect database/WAL bytes before shutdown can checkpoint them. The
+        // Windows shared-memory index may remain locked until the engine exits.
+        assert_state_has_no_secrets_while_live(directory.path(), &secrets, true);
         let report = transfer.await.unwrap().unwrap();
         assert_eq!(report.outcome, "completed");
         assert_eq!(report.starting_progress_bytes, 0);
@@ -1157,6 +1191,7 @@ mod tests {
         assert!(runtime["options"]["cookies"].is_null());
         assert!(runtime["options"]["user_agent"].is_null());
         assert!(runtime["options"]["referer"].is_null());
+        drop(sqlite);
         assert_state_has_no_secrets(directory.path(), &secrets);
     }
 

@@ -479,75 +479,95 @@ impl HttpClient for CheckedTransport {
 
 pub(crate) struct YoutubeResolver {
     extractor: ytdown::extractor::youtube::YoutubeExtractor,
-    context: ExtractorContext,
-    transport: Arc<CheckedTransport>,
+    network: Box<dyn Fn(bool) -> Result<YoutubeNetwork> + Send + Sync>,
     resolve_lock: tokio::sync::Mutex<()>,
 }
 
+struct YoutubeNetwork {
+    client: reqwest_media::Client,
+    probe: MediaProbe,
+}
+
+impl YoutubeNetwork {
+    fn new(authorized: bool) -> Result<Self> {
+        // reqwest snapshots the system proxy when a Client is built. Refresh
+        // both API and CDN clients per extraction, including anonymous retries
+        // after v2rayN (or another system proxy) has been enabled or changed.
+        let mut client = reqwest_media::Client::builder()
+            .use_native_tls()
+            .https_only(true)
+            .connect_timeout(Duration::from_secs(8))
+            .timeout(Duration::from_secs(15))
+            .user_agent(auth::WEB_UA);
+        if authorized {
+            client = client.redirect(reqwest_media::redirect::Policy::none());
+        }
+        Ok(Self {
+            client: client.build()?,
+            probe: MediaProbe::new()?,
+        })
+    }
+}
+
+pub(crate) struct YoutubeResolution {
+    pub info: MediaInfo,
+    // Keep this extraction's network and readability cache for the normalized
+    // format checks too; the application's startup probe may use an old proxy.
+    pub probe: MediaProbe,
+}
+
 impl YoutubeResolver {
-    pub fn new(client: reqwest_media::Client, probe: MediaProbe) -> Self {
-        let transport = Arc::new(CheckedTransport {
-            inner: Arc::new(ytdown::ReqwestClient::new(client)),
-            probe,
-            best: Mutex::new(None),
-            authorization: None,
-        });
+    pub fn new() -> Self {
         Self {
             extractor: ytdown::extractor::youtube::YoutubeExtractor::new(),
-            context: ExtractorContext::new(transport.clone()),
-            transport,
+            network: Box::new(YoutubeNetwork::new),
             resolve_lock: tokio::sync::Mutex::new(()),
         }
     }
 
     #[cfg(test)]
     pub fn with_base_url(client: reqwest_media::Client, probe: MediaProbe, base: &str) -> Self {
-        let mut resolver = Self::new(client, probe);
+        let mut resolver = Self::new();
         resolver.extractor = ytdown::extractor::youtube::YoutubeExtractor::with_base_url(base);
+        resolver.network = Box::new(move |_| {
+            Ok(YoutubeNetwork {
+                client: client.clone(),
+                probe: probe.clone(),
+            })
+        });
         resolver
     }
 
-    pub async fn resolve(&self, url: &reqwest::Url) -> ytdown::Result<MediaInfo> {
-        let _guard = self.resolve_lock.lock().await;
-        self.transport.best.lock().unwrap().take();
-        let result = self.extractor.extract(&self.context, url).await;
-        self.transport.best.lock().unwrap().take();
-        result
+    #[cfg(test)]
+    pub async fn resolve(&self, url: &reqwest::Url) -> Result<MediaInfo> {
+        Ok(self.resolve_with_cookie(url, None).await?.info)
     }
 
     pub async fn resolve_with_cookie(
         &self,
         url: &reqwest::Url,
         cookie: Option<&str>,
-    ) -> Result<MediaInfo> {
-        let Some(cookie) = cookie.filter(|value| !value.trim().is_empty()) else {
-            return self.resolve(url).await.map_err(Into::into);
-        };
-        let session = YoutubeSession::new(cookie)?;
+    ) -> Result<YoutubeResolution> {
+        let session = cookie
+            .filter(|value| !value.trim().is_empty())
+            .map(YoutubeSession::new)
+            .transpose()?;
         let _guard = self.resolve_lock.lock().await;
-        // No shared cookie jar, default Cookie header or redirects. In particular
-        // a YouTube API redirect cannot forward this credential to another host.
-        let client = reqwest_media::Client::builder()
-            .use_native_tls()
-            .https_only(true)
-            .redirect(reqwest_media::redirect::Policy::none())
-            .connect_timeout(Duration::from_secs(8))
-            .timeout(Duration::from_secs(15))
-            .user_agent(auth::WEB_UA)
-            .build()?;
+        let network = (self.network)(session.is_some())?;
         let transport = Arc::new(CheckedTransport {
-            inner: Arc::new(ytdown::ReqwestClient::new(client)),
-            probe: self.transport.probe.clone(),
+            inner: Arc::new(ytdown::ReqwestClient::new(network.client)),
+            probe: network.probe.clone(),
             best: Mutex::new(None),
-            authorization: Some(session),
+            authorization: session,
         });
         let context = ExtractorContext::new(transport);
         // The context, checked responses and authorization all drop on completion
         // or cancellation. Only normalized media URLs leave this request.
-        self.extractor
-            .extract(&context, url)
-            .await
-            .map_err(Into::into)
+        let info = self.extractor.extract(&context, url).await?;
+        Ok(YoutubeResolution {
+            info,
+            probe: network.probe,
+        })
     }
 }
 
@@ -731,6 +751,69 @@ mod tests {
         assert_eq!(*clients.lock().unwrap(), ["VISIONOS"]);
         assert!(!video.formats.iter().any(|f| f.itag == Some(401)), "an unreadable extra format must not discard working HD or force another login-gated client");
         server.abort();
+    }
+
+    #[tokio::test]
+    async fn subsequent_extraction_refreshes_both_api_and_cdn_proxy_clients() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        // Both proxies serve the same public origin and media URLs. Changing
+        // route must refresh the API client, CDN probe and readability cache.
+        let (proxy_a, clients_a, server_a) = start(true).await;
+        let (proxy_b, clients_b, server_b) = start(true).await;
+        let builds = Arc::new(AtomicUsize::new(0));
+        let factory_builds = builds.clone();
+        let mut resolver = YoutubeResolver::new();
+        resolver.extractor = ytdown::extractor::youtube::YoutubeExtractor::with_base_url(
+            "http://youtube.example.test",
+        );
+        resolver.network = Box::new(move |authorized| {
+            assert!(!authorized);
+            let proxy = if factory_builds.fetch_add(1, Ordering::SeqCst) == 0 {
+                &proxy_a
+            } else {
+                &proxy_b
+            };
+            let client = reqwest_media::Client::builder()
+                .no_proxy()
+                .proxy(reqwest_media::Proxy::all(proxy)?)
+                .build()?;
+            let mut probe = MediaProbe::new()?;
+            probe.client = reqwest::Client::builder()
+                .no_proxy()
+                .proxy(reqwest::Proxy::all(proxy)?)
+                .build()?;
+            Ok(YoutubeNetwork { client, probe })
+        });
+        let url = reqwest::Url::parse("https://www.youtube.com/watch?v=abcdefghijk").unwrap();
+        for attempt in 0..2 {
+            let result = resolver.resolve_with_cookie(&url, None).await.unwrap();
+            let MediaInfo::Single(video) = result.info else {
+                panic!("expected single video")
+            };
+            let hd = video.formats.iter().find(|f| f.itag == Some(400)).unwrap();
+            if attempt == 0 {
+                // The next extraction must work after the previous proxy has
+                // gone away, including checks made after normalization.
+                server_a.abort();
+            } else {
+                result.probe.passed.lock().unwrap().clear();
+                result
+                    .probe
+                    .check(&MediaStream {
+                        url: hd.url.clone(),
+                        headers: vec![],
+                        size: hd.filesize,
+                        decrypt_key: None,
+                    })
+                    .await
+                    .unwrap();
+            }
+        }
+        assert_eq!(builds.load(Ordering::SeqCst), 2);
+        assert_eq!(*clients_a.lock().unwrap(), ["VISIONOS"]);
+        assert_eq!(*clients_b.lock().unwrap(), ["VISIONOS"]);
+        server_b.abort();
     }
 
     struct SessionApi {
