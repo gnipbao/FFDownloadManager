@@ -1,4 +1,6 @@
 //! Desktop host: the same Rust download service lives inside the app process.
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
+
 use ffdownload::{
     filename::FilenameInfo,
     media::{safe_error, MediaPreview},
