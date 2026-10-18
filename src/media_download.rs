@@ -195,6 +195,9 @@ pub async fn run(
             .suffix(&format!(".{}", plan.extension))
             .tempfile_in(&work)?;
         let mut cmd = tokio::process::Command::new(binary);
+        // FFmpeg is a console program even when the desktop host is a GUI app.
+        #[cfg(windows)]
+        cmd.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
         cmd.args(["-hide_banner", "-loglevel", "error", "-nostdin", "-y"]);
         let hls_input;
         if plan.assembly == Assembly::Hls {

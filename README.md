@@ -12,7 +12,7 @@
 
 - **大文件下载**：支持 HTTP/HTTPS、1–16 路连接、任务队列、实时速度与进度；下载源不支持分段时自动使用单连接。
 - **暂停与续传**：保存下载进度，退出应用后可继续未完成的任务。
-- **视频链接解析**：解析部分 YouTube、哔哩哔哩、抖音和小红书公开视频链接，选择可用的格式与清晰度；需要合并音视频时使用内置 FFmpeg。
+- **视频链接解析**：支持 YouTube、哔哩哔哩、抖音、小红书、快手、微博、AcFun 等平台的部分公开单视频，选择可用的格式与清晰度。完整范围见 [支持站点](docs/supported-platforms.zh-CN.md)。
 - **汽水音乐解析**：通过分享页获取网页实际可播放的音频；需要本机安装 Chrome 或 Edge，音质和时长以网页提供的资源为准。
 - **本地管理**：文件与任务记录保存在电脑上，无需账号；支持搜索、筛选和在文件管理器中定位文件。
 - **下载授权**：HTTPS 文件直链可填写 Cookie 与自定义 Header，例如 `Authorization`、`Referer`、`User-Agent`、`X-API-Key`；支持授权后重试和续传，凭据仅保留在当前应用进程。详见 [授权下载说明](docs/file-download-authorization.zh-CN.md)。
@@ -52,7 +52,7 @@ cargo build --release --locked
 
 源码中的 [ffdm-resolver](crates/ffdm-resolver/README.md) 将平台解析、通用网页媒体识别和格式选择提炼为独立 Rust crate，统一输出下载计划，供 CLI、Web 服务或桌面应用接入。宿主负责下载队列、暂停续传及文件保存，也可注册自己的 Rust 平台适配器。
 
-源码中的解析模块持续增加平台和通用网页、HLS 支持。完整的 [支持平台与下载清单](docs/supported-platforms.zh-CN.md) 列出能力、公开样例和实际验证结果；接口与示例见模块文档，本地验证步骤见 [资源解析说明](docs/resource-resolver.zh-CN.md)。仓库能力与已发布安装包可能不同，安装包以 Release 说明为准。
+支持的平台与链接类型见 [支持站点与下载范围](docs/supported-platforms.zh-CN.md)，模块接口与接入示例见模块文档。安装包功能以对应版本的发布说明为准。
 
 ## 使用声明
 

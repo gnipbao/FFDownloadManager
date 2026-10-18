@@ -16,5 +16,7 @@ npm ci
 if ($LASTEXITCODE -ne 0) { throw 'npm ci failed' }
 & '.\node_modules\.bin\tauri.cmd' build --bundles nsis -- --locked
 if ($LASTEXITCODE -ne 0) { throw 'Tauri Windows build failed' }
+& "$PSScriptRoot/check-windows-subsystem.ps1" -Path 'target/release/ffdownload-desktop.exe' -ExpectedSubsystem 2
+& "$PSScriptRoot/check-windows-subsystem.ps1" -Path 'target/release/ffdm.exe' -ExpectedSubsystem 3
 Write-Host 'Windows installer: target/release/bundle/nsis/'
 Write-Host 'Web/CLI: target/release/ffdm.exe'
