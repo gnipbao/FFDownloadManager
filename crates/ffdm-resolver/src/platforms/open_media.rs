@@ -390,6 +390,7 @@ fn parse_archive(
         let height = integer(&file["height"]).unwrap_or(0) as u32;
         let kind = text(&file["format"]).unwrap_or(extension);
         candidates.push(GenericCandidate {
+            transform: None,
             id: stable_id("archive", name),
             label: if height > 0 {
                 format!("{height}p · {kind}")
@@ -492,6 +493,7 @@ fn parse_ted(data: &Value, slug: &str) -> Result<GenericResource> {
             let bitrate = integer(&resource["bitrate"]);
             let height = integer(&resource["height"]).unwrap_or(0) as u32;
             candidates.push(GenericCandidate {
+                transform: None,
                 id: format!("ted-h264-{index}"),
                 label: bitrate
                     .map_or_else(|| "MP4".to_owned(), |rate| format!("MP4 · {rate} kbps")),
@@ -506,6 +508,7 @@ fn parse_ted(data: &Value, slug: &str) -> Result<GenericResource> {
     }
     if let Some(url) = text(&player["resources"]["hls"]["stream"]).and_then(ted_media_url) {
         candidates.push(GenericCandidate {
+            transform: None,
             id: "ted-hls".to_owned(),
             label: "HLS".to_owned(),
             height: 0,
@@ -521,6 +524,7 @@ fn parse_ted(data: &Value, slug: &str) -> Result<GenericResource> {
             media_extension(&url, None)
         {
             candidates.push(GenericCandidate {
+                transform: None,
                 id: "ted-audio".to_owned(),
                 label: format!("音频 · {}", extension.to_ascii_uppercase()),
                 height: 0,
@@ -623,6 +627,7 @@ fn parse_wikimedia(data: &Value, requested_title: &str) -> Result<GenericResourc
         || (source_extension == "ogg" && integer(&info["height"]).unwrap_or(0) == 0);
     let referer = "https://commons.wikimedia.org/";
     let mut candidates = vec![GenericCandidate {
+        transform: None,
         id: "wiki-source".to_owned(),
         label: format!("原始文件 · {}", source_extension.to_ascii_uppercase()),
         height: integer(&info["height"]).unwrap_or(0) as u32,
@@ -655,6 +660,7 @@ fn parse_wikimedia(data: &Value, requested_title: &str) -> Result<GenericResourc
         let height = integer(&derivative["height"]).unwrap_or(0) as u32;
         let audio_only = mime.is_some_and(|mime| mime.starts_with("audio/"));
         candidates.push(GenericCandidate {
+            transform: None,
             id: format!("wiki-derivative-{index}"),
             label: if audio_only {
                 format!("音频 · {}", extension.to_ascii_uppercase())

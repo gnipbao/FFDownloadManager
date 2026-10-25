@@ -76,12 +76,14 @@ async fn example(
 
 `Assembly` 指定执行方式：
 
-- `Direct`：单个完整文件，原样保存。
+- `Direct`：单个完整文件，按 `MediaStream.transform` 的要求处理后保存；没有处理标记时原样保存。
 - `Merge`：两个分离轨道，需要音视频封装。
 - `Concat`：按顺序拼接媒体后封装。
 - `Hls`：按顺序下载已展开的 VOD 分片和可选初始化分片，视频最终封装为 MP4，已声明为音频的 AAC 点播媒体清单封装为 M4A。
 
 宿主应保留计划中的请求头，对每个响应做有效性检查，并负责断点状态、失败重试和最终文件发布。下载地址和请求头属于私有执行数据，避免将 `MediaPlan` 的调试输出写入公开日志；展示时优先使用 `MediaPreview`，或在计划副本上调用 `for_display()`。
+
+`MediaStream.transform` 是可选的下载后处理标记。遇到 `StreamTransform::SunoAudio { content_id }` 时，宿主应先下载完整源文件，再调用 `suno_audio::decode_file(content_id, input, output)`，成功后发布输出并对输出计算校验值。该函数使用平台正常提供的匿名播放许可，不接收账号 Cookie；许可材料仅在内存中使用。输出路径必须尚不存在，失败时保留原始下载文件供重试。忽略此标记会得到无法播放的源文件；无法执行处理的宿主应明确拒绝该格式。
 
 对 Wikimedia 媒体，宿主还应调用 `source_policy::limits` 设置连接数和速率、在整个传输期间持有 `source_policy::acquire` 许可，并在 429 响应时用 `record_retry_after` 记录服务器冷却期。FFDownload 已接入这些限制；其他来源不受该策略影响。
 
@@ -98,7 +100,7 @@ sh scripts/cargo-local.sh run --example resource_download -- <链接> <输出文
 
 ## 覆盖范围
 
-仓库开发版现有 **41 个具名平台适配器**。完整的 [支持平台与下载清单](../../docs/supported-platforms.zh-CN.md) 逐项记录能力、限制、公开样例与实测成品；[第四批验证记录](../../docs/platform-expansion-batch4.zh-CN.md) 记录本轮新平台。
+仓库开发版现有 **42 个具名平台适配器**。支持的站点与链接类型见 [支持站点与下载范围](../../docs/supported-platforms.zh-CN.md)。Suno 支持可公开访问的单曲分享链接，使用网页提供的音频与正常匿名播放许可；无需单独填写登录授权，不支持访问受限的作品。
 
 适配器存在不代表所有作品或地区都能成功。公开视频仍可能需要登录、访问验证或特定网络，接口与媒体地址也会变化。仓库能力与正式安装包可能不同，安装包以 Release 说明为准。
 

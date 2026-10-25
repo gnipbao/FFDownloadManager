@@ -10,6 +10,7 @@ mod federated;
 mod international;
 mod open_media;
 mod social_batch3;
+mod suno;
 mod video_batch4;
 
 use crate::chinese_video::NativeVideo;
@@ -32,6 +33,10 @@ pub struct PlatformResolver {
 }
 
 impl PlatformResolver {
+    pub(crate) async fn resolve_suno(&self, url: &Url) -> Result<crate::generic::GenericResource> {
+        suno::resolve(url).await
+    }
+
     pub fn new() -> Result<Self> {
         Ok(Self {
             domestic: domestic::DomesticResolver::new()?,
@@ -83,4 +88,5 @@ impl PlatformResolver {
 }
 
 pub(crate) use social_batch3::{mastodon_post, tumblr_post};
+pub(crate) use suno::is_song_page as suno_song_page;
 pub(crate) use video_batch4::supports as video_batch4_page;

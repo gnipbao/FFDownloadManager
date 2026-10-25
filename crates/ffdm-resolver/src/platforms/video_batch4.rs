@@ -904,6 +904,7 @@ fn candidate(
     referer.set_query(None);
     referer.set_fragment(None);
     GenericCandidate {
+        transform: None,
         id: id.to_owned(),
         label: label.to_owned(),
         height,

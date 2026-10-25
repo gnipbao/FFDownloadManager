@@ -387,6 +387,7 @@ fn parse_bandcamp(html: &str, page: &Url) -> Result<GenericResource> {
             continue;
         }
         candidates.push(GenericCandidate {
+            transform: None,
             id: format!("bandcamp-{current_id}-{format}"),
             label: bitrate.map_or_else(
                 || extension.to_ascii_uppercase(),
@@ -619,6 +620,7 @@ fn resolved_soundcloud(
         "SoundCloud 该格式实际是流媒体清单，不能当作音频文件"
     );
     Ok(GenericCandidate {
+        transform: None,
         id: transcoding.id.clone(),
         label: transcoding.label.clone(),
         height: 0,

@@ -16,6 +16,7 @@ mod qishui;
 mod resource;
 pub mod routing;
 pub mod source_policy;
+pub mod suno_audio;
 pub mod utils;
 pub mod validation;
 mod youtube;
@@ -23,6 +24,6 @@ mod youtube;
 pub use extractor::ResourceExtractor;
 pub use media::{
     Assembly, ExtractedFormat, ExtractedResource, MediaFormat, MediaPlan, MediaPreview,
-    MediaResolver as ResourceResolver, MediaStream,
+    MediaResolver as ResourceResolver, MediaStream, StreamTransform,
 };
 pub use reqwest::Url;

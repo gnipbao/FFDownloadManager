@@ -122,6 +122,42 @@ test('form parses media first and then creates a task from the selected format',
   assert.equal('cookie' in selected.calls[0][1], false);
 });
 
+test('Suno share links expose audio controls and retain the selected audio format when creating a task', async () => {
+  const url = 'https://suno.com/song/11111111-2222-4333-8444-555555555555?sh=test-share';
+  const form = downloadForm({url});
+  Object.assign(form.context, {
+    filenameRequest:null, mediaRequest:null, setTimeout() { return 1; },
+    icon:() => '', bytes:() => '1 MiB', escape:value => String(value),
+  });
+  form.context.api.resolveMedia = async (requestedUrl, cookie) => {
+    form.calls.push(['resolveMedia', requestedUrl, cookie]);
+    return {
+      id:'suno-preview', title:'Suno Test', platform:'Suno', duration_seconds:42,
+      ffmpeg_available:false,
+      formats:[{id:'suno-m4a', label:'M4A Opus', filename:'Suno Test.m4a', extension:'m4a', audio_only:true, needs_merge:false}],
+    };
+  };
+  vm.runInContext(source.slice(source.indexOf('function suggestName('), source.indexOf('function videoPlatform(')), form.context);
+  vm.runInContext(source.slice(source.indexOf('function updateSubmitButton('), source.indexOf("$('#parse-video').addEventListener")), form.context);
+  form.context.suggestName();
+  assert.equal(form.context.mediaSite, 'Suno');
+  assert.equal(form.field('#parse-video').textContent, '解析音频');
+  assert.equal(form.field('#media-source-label').textContent, 'Suno 音频链接');
+  assert.equal(form.field('#platform-auth').hidden, true);
+  assert.equal(form.field('#download-authorization').hidden, true);
+  form.field('#platform-cookie').value = 'unused-platform-credential';
+  await form.context.parseVideo();
+  assert.equal(form.calls[0][1], url);
+  assert.equal(form.calls[0][2], null);
+  assert.equal(form.field('#media-panel .media-eyebrow').textContent, '音频信息');
+  assert.equal(form.field('#download-filename').value, 'Suno Test.m4a');
+  assert.match(form.field('#media-format-info').textContent, /保存音频文件/);
+  await form.context.submit({preventDefault() {}});
+  assert.equal(form.calls[1][0], 'createMedia');
+  assert.equal(form.calls[1][1].format_id, 'suno-m4a');
+  assert.equal(form.calls[1][1].filename, 'Suno Test.m4a');
+});
+
 test('switching to file mode clears stale media previews before filename discovery', () => {
   const {context, field} = downloadForm({url:'https://x.com/user/status/1234567890', preview:{id:'stale'}});
   Object.assign(context, {filenameEdited:false, filenameRequest:null, mediaRequest:null, setTimeout() { return 1; }});

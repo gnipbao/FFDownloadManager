@@ -9,9 +9,12 @@ publish = false
 
 [dependencies]
 anyhow = "1"
+aes = { version = "0.8", features = ["zeroize"] }
+aes-gcm = { version = "0.10", features = ["zeroize"] }
 async-trait = "0.1"
 base64 = "0.22"
 bbdown-core = "=0.5.0"
+ctr = { version = "0.9", features = ["zeroize"] }
 futures-util = "0.3"
 getrandom = "0.3"
 httpdate = "1"
@@ -27,6 +30,7 @@ tempfile = "3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "net", "fs", "process"] }
 tokio-tungstenite = { version = "=0.30.0", default-features = false, features = ["connect"] }
 ytdown = { version = "=0.8.0", default-features = false, features = ["native-tls"] }
+zeroize = "1"
 
 [dev-dependencies]
 axum = "0.8"

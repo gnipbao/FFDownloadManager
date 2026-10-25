@@ -237,6 +237,7 @@ fn parse_bluesky(data: &Value, did: &str, id: &str, page: &Url) -> Result<Generi
         title,
         duration_seconds: None,
         candidates: vec![GenericCandidate {
+            transform: None,
             id: format!("{source_id}-hls"),
             label: "HLS · MP4".to_owned(),
             height: 0,
@@ -301,6 +302,7 @@ fn parse_peertube(data: &Value, id: &str, page: &Url) -> Result<GenericResource>
                 format!("视频 · {}", extension.to_ascii_uppercase())
             };
             candidates.push(GenericCandidate {
+                transform: None,
                 id: format!("peertube-{uuid}-file-{}", candidates.len() + 1),
                 label,
                 height,
@@ -334,6 +336,7 @@ fn parse_peertube(data: &Value, id: &str, page: &Url) -> Result<GenericResource>
             continue;
         }
         candidates.push(GenericCandidate {
+            transform: None,
             id: format!("peertube-{uuid}-hls-{}", candidates.len() + 1),
             label: "HLS · MP4".to_owned(),
             height: 0,

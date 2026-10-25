@@ -397,6 +397,7 @@ fn parse_ixigua(html: &str, id: &str, page: &Url) -> Result<GenericResource> {
                 // The player names the container in this progressive MP4
                 // list. CDN transfer endpoints often have no file suffix.
                 candidates.push(GenericCandidate {
+                    transform: None,
                     id: key.into(),
                     label,
                     height,
@@ -599,6 +600,7 @@ fn candidate(
         return None;
     };
     Some(GenericCandidate {
+        transform: None,
         id: id.into(),
         label: label.into(),
         height,

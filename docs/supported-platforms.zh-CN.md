@@ -37,6 +37,7 @@
 
 | 平台 | 支持内容 |
 | --- | --- |
+| [Suno](https://suno.com/) | 可公开访问的单曲分享链接，无需单独填写登录授权，按网页可用的音频格式保存；不包含歌单批量与访问受限的作品。 |
 | [汽水音乐 Qishui](https://music.douyin.com/) | 单曲分享页中实际可播放的音频；需要本机 Chrome、Edge 等兼容浏览器，时长与音质以页面提供的资源为准。 |
 | [Bandcamp](https://bandcamp.com/) | 艺术家页面的公开完整单曲 MP3，不包含专辑批量下载。 |
 | [SoundCloud](https://soundcloud.com/) | 公开完整单曲；支持可用的 MP3 或 AAC 音频，不包含试听与受保护格式。 |

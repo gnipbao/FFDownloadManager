@@ -503,6 +503,7 @@ impl CaptureService {
             extension: e.extension.clone(),
             assembly: Assembly::Direct,
             streams: vec![MediaStream {
+                transform: None,
                 url: e.url.clone(),
                 headers: e.headers.clone(),
                 size: e.public.bytes,
