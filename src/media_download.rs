@@ -4,7 +4,7 @@ use crate::{
         download_with_headers, sha256_file, DownloadControl, DownloadReport, DownloadRequest,
         DownloadSnapshot,
     },
-    media::{safe_error, Assembly, MediaPlan},
+    media::{safe_error, Assembly, MediaPlan, StreamTransform},
 };
 use anyhow::{bail, ensure, Context, Result};
 use fs2::FileExt;
@@ -26,6 +26,12 @@ pub async fn run(
     ffmpeg: Option<PathBuf>,
 ) -> Result<DownloadReport> {
     plan.validate()?;
+    ensure!(
+        plan.streams
+            .iter()
+            .all(|stream| stream.decrypt_key.is_none() || stream.transform.is_none()),
+        "媒体轨道不能同时使用两种解码方式"
+    );
     let connections = plan.streams.iter().fold(connections, |limit, stream| {
         ffdm_resolver::source_policy::limits(&stream.url)
             .map_or(limit, |policy| limit.min(policy.max_connections))
@@ -170,7 +176,10 @@ pub async fn run(
         if plan.assembly == Assembly::Hls {
             validate_hls_track(&track, &work, index, &mut hls_container)?;
         }
-        if plan.assembly == Assembly::Direct && stream.decrypt_key.is_none() {
+        if plan.assembly == Assembly::Direct
+            && stream.decrypt_key.is_none()
+            && stream.transform.is_none()
+        {
             verified_direct_hash = result.sha256;
         }
         paths.push(track);
@@ -184,6 +193,29 @@ pub async fn run(
         completed_bytes: completed,
         ..Default::default()
     });
+    // Completed encrypted tracks remain untouched until the final file is
+    // published. A failed decode can therefore resume without downloading again.
+    let original_tracks = paths.clone();
+    let mut decoded_directories = Vec::new();
+    for (stream, track) in plan.streams.iter().zip(paths.iter_mut()) {
+        match &stream.transform {
+            Some(StreamTransform::SunoAudio { content_id }) => {
+                let directory = tempfile::Builder::new()
+                    .prefix("suno-decoded-")
+                    .tempdir_in(&work)?;
+                let decoded = directory.path().join("audio.m4a");
+                ffdm_resolver::suno_audio::decode_file(content_id, track.as_path(), &decoded)
+                    .await
+                    .context("Suno 音频处理失败，已下载轨道已保留，可重试")?;
+                if *control.pause.borrow() {
+                    return Ok(report("paused", completed, None));
+                }
+                *track = decoded;
+                decoded_directories.push(directory);
+            }
+            None => {}
+        }
+    }
     let merged;
     let source = if plan.assembly == Assembly::Direct {
         paths[0].clone()
@@ -319,7 +351,7 @@ pub async fn run(
     })
     .await??;
     // Remove only the completed intermediate tracks owned by this media job.
-    for path in paths {
+    for path in original_tracks {
         let _ = std::fs::remove_file(path);
     }
     Ok(report("completed", size, Some(hash)))

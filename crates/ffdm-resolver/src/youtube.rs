@@ -426,6 +426,7 @@ impl HttpClient for CheckedTransport {
                         .as_str()
                         .and_then(|v| v.parse().ok());
                     let media = MediaStream {
+                        transform: None,
                         url: url.into(),
                         headers: vec![],
                         size,
@@ -708,6 +709,7 @@ mod tests {
         let (base, _, server) = start(false).await;
         let probe = MediaProbe::new().unwrap();
         let mut media = MediaStream {
+            transform: None,
             url: format!("{base}/cdn/range-only"),
             headers: vec![],
             size: Some(16),
@@ -801,6 +803,7 @@ mod tests {
                 result
                     .probe
                     .check(&MediaStream {
+                        transform: None,
                         url: hd.url.clone(),
                         headers: vec![],
                         size: hd.filesize,

@@ -221,6 +221,7 @@ fn parse_medal(data: &Value, id: &str, page: &Url) -> Result<GenericResource> {
             continue;
         }
         candidates.push(GenericCandidate {
+            transform: None,
             id: format!("medal-{key}"),
             label: if hls {
                 "完整 HLS".into()
@@ -306,6 +307,7 @@ fn parse_ninegag(data: &Value, id: &str, page: &Url) -> Result<GenericResource> 
                 format!(" · {codec}")
             };
             candidates.push(GenericCandidate {
+                transform: None,
                 id: format!("9gag-{name}-{key}"),
                 label: format!("{quality}{codec} · {}", ext.to_ascii_uppercase()),
                 height,

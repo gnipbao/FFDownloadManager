@@ -1074,5 +1074,37 @@
   {
     "url": "https://ok.ru.evil.test/video/123",
     "platform": null
+  },
+  {
+    "url": "https://suno.com/song/11111111-2222-4333-8444-555555555555?sh=test-share",
+    "platform": "Suno"
+  },
+  {
+    "url": "https://www.suno.com/song/AAAAAAAA-BBBB-4CCC-8DDD-EEEEEEEEEEEE/",
+    "platform": "Suno"
+  },
+  {
+    "url": "http://suno.com/song/11111111-2222-4333-8444-555555555555",
+    "platform": null
+  },
+  {
+    "url": "https://suno.com/",
+    "platform": null
+  },
+  {
+    "url": "https://suno.com/playlist/11111111-2222-4333-8444-555555555555",
+    "platform": null
+  },
+  {
+    "url": "https://suno.com/song/not-a-song-id",
+    "platform": null
+  },
+  {
+    "url": "https://suno.com/song/11111111-2222-4333-8444-555555555555/more",
+    "platform": null
+  },
+  {
+    "url": "https://suno.com.evil.example/song/11111111-2222-4333-8444-555555555555",
+    "platform": null
   }
 ]

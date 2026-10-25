@@ -51,6 +51,7 @@ async fn media_headers_and_partial_data_survive_pause_and_resume() {
     let output = directory.path().join("视频.mp4");
     let plan = plan(
         vec![MediaStream {
+            transform: None,
             url: server.url.clone(),
             headers,
             size: Some(data.len() as u64),
@@ -147,6 +148,7 @@ async fn completed_tracks_survive_failed_assembly_and_merge_into_playable_video(
             .await
             .unwrap();
         streams.push(MediaStream {
+            transform: None,
             url: server.url.clone(),
             headers: vec![],
             size: Some(size),

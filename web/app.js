@@ -319,6 +319,8 @@ function videoPlatform(raw) {
     const main = (...domains) => domains.some(domain => [domain, `www.${domain}`, `m.${domain}`].includes(host));
     const short = /^\/[a-zA-Z0-9_-]+\/?$/;
     if (url.protocol === 'https:' && url.hostname === 'music.douyin.com' && url.pathname === '/qishui/share/track') return '汽水音乐';
+    if (url.protocol === 'https:' && ['suno.com', 'www.suno.com'].includes(host)
+      && /^\/song\/[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}\/?$/.test(path)) return 'Suno';
     if ((main('youtube.com') || host === 'music.youtube.com') && (path === '/watch' && url.searchParams.getAll('v').some(Boolean) || /^\/(?:shorts|embed|live)\/[\w-]+\/?$/.test(path))
       || ['youtu.be', 'www.youtu.be'].includes(host) && short.test(path)
       || ['youtube-nocookie.com', 'www.youtube-nocookie.com'].includes(host) && /^\/embed\/[\w-]+\/?$/.test(path)) return 'YouTube';
@@ -413,7 +415,7 @@ function tumblrPost(url) {
 }
 
 function isMusicPlatform(site) {
-  return ['汽水音乐', 'Bandcamp', 'SoundCloud', 'Clyp', 'AudioBoom', 'Audius'].includes(site);
+  return ['汽水音乐', 'Suno', 'Bandcamp', 'SoundCloud', 'Clyp', 'AudioBoom', 'Audius'].includes(site);
 }
 
 function audiusTrack(url) {

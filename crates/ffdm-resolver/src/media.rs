@@ -10,6 +10,13 @@ use ytdown::{Container, Format, MediaInfo, Ytdown};
 const CACHE_TTL_MS: u64 = 15 * 60 * 1000;
 const MAX_CACHED: usize = 16;
 
+/// Post-download processing references contain no account or playback secrets.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum StreamTransform {
+    SunoAudio { content_id: String },
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MediaStream {
     pub url: String,
@@ -17,6 +24,8 @@ pub struct MediaStream {
     pub size: Option<u64>,
     #[serde(default)]
     pub decrypt_key: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transform: Option<StreamTransform>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -121,6 +130,19 @@ impl MediaPlan {
                     || (self.platform == "WeChat Channels" && self.assembly == Assembly::Direct),
                 "加密媒体只能使用视频号单文件格式"
             );
+            if let Some(StreamTransform::SunoAudio { content_id }) = &stream.transform {
+                let song = reqwest::Url::parse(&format!("https://suno.com/song/{content_id}"))?;
+                ensure!(
+                    self.platform == "Suno"
+                        && self.assembly == Assembly::Direct
+                        && self.extension == "m4a"
+                        && stream.decrypt_key.is_none()
+                        && content_id.len() == 36
+                        && self.source_id == format!("suno-{content_id}")
+                        && crate::platforms::suno_song_page(&song),
+                    "Suno 音频处理信息与当前下载作品不一致"
+                );
+            }
         }
         Ok(())
     }
@@ -300,7 +322,13 @@ impl MediaResolver {
                     );
                 }
                 let (site, resolved) = if let Some(site) = crate::routing::parser_platform(&url) {
-                    if matches!(
+                    if site == "Suno" {
+                        let resource = self.platforms.resolve_suno(&url).await?;
+                        (
+                            site,
+                            self.normalize_generic(url.as_str(), site, resource).await?,
+                        )
+                    } else if matches!(
                         site,
                         "CCTV"
                             | "Ixigua"
@@ -623,6 +651,7 @@ impl MediaResolver {
                 | "Clyp"
                 | "AudioBoom"
                 | "Audius"
+                | "Suno"
                 | "HuyaVideo"
                 | "NetEaseNews"
                 | "Rumble"
@@ -739,6 +768,7 @@ impl MediaResolver {
                                 headers: candidate.headers,
                                 size: candidate.size,
                                 decrypt_key: None,
+                                transform: candidate.transform,
                             }]
                         };
                         if site != "Direct File" {
@@ -865,6 +895,7 @@ impl MediaResolver {
                             headers: variant.headers,
                             size: variant.size,
                             decrypt_key: None,
+                            transform: None,
                         }]
                     };
                     for stream in streams.first().into_iter().chain(streams.last()) {
@@ -1031,6 +1062,7 @@ fn yt_stream(format: &Format) -> MediaStream {
         headers: format.http_headers.clone(),
         size: format.filesize,
         decrypt_key: None,
+        transform: None,
     }
 }
 
@@ -1178,6 +1210,7 @@ fn normalize_native(
                     headers: variant.headers,
                     size: variant.size,
                     decrypt_key: variant.decrypt_key,
+                    transform: None,
                 }],
                 extracted_at: crate::utils::now_ms(),
             },
@@ -1222,6 +1255,7 @@ fn normalize_qishui(track: crate::qishui::QishuiTrack) -> Resolved {
             headers: track.headers,
             size: track.size,
             decrypt_key: None,
+            transform: None,
         }],
         extracted_at: crate::utils::now_ms(),
     };
@@ -1242,6 +1276,7 @@ fn bili_stream(spec: &MediaRequestSpec) -> MediaStream {
             .collect(),
         size: spec.size,
         decrypt_key: None,
+        transform: None,
     }
 }
 

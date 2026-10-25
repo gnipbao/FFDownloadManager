@@ -90,6 +90,7 @@ pub(crate) fn parser_platform(url: &Url) -> Option<&'static str> {
         "clyp.it" | "www.clyp.it" => Some("Clyp"),
         "audioboom.com" | "www.audioboom.com" => Some("AudioBoom"),
         "audius.co" | "www.audius.co" => Some("Audius"),
+        "suno.com" | "www.suno.com" => Some("Suno"),
         "huya.com" | "www.huya.com" => Some("HuyaVideo"),
         "163.com" | "www.163.com" | "m.163.com" => Some("NetEaseNews"),
         "rumble.com" | "www.rumble.com" => Some("Rumble"),
@@ -118,6 +119,7 @@ pub fn platform(raw: &str) -> Option<&'static str> {
     let number = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
     let content_page = match platform {
         "Qishui Music" => true,
+        "Suno" => crate::platforms::suno_song_page(&url),
         "Clyp" => {
             matches!(path.as_slice(), [id] if id.len() == 8 && id.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()))
         }

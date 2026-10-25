@@ -387,6 +387,7 @@ fn candidate(
     let mut referer = page.clone();
     referer.set_fragment(None);
     Some(GenericCandidate {
+        transform: None,
         id: id.into(),
         label: format!(
             "{label} · {}",

@@ -90,6 +90,7 @@ impl DomesticBatch3Resolver {
                             format!("MP4 · {}", sohu_label(&format_id))
                         };
                         Ok::<_, anyhow::Error>(GenericCandidate {
+                            transform: None,
                             id: format_id,
                             label,
                             height,
@@ -544,6 +545,7 @@ fn parse_haokan(html: &str, id: &str, page: &Url) -> Result<GenericResource> {
             format!("{title} · MP4")
         };
         candidates.push(GenericCandidate {
+            transform: None,
             id,
             label,
             height,
@@ -558,6 +560,7 @@ fn parse_haokan(html: &str, id: &str, page: &Url) -> Result<GenericResource> {
         if let Ok(url) = safe_media_url(raw, page, "Haokan") {
             if seen.insert(url.to_string()) {
                 candidates.push(GenericCandidate {
+                    transform: None,
                     id: "original".into(),
                     label: "原始 MP4".into(),
                     height: 0,
@@ -755,6 +758,7 @@ mod tests {
         });
         let probe = crate::youtube::MediaProbe::new().unwrap();
         let mut media = crate::media::MediaStream {
+            transform: None,
             url,
             headers: Vec::new(),
             size: Some(17),

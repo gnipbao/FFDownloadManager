@@ -2,7 +2,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 use ffdm_resolver::{
     Assembly, ExtractedFormat, ExtractedResource, MediaPlan, MediaStream, ResourceExtractor,
-    ResourceResolver, Url,
+    ResourceResolver, StreamTransform, Url,
 };
 
 struct HostExtractor;
@@ -32,6 +32,7 @@ impl ResourceExtractor for HostExtractor {
                         extension: "mp4".into(),
                         assembly: Assembly::Direct,
                         streams: vec![MediaStream {
+                            transform: None,
                             url: format!("https://cdn.invalid/file-{height}?secret=private"),
                             headers: vec![(
                                 "Referer".into(),
@@ -46,6 +47,41 @@ impl ResourceExtractor for HostExtractor {
                 .collect(),
         })
     }
+}
+
+#[test]
+fn old_saved_plans_remain_equal_and_suno_processing_is_scoped_to_its_song() {
+    let song_id = "11111111-2222-4333-8444-555555555555";
+    let saved = serde_json::json!({
+        "source_url": format!("https://suno.com/song/{song_id}"),
+        "source_id": format!("suno-{song_id}"),
+        "platform": "Suno", "title": "Song", "format_id": "audio",
+        "label": "M4A", "extension": "m4a", "assembly": "direct",
+        "streams": [{"url": "https://cdn.invalid/audio.m4a", "headers": [],
+            "size": 123, "decrypt_key": null}],
+        "extracted_at": 1
+    });
+    let mut plan: MediaPlan = serde_json::from_value(saved.clone()).unwrap();
+    // Resume compares serialized plans; the new optional field must not change
+    // checkpoints written before stream transforms existed.
+    assert!(plan.streams[0].transform.is_none());
+    assert_eq!(serde_json::to_value(&plan).unwrap(), saved);
+    plan.streams[0].transform = Some(StreamTransform::SunoAudio {
+        content_id: song_id.into(),
+    });
+    assert!(plan.validate().is_ok());
+    plan.source_id = "suno-different-song".into();
+    assert!(plan.validate().is_err());
+    plan.source_id = format!("suno-{song_id}");
+    plan.platform = "Host".into();
+    assert!(plan.validate().is_err());
+    plan.platform = "Suno".into();
+    let invalid_id = format!("{song_id}?other-song");
+    plan.source_id = format!("suno-{invalid_id}");
+    plan.streams[0].transform = Some(StreamTransform::SunoAudio {
+        content_id: invalid_id,
+    });
+    assert!(plan.validate().is_err());
 }
 
 #[tokio::test]

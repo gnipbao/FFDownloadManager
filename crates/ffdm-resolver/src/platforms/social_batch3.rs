@@ -309,6 +309,7 @@ fn parse_mastodon(data: &Value, author: &str, id: &str, page: &Url) -> Result<Ge
         title: clean_text(title),
         duration_seconds,
         candidates: vec![GenericCandidate {
+            transform: None,
             id: format!("{source_id}-original"),
             label: if audio_only {
                 format!("音频 · {}", extension.to_ascii_uppercase())
@@ -734,6 +735,7 @@ fn native_tumblr_candidate(
             "mp3" | "m4a" | "ogg" | "oga" | "opus" | "aac" | "flac" | "wav"
         );
     Ok(GenericCandidate {
+        transform: None,
         id: stable_id("tumblr-media", url.as_str()),
         label: if audio_only {
             format!("音频 · {}", extension.to_ascii_uppercase())

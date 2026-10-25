@@ -181,6 +181,7 @@ fn stream(base: &Url, uri: &str, headers: &[(String, String)]) -> Result<MediaSt
     let url = base.join(uri).context("HLS 分段 URI 无效")?;
     crate::validation::parse_url(url.as_str())?;
     Ok(MediaStream {
+        transform: None,
         url: url.into(),
         headers: headers.to_vec(),
         size: None,

@@ -439,6 +439,7 @@ fn candidate(id: &str, url: Url, extension: &str, page: &Url) -> GenericCandidat
     page.set_query(None);
     page.set_fragment(None);
     GenericCandidate {
+        transform: None,
         id: id.into(),
         label: format!("音频 · {}", extension.to_ascii_uppercase()),
         height: 0,

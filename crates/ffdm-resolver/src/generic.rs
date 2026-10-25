@@ -34,6 +34,7 @@ pub(crate) struct GenericCandidate {
     pub audio_only: bool,
     pub headers: Vec<(String, String)>,
     pub size: Option<u64>,
+    pub transform: Option<crate::media::StreamTransform>,
 }
 
 pub(crate) struct GenericResolver {
@@ -575,6 +576,7 @@ fn add_candidate(
         audio_only,
         headers,
         size: None,
+        transform: None,
     });
 }
 

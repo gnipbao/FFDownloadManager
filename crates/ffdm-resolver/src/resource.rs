@@ -151,6 +151,7 @@ pub(crate) async fn inspect_with_headers(
         .to_owned();
     let id = format!("{:x}", sha2::Sha256::digest(final_url.as_str().as_bytes()))[..16].to_owned();
     let candidate = GenericCandidate {
+        transform: None,
         id,
         label: if manifest {
             "HLS".into()
