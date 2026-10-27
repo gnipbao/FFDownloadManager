@@ -113,7 +113,7 @@ sh scripts/cargo-local.sh run --example resource_download -- <链接> <输出文
 
 PeerTube、Mastodon 内置常见实例的自动识别；其他实例选择“网页媒体解析”显式解析，确认页面为 HTML 后再读取同源 API。相同路径形状的文件直链仍按完整文件处理。Archive.org 多作品条目需要明确选择单个媒体文件，避免下载错误的作品。
 
-通用网页解析读取静态 HTML，不执行任意网页 JavaScript。汽水音乐适配器需要 Chrome、Edge 或 Chromium，通过独立临时浏览器播放分享页并识别实际音频请求；可设置 `FFDM_BROWSER` 指定浏览器程序。它不会读取日常浏览器的 profile 或保存的 Cookie。
+通用网页解析读取静态 HTML，不执行任意网页 JavaScript。汽水音乐适配器需要 Chrome、Edge 或 Chromium，通过独立临时浏览器播放分享页并识别实际音频请求；抖音接口未返回目标作品时，也会使用临时浏览器读取正常加载后的作品数据。可设置 `FFDM_BROWSER` 指定浏览器程序。这些解析过程不会读取日常浏览器的 profile 或保存的 Cookie。
 
 AAC 音频 HLS 支持完整 VOD 媒体清单及 TS、fMP4、ADTS 分片，不支持纯音频主清单或 MP3 HLS。Bandcamp 目前解析公开单曲，SoundCloud 排除试听片段并提供实际可读的完整音频格式。搜狐仅提供完整的单章节视频，多章节作品暂不组合下载；社交平台的多个独立附件不会混选成清晰度档位。
 

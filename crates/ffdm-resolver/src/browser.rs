@@ -31,14 +31,16 @@ impl HeadlessPage {
     pub async fn launch() -> Result<Self> {
         let binary = browser_binary()?;
         let profile = temporary_profile()?;
-        let child = Command::new(binary)
+        let mut command = Command::new(binary);
+        command
             .args(page_browser_args(profile.path()))
             .stdin(Stdio::null())
             .stdout(Stdio::null())
             .stderr(Stdio::null())
-            .kill_on_drop(true)
-            .spawn()
-            .context("无法启动媒体解析浏览器")?;
+            .kill_on_drop(true);
+        #[cfg(windows)]
+        command.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+        let child = command.spawn().context("无法启动媒体解析浏览器")?;
         // Install the cleanup guard before the first await. Cancelling launch
         // must kill the browser and keep its profile alive until it exits.
         let mut process = BrowserProcess {
@@ -184,7 +186,7 @@ fn browser_binary() -> Result<PathBuf> {
     if override_path.is_some() {
         bail!("FFDM_BROWSER 未指向可执行的 Chrome、Chromium 或 Edge 浏览器程序");
     }
-    bail!("解析汽水音乐需要安装 Google Chrome 或 Microsoft Edge；也可用 FFDM_BROWSER 指定 Chromium 浏览器程序")
+    bail!("网页备用解析需要安装 Google Chrome 或 Microsoft Edge；也可用 FFDM_BROWSER 指定 Chromium 浏览器程序")
 }
 
 fn discover_browser(
@@ -344,7 +346,12 @@ impl Cdp {
                 }
                 if matches!(
                     response["method"].as_str(),
-                    Some("Network.requestWillBeSent" | "Network.responseReceived")
+                    Some(
+                        "Network.requestWillBeSent"
+                            | "Network.responseReceived"
+                            | "Network.loadingFinished"
+                            | "Network.loadingFailed"
+                    )
                 ) {
                     if self.events.len() >= EVENT_LIMIT {
                         self.events.pop_front();

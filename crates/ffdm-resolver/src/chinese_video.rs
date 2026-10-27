@@ -8,7 +8,6 @@ use std::time::Duration;
 
 const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
 const DOUYIN_AGENT: &str = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
-const DOUYIN_FEED_AGENT: &str = "com.ss.android.ugc.aweme/370000 (Linux; U; Android 14; zh_CN)";
 const XHS_AGENT: &str = DOUYIN_AGENT;
 const MAX_PAGE_BYTES: usize = 8 * 1024 * 1024;
 pub(crate) const XHS_ORIGINAL_FORMAT: &str = "xhs-original";
@@ -33,6 +32,7 @@ pub struct NativeVideo {
 }
 
 pub struct ChineseResolver {
+    douyin: crate::douyin::DouyinResolver,
     client: Client,
     original_client: Client,
 }
@@ -80,6 +80,7 @@ impl ChineseResolver {
             }))
             .build()?;
         Ok(Self {
+            douyin: crate::douyin::DouyinResolver::new(),
             client,
             original_client,
         })
@@ -92,72 +93,11 @@ impl ChineseResolver {
         auth_cookie: Option<&str>,
     ) -> Result<NativeVideo> {
         match platform {
-            "Douyin" => self.douyin(url).await,
+            "Douyin" => self.douyin.resolve(url).await,
             "Xiaohongshu" => self.xiaohongshu(url, auth_cookie).await,
             "WeChat Channels" => self.wechat(url, auth_cookie).await,
             _ => bail!("不支持的视频平台"),
         }
-    }
-
-    async fn douyin(&self, input: &Url) -> Result<NativeVideo> {
-        // Short links are followed only to obtain the aweme id. Mobile Feed
-        // currently returns more videos than the share page's SSR data.
-        let id = if let Some(id) = douyin_id(input) {
-            id
-        } else {
-            let response = self
-                .client
-                .get(input.clone())
-                .header(header::USER_AGENT, DOUYIN_AGENT)
-                .send()
-                .await?;
-            ensure!(
-                allowed_page_host(response.url()),
-                "抖音短链接跳到了其他网站"
-            );
-            douyin_id(response.url()).context("没有从抖音分享链接识别出作品 ID")?
-        };
-        for host in ["api5-normal-c-hl.amemv.com", "aweme.snssdk.com"] {
-            if let Ok(video) = self.douyin_feed(host, &id).await {
-                return Ok(video);
-            }
-        }
-        let page = Url::parse(&format!("https://www.iesdouyin.com/share/video/{id}/"))?;
-        let html = self
-            .fetch_page_with_url(page, Some(DOUYIN_AGENT), None)
-            .await?
-            .1;
-        parse_douyin(&html, &id)
-            .context("抖音公开接口未返回该作品；可能需要登录、受到地区/隐私限制，或作品已失效")
-    }
-
-    async fn douyin_feed(&self, host: &str, id: &str) -> Result<NativeVideo> {
-        let mut url = Url::parse(&format!("https://{host}/aweme/v1/feed/"))?;
-        url.query_pairs_mut()
-            .append_pair("aweme_id", id)
-            .append_pair("aid", "1128");
-        let mut response = self
-            .client
-            .get(url)
-            .header(header::USER_AGENT, DOUYIN_FEED_AGENT)
-            .header(header::ACCEPT, "application/json")
-            .send()
-            .await?;
-        ensure!(response.status().is_success(), "抖音 Feed 暂不可用");
-        ensure!(
-            host_matches(response.url(), "amemv.com") || host_matches(response.url(), "snssdk.com"),
-            "抖音 Feed 跳到了其他网站"
-        );
-        let mut bytes = Vec::new();
-        while let Some(chunk) = response.chunk().await? {
-            ensure!(
-                bytes.len() + chunk.len() <= MAX_PAGE_BYTES,
-                "抖音 Feed 响应过大"
-            );
-            bytes.extend_from_slice(&chunk);
-        }
-        let data: Value = serde_json::from_slice(&bytes)?;
-        parse_douyin_feed(&data, id)
     }
 
     async fn xiaohongshu(&self, input: &Url, cookie: Option<&str>) -> Result<NativeVideo> {
@@ -465,24 +405,6 @@ fn allowed_page_host(url: &Url) -> bool {
         .any(|domain| host_matches(url, domain))
 }
 
-fn douyin_id(url: &Url) -> Option<String> {
-    if !host_matches(url, "douyin.com") && !host_matches(url, "iesdouyin.com") {
-        return None;
-    }
-    if let Some((_, id)) = url
-        .query_pairs()
-        .find(|(key, value)| key == "modal_id" && value.bytes().all(|byte| byte.is_ascii_digit()))
-    {
-        return Some(id.into_owned());
-    }
-    let parts: Vec<_> = url.path_segments()?.collect();
-    let id = parts
-        .windows(2)
-        .find(|pair| matches!(pair[0], "video" | "note"))
-        .map(|pair| pair[1])?;
-    (id.len() >= 12 && id.bytes().all(|byte| byte.is_ascii_digit())).then(|| id.into())
-}
-
 fn embedded_object(html: &str, marker: &str) -> Option<Value> {
     let start = html.find(marker)? + marker.len();
     let start = start + html[start..].find('{')?;
@@ -548,33 +470,48 @@ fn clean_js_values(raw: &str) -> String {
     String::from_utf8(output).unwrap_or_else(|_| raw.into())
 }
 
-fn find_video_object<'a>(value: &'a Value, id: Option<&str>, depth: usize) -> Option<&'a Value> {
+fn douyin_item_matches(item: &Value, id: &str) -> bool {
+    let mut matched = false;
+    for field in ["aweme_id", "awemeId"] {
+        let Some(value) = item.get(field).filter(|value| !value.is_null()) else {
+            continue;
+        };
+        let same = value.as_str() == Some(id)
+            || value.as_u64().is_some_and(|value| value.to_string() == id);
+        if !same {
+            return false;
+        }
+        matched = true;
+    }
+    matched
+}
+
+fn find_video_object(
+    value: &Value,
+    id: &str,
+    depth: usize,
+    found_target: &mut bool,
+) -> Option<NativeVideo> {
     if depth > 24 {
         return None;
     }
     if let Some(object) = value.as_object() {
-        let object_id = object
-            .get("aweme_id")
-            .or_else(|| object.get("awemeId"))
-            .or_else(|| object.get("noteId"))
-            .and_then(Value::as_str);
-        let video = object.get("video");
-        if video.is_some()
-            && id.is_none_or(|expected| object_id == Some(expected) || object_id.is_none())
-            && (video.unwrap().get("play_addr").is_some()
-                || video.unwrap().get("bit_rate").is_some()
-                || video.unwrap().get("media").is_some())
-        {
-            return Some(value);
+        // A page may include recommendations before its requested work. An
+        // anonymous video object or a conflicting ID is never that work.
+        if douyin_item_matches(value, id) && object.get("video").is_some_and(Value::is_object) {
+            *found_target = true;
+            if let Ok(video) = parse_douyin_item(value, id) {
+                return Some(video);
+            }
         }
         for nested in object.values() {
-            if let Some(found) = find_video_object(nested, id, depth + 1) {
+            if let Some(found) = find_video_object(nested, id, depth + 1, found_target) {
                 return Some(found);
             }
         }
     } else if let Some(array) = value.as_array() {
         for nested in array {
-            if let Some(found) = find_video_object(nested, id, depth + 1) {
+            if let Some(found) = find_video_object(nested, id, depth + 1, found_target) {
                 return Some(found);
             }
         }
@@ -583,35 +520,63 @@ fn find_video_object<'a>(value: &'a Value, id: Option<&str>, depth: usize) -> Op
 }
 
 fn first_url(value: &Value) -> Option<&str> {
-    value
-        .get("url_list")
-        .or_else(|| value.get("urlList"))
-        .and_then(Value::as_array)
-        .and_then(|urls| {
-            urls.iter()
-                .filter_map(Value::as_str)
-                .find(|url| url.starts_with("http"))
+    ["url_list", "urlList"]
+        .into_iter()
+        .filter_map(|field| value.get(field).and_then(Value::as_array))
+        .flatten()
+        .filter_map(Value::as_str)
+        .find(|raw| {
+            Url::parse(raw).is_ok_and(|url| {
+                matches!(url.scheme(), "https" | "http")
+                    && url.host_str().is_some()
+                    && url.username().is_empty()
+                    && url.password().is_none()
+            })
         })
 }
 
-fn parse_douyin(html: &str, id: &str) -> Result<NativeVideo> {
-    let data = embedded_object(html, "_ROUTER_DATA")
-        .or_else(|| {
-            let marker = "id=\"RENDER_DATA\"";
-            let start = html.find(marker)?;
-            let content = &html[start..];
-            let start = content.find('>')? + 1;
-            let end = content[start..].find('<')? + start;
-            serde_json::from_str(
-                &percent_decode_str(&content[start..end])
-                    .decode_utf8()
-                    .ok()?,
-            )
-            .ok()
-        })
-        .context("抖音服务端数据不存在")?;
-    let item = find_video_object(&data, Some(id), 0).context("没有找到对应的抖音视频")?;
-    parse_douyin_item(item, id)
+pub(crate) fn parse_douyin(html: &str, id: &str) -> Result<NativeVideo> {
+    let mut last_error = None;
+    for (start, _) in html.match_indices("_ROUTER_DATA") {
+        if let Some(data) = embedded_object(&html[start..], "_ROUTER_DATA") {
+            match parse_douyin_data(&data, id) {
+                Ok(video) => return Ok(video),
+                Err(error) => last_error = Some(error),
+            }
+        }
+    }
+    // Some page versions expose an empty router shell and put the work in a
+    // separate percent-encoded render script. Check both instead of treating
+    // the first valid JSON object as proof that all metadata was inspected.
+    let scripts = regex::Regex::new(
+        r#"(?is)<script\b[^>]*\bid\s*=\s*["']RENDER_DATA["'][^>]*>(.*?)</script\s*>"#,
+    )?;
+    for script in scripts.captures_iter(html) {
+        if let Ok(decoded) = percent_decode_str(&script[1]).decode_utf8() {
+            if let Ok(data) = serde_json::from_str::<Value>(&decoded) {
+                match parse_douyin_data(&data, id) {
+                    Ok(video) => return Ok(video),
+                    Err(error) => last_error = Some(error),
+                }
+            }
+        }
+    }
+    Err(last_error.unwrap_or_else(|| anyhow::anyhow!("抖音服务端数据不存在")))
+}
+
+pub(crate) fn parse_douyin_data(data: &Value, id: &str) -> Result<NativeVideo> {
+    ensure!(
+        (12..=24).contains(&id.len()) && id.bytes().all(|byte| byte.is_ascii_digit()),
+        "抖音作品 ID 无效"
+    );
+    let mut found_target = false;
+    if let Some(video) = find_video_object(data, id, 0, &mut found_target) {
+        return Ok(video);
+    }
+    if found_target {
+        bail!("抖音没有提供完整 MP4 地址");
+    }
+    bail!("没有找到对应的抖音视频")
 }
 
 fn parse_douyin_item(item: &Value, id: &str) -> Result<NativeVideo> {
@@ -661,19 +626,41 @@ fn parse_douyin_item(item: &Value, id: &str) -> Result<NativeVideo> {
             });
         }
     };
-    if let Some(rates) = video["bit_rate"].as_array() {
+    for rates in ["bit_rate", "bitRate"]
+        .into_iter()
+        .filter_map(|field| video[field].as_array())
+    {
         for rate in rates {
-            let codec = if rate["is_h265"].as_i64() == Some(1) {
+            let codec = if ["is_h265", "isH265"]
+                .iter()
+                .any(|field| rate[field].as_i64() == Some(1) || rate[field].as_bool() == Some(true))
+            {
                 "HEVC"
             } else {
                 "H.264"
             };
-            add(&rate["play_addr"], codec, rate["bit_rate"].as_u64());
+            let bitrate = rate["bit_rate"]
+                .as_u64()
+                .or_else(|| rate["bitRate"].as_u64());
+            for field in ["play_addr", "playAddr"] {
+                add(&rate[field], codec, bitrate);
+            }
         }
     }
-    add(&video["play_addr_h264"], "H.264", None);
-    add(&video["play_addr_265"], "HEVC", None);
-    add(&video["play_addr"], "默认", None);
+    for field in ["play_addr_h264", "playAddrH264"] {
+        add(&video[field], "H.264", None);
+    }
+    for field in [
+        "play_addr_265",
+        "play_addr_h265",
+        "playAddr265",
+        "playAddrH265",
+    ] {
+        add(&video[field], "HEVC", None);
+    }
+    for field in ["play_addr", "playAddr"] {
+        add(&video[field], "默认", None);
+    }
     ensure!(!variants.is_empty(), "抖音没有提供完整 MP4 地址");
     Ok(NativeVideo {
         id: id.into(),
@@ -683,16 +670,21 @@ fn parse_douyin_item(item: &Value, id: &str) -> Result<NativeVideo> {
     })
 }
 
-fn parse_douyin_feed(data: &Value, id: &str) -> Result<NativeVideo> {
-    let item = data["aweme_list"]
-        .as_array()
-        .and_then(|items| {
-            items
-                .iter()
-                .find(|item| item["aweme_id"].as_str() == Some(id))
-        })
-        .context("抖音 Feed 没有收录这个作品")?;
-    parse_douyin_item(item, id)
+pub(crate) fn parse_douyin_feed(data: &Value, id: &str) -> Result<NativeVideo> {
+    ensure!(
+        (12..=24).contains(&id.len()) && id.bytes().all(|byte| byte.is_ascii_digit()),
+        "抖音作品 ID 无效"
+    );
+    for field in ["aweme_list", "awemeList"] {
+        if let Some(items) = data[field].as_array() {
+            for item in items.iter().filter(|item| douyin_item_matches(item, id)) {
+                if let Ok(video) = parse_douyin_item(item, id) {
+                    return Ok(video);
+                }
+            }
+        }
+    }
+    bail!("抖音 Feed 没有收录这个作品的可用视频")
 }
 
 fn parse_xiaohongshu(html: &str, id: Option<&str>) -> Result<NativeVideo> {
@@ -911,6 +903,90 @@ mod tests {
         assert_eq!(video.title, "需要的作品");
         assert_eq!(video.variants[0].url, "https://cdn.example/right.mp4");
         assert!(parse_douyin_feed(&data, "missing").is_err());
+    }
+
+    #[test]
+    fn douyin_empty_router_does_not_hide_camel_case_render_data() {
+        let id = "1234567890123456789";
+        let state = json!({"awemeDetail": {
+            "awemeId": id, "desc": "桌面分享页", "video": {
+                "width": 1920, "height": 1080, "duration": 61001,
+                "bitRate": [
+                    {"isH265": true, "bitRate": 1800000, "playAddr": {
+                        "urlList": ["http-not-a-url", "https://cdn.example/hevc.mp4"],
+                        "dataSize": 456789, "width": 1920, "height": 1080
+                    }},
+                    {"isH265": false, "bitRate": 900000, "playAddr": {
+                        "urlList": ["https://cdn.example/h264.mp4"],
+                        "width": 1280, "height": 720
+                    }}
+                ],
+                "playAddr": {"urlList": ["https://cdn.example/h264.mp4"]}
+            }
+        }});
+        let encoded = percent_encoding::utf8_percent_encode(
+            &state.to_string(),
+            percent_encoding::NON_ALPHANUMERIC,
+        )
+        .to_string();
+        let html = format!(
+            "<script>window._ROUTER_DATA={{\"loaderData\":{{}}}};</script>\
+             <script type='application/json' id = 'RENDER_DATA'>{encoded}</script>"
+        );
+        let video = parse_douyin(&html, id).unwrap();
+        assert_eq!(video.id, id);
+        assert_eq!(video.title, "桌面分享页");
+        assert_eq!(video.duration_seconds, Some(61));
+        assert_eq!(video.variants.len(), 2);
+        assert_eq!(video.variants[0].url, "https://cdn.example/hevc.mp4");
+        assert_eq!(video.variants[0].size, Some(456789));
+        assert_eq!(video.variants[0].height, 1080);
+        assert!(video.variants[0].label.contains("HEVC"));
+        assert_eq!(video.variants[1].height, 720);
+        assert!(video.variants[1].label.contains("H.264"));
+    }
+
+    #[test]
+    fn douyin_data_rejects_unidentified_and_conflicting_recommendations() {
+        let id = "1234567890123456789";
+        let unrelated = json!([
+            {"video":{"play_addr":{"url_list":["https://cdn.example/anonymous.mp4"]}}},
+            {"aweme_id":"9876543210987654321","video":{
+                "play_addr":{"url_list":["https://cdn.example/recommendation.mp4"]}}},
+            {"aweme_id":id,"awemeId":"9876543210987654321","video":{
+                "play_addr":{"url_list":["https://cdn.example/conflicting.mp4"]}}}
+        ]);
+        assert!(parse_douyin_data(&unrelated, id).is_err());
+        let state = json!({"items": [
+            unrelated,
+            {"awemeId":id,"video":{"playAddr":{"urlList":[]}}},
+            {"awemeId":1234567890123456789_u64,"desc":"目标作品","video":{
+                "playAddrH264":{"urlList":["https://cdn.example/requested.mp4"]}}}
+        ]});
+        let video = parse_douyin_data(&state, id).unwrap();
+        assert_eq!(video.title, "目标作品");
+        assert_eq!(video.variants.len(), 1);
+        assert_eq!(video.variants[0].url, "https://cdn.example/requested.mp4");
+        assert!(parse_douyin_data(&state, "1234567890123456790").is_err());
+    }
+
+    #[test]
+    fn douyin_later_router_and_camel_case_feed_keep_target_identity() {
+        let id = "1234567890123456789";
+        let feed = json!({"awemeList": [
+            {"video":{"playAddr":{"urlList":["https://cdn.example/anonymous.mp4"]}}},
+            {"awemeId":id,"desc":"完整作品","video":{
+                "playAddrH265":{"urlList":["https://cdn.example/target.mp4"]}}}
+        ]});
+        let html = format!(
+            "<script>window._ROUTER_DATA={{\"loaderData\":{{}}}};</script>\
+             <script>window._ROUTER_DATA={feed};</script>"
+        );
+        assert_eq!(parse_douyin(&html, id).unwrap().title, "完整作品");
+        let video = parse_douyin_feed(&feed, id).unwrap();
+        assert_eq!(video.variants[0].url, "https://cdn.example/target.mp4");
+        assert!(video.variants[0].label.contains("HEVC"));
+        assert!(parse_douyin_feed(&feed, "9876543210987654321").is_err());
     }
 
     #[test]

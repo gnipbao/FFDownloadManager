@@ -59,6 +59,9 @@ impl CaptureBrowser {
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .kill_on_drop(true);
+        // A GUI host does not suppress a console created by a child process.
+        #[cfg(windows)]
+        command.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
         let child = command.spawn().context("无法启动捕获浏览器")?;
         let status = Arc::new(Mutex::new(BrowserStatus {
             visible,
