@@ -6,6 +6,8 @@
 //! responsibility of a downloader, not a website extractor.
 mod browser;
 mod chinese_video;
+mod douyin;
+mod douyin_browser;
 mod extractor;
 mod generic;
 pub mod hls;

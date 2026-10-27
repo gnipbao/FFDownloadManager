@@ -80,6 +80,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Bundled FFmpeg could not remux H.264/AAC' }
           if ((Get-Item "$env:RUNNER_TEMP\ffdownload-remux.mp4").Length -lt 1000) { throw 'Remux output is unexpectedly small' }
       - run: cargo test --workspace --locked
+      - name: Verify Windows debug desktop has no console subsystem
+        shell: pwsh
+        run: |
+          cargo build --locked -p ffdownload-desktop
+          if ($LASTEXITCODE -ne 0) { throw 'Debug desktop build failed' }
+          & scripts/check-windows-subsystem.ps1 -Path 'target/debug/ffdownload-desktop.exe' -ExpectedSubsystem 2
       - name: Build NSIS installer
         shell: pwsh
         run: pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows.ps1

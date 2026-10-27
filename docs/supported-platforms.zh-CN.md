@@ -8,7 +8,7 @@
 | --- | --- |
 | [YouTube](https://www.youtube.com/) | 单视频、Shorts 与分享链接；支持分离音视频合并。部分链接需要有效的网页 Cookie。 |
 | [哔哩哔哩 Bilibili](https://www.bilibili.com/) | 单视频、短分享链接与当前分 P；支持分离音视频合并。 |
-| [抖音 Douyin](https://www.douyin.com/) | 公开单视频、分享链接，以及带目标作品编号的页面。 |
+| [抖音 Douyin](https://www.douyin.com/) | 公开单视频、分享链接，以及带目标作品编号的页面；接口未返回作品时可通过本机 Chrome 或 Edge 读取正常加载的网页数据。 |
 | [小红书 Xiaohongshu](https://www.xiaohongshu.com/) | 单条视频笔记与短分享链接；登录受限时可填写自己的网页 Cookie，不保证所有播放源均无水印。 |
 | [快手 Kuaishou](https://www.kuaishou.com/) | 公开单作品、移动分享链接与短链。 |
 | [微博 Weibo](https://weibo.com/) | 单条微博、移动详情页与 TV 视频页中的公开视频。 |
