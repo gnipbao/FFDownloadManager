@@ -462,7 +462,9 @@ impl MediaResolver {
         platform: &str,
         platform_cookie: Option<&str>,
     ) -> Result<Resolved> {
-        if platform == "Qishui Music" {
+        if platform == "Instagram" {
+            self.extract_instagram(url).await
+        } else if platform == "Qishui Music" {
             let track = self.qishui.resolve(url).await.map_err(|error| {
                 anyhow::anyhow!("汽水音乐解析失败：{}", safe_error(&format!("{error:#}")))
             })?;
@@ -551,6 +553,47 @@ impl MediaResolver {
         }
     }
 
+    async fn extract_instagram(&self, url: &reqwest::Url) -> Result<Resolved> {
+        let code = url
+            .path_segments()
+            .and_then(|mut parts| parts.rfind(|part| !part.is_empty()))
+            .context("Instagram 作品链接无效")?;
+        // Keep the existing progressive / split-track path when the endpoint
+        // still works, but do not let its fixed query consume the whole budget.
+        if let Ok(Ok(MediaInfo::Single(info))) = tokio::time::timeout(
+            Duration::from_secs(6),
+            self.other_platforms.resolve(url.as_str()),
+        )
+        .await
+        {
+            if !info.is_live && info.id == code {
+                if let Ok(resolved) = normalize_ytdown(
+                    url.as_str(),
+                    "Instagram",
+                    &info.id,
+                    &info.title,
+                    info.duration.map(|duration| duration.as_secs()),
+                    &info.formats,
+                ) {
+                    return Ok(resolved);
+                }
+            }
+        }
+        let resource = match crate::instagram::resolve_page(url).await {
+            Ok(Some(resource)) => resource,
+            _ => crate::instagram_browser::resolve(code)
+                .await
+                .map_err(|error| {
+                    anyhow::anyhow!(
+                        "Instagram 公开作品解析失败：{}",
+                        safe_error(&format!("{error:#}"))
+                    )
+                })?,
+        };
+        self.normalize_generic(url.as_str(), "Instagram", resource)
+            .await
+    }
+
     fn cache_resolved(&self, platform: &str, mut resolved: Resolved) -> Result<MediaPreview> {
         prepare_resolved(&mut resolved)?;
         let now = crate::utils::now_ms();
@@ -622,6 +665,7 @@ impl MediaResolver {
         if matches!(
             plan.platform.as_str(),
             "YouTube"
+                | "Instagram"
                 | "Qishui Music"
                 | "Kuaishou"
                 | "Weibo"
@@ -846,7 +890,11 @@ impl MediaResolver {
                 }
             })
             .buffer_unordered(probe_concurrency);
-        let deadline = tokio::time::Instant::now() + Duration::from_secs(24);
+        // Instagram can spend up to 36 seconds on its bounded legacy, page and
+        // browser paths. Return the formats already checked before the host's
+        // 50-second limit, even if another candidate's CDN request stalls.
+        let probe_budget = if site == "Instagram" { 12 } else { 24 };
+        let deadline = tokio::time::Instant::now() + Duration::from_secs(probe_budget);
         let mut plans = Vec::new();
         loop {
             match tokio::time::timeout_at(deadline, attempts.next()).await {

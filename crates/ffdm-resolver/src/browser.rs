@@ -72,6 +72,15 @@ impl HeadlessPage {
         self.cdp.call(method, params).await
     }
 
+    pub async fn call_with_timeout(
+        &mut self,
+        method: &str,
+        params: Value,
+        timeout: Duration,
+    ) -> Result<Value> {
+        self.cdp.call_with_timeout(method, params, timeout).await
+    }
+
     pub fn take_events(&mut self) -> Vec<Value> {
         self.cdp.events.drain(..).collect()
     }
@@ -316,12 +325,22 @@ struct Cdp {
 
 impl Cdp {
     async fn call(&mut self, method: &str, params: Value) -> Result<Value> {
+        self.call_with_timeout(method, params, Duration::from_secs(4))
+            .await
+    }
+
+    async fn call_with_timeout(
+        &mut self,
+        method: &str,
+        params: Value,
+        timeout: Duration,
+    ) -> Result<Value> {
         self.next_id = self
             .next_id
             .checked_add(1)
             .context("浏览器命令编号已耗尽")?;
         let id = self.next_id;
-        tokio::time::timeout(Duration::from_secs(4), async {
+        tokio::time::timeout(timeout, async {
             self.socket
                 .send(Message::Text(
                     json!({"id":id,"method":method,"params":params})
@@ -442,6 +461,51 @@ async fn connect(port_file: &Path) -> Result<Cdp> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn custom_cdp_timeout_preserves_later_reply_ids_and_events() {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let endpoint = format!("ws://{}", listener.local_addr().unwrap());
+        let server = tokio::spawn(async move {
+            let (stream, _) = listener.accept().await.unwrap();
+            let mut socket = tokio_tungstenite::accept_async(stream).await.unwrap();
+            let first: Value =
+                serde_json::from_str(socket.next().await.unwrap().unwrap().to_text().unwrap())
+                    .unwrap();
+            // Deliberately withhold the first reply until a later command.
+            let second: Value =
+                serde_json::from_str(socket.next().await.unwrap().unwrap().to_text().unwrap())
+                    .unwrap();
+            assert_eq!(first["id"], 1);
+            assert_eq!(second["id"], 2);
+            for value in [
+                json!({"id":first["id"],"result":{"value":"late"}}),
+                json!({"method":"Network.loadingFinished","params":{"requestId":"metadata"}}),
+                json!({"id":second["id"],"result":{"value":"current"}}),
+            ] {
+                socket
+                    .send(Message::Text(value.to_string().into()))
+                    .await
+                    .unwrap();
+            }
+        });
+        let (socket, _) = tokio_tungstenite::connect_async(endpoint).await.unwrap();
+        let mut cdp = Cdp {
+            socket,
+            next_id: 0,
+            events: VecDeque::new(),
+        };
+        assert!(cdp
+            .call_with_timeout("Page.navigate", json!({}), Duration::from_millis(30))
+            .await
+            .is_err());
+        let result = cdp.call("Runtime.evaluate", json!({})).await.unwrap();
+        assert_eq!(result["value"], "current");
+        assert_eq!(cdp.next_id, 2);
+        assert_eq!(cdp.events.len(), 1);
+        assert_eq!(cdp.events[0]["params"]["requestId"], "metadata");
+        server.await.unwrap();
+    }
 
     #[test]
     fn browser_has_isolated_profile_and_no_capture_flags() {

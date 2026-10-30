@@ -11,6 +11,8 @@ mod douyin_browser;
 mod extractor;
 mod generic;
 pub mod hls;
+mod instagram;
+mod instagram_browser;
 mod manifest;
 pub mod media;
 mod platforms;

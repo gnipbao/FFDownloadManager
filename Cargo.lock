@@ -1778,7 +1778,7 @@ dependencies = [
 
 [[package]]
 name = "ffdownload-desktop"
-version = "0.3.10"
+version = "0.3.11"
 dependencies = [
  "anyhow",
  "ffdownload-manager",
@@ -1795,7 +1795,7 @@ dependencies = [
 
 [[package]]
 name = "ffdownload-manager"
-version = "0.3.10"
+version = "0.3.11"
 dependencies = [
  "anyhow",
  "async-trait",

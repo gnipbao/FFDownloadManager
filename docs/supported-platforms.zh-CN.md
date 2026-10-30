@@ -52,7 +52,7 @@
 | --- | --- |
 | [微信视频号 WeChat Channels](https://weixin.qq.com/) | 普通分享链接需提供有效的元宝 Cookie；部分视频还需有效解密信息，暂不保证能生成可播放文件。 |
 | [TikTok](https://www.tiktok.com/) | 部分公开单视频链接。 |
-| [Instagram](https://www.instagram.com/) | 部分公开单条帖子与 Reel，不包含私密内容。 |
+| [Instagram](https://www.instagram.com/) | 部分公开单条帖子与 Reel；接口不可用时尝试公开网页备用解析，需要本机 Chrome、Edge 等兼容浏览器。轮播只取首个视频，不包含私密或需登录的内容。 |
 | [X / Twitter](https://x.com/) | 部分单条视频帖子；归档 ZIP 等文件使用文件直链下载。 |
 | [Reddit](https://www.reddit.com/) | 部分单条帖子中的视频。 |
 | [Vimeo](https://vimeo.com/) | 部分公开单视频与嵌入页；访问限制或内容保护可能导致不可用。 |
